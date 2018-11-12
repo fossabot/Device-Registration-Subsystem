@@ -27,19 +27,18 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
+from app.config import ConfigParser
+
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
 try:
     # read and load DRS base configuration to the app
-    drs_config = yaml.safe_load(open("etc/config.yml"))
-    app.config['drs_config'] = drs_config
-
+    app.config['drs_config'] = ConfigParser().parse_config()
     CORE_BASE_URL = app.config['drs_config']['dirbs_core']['base_url']  # core api base url
     GLOBAL_CONF = app.config['drs_config']['global']  # load & export global configs
     db_config = app.config['drs_config']['database']
-
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://%s:%s@%s:%s/%s' % \
                                             (db_config['user'], db_config['password'], db_config['host'],
                                              db_config['port'], db_config['database'])
@@ -49,8 +48,8 @@ try:
     app.config['SQLALCHEMY_MAX_OVERFLOW'] = db_config['max_overflow']
     app.config['SQLALCHEMY_POOL_TIMEOUT'] = db_config['pool_timeout']
     # app.config['MAX_CONTENT_LENGTH'] = 28 * 3 * 1024 * 1024
-    db = SQLAlchemy(session_options={'autocommit': False})
 
+    db = SQLAlchemy(session_options={'autocommit': False})
     db.init_app(app)
 
     # we really need wild-card import here for now
