@@ -48,6 +48,7 @@ environment:
 ```bash
 virtualenv venv
 source venv/bin/activate
+pip install -r requirements.txt
 ```
 Make sure that virtual-env is made using Python3 and all the required dependencies are installed.
 * Run Database migrations using:
