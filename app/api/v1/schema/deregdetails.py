@@ -23,7 +23,7 @@ from marshmallow import Schema, validates, ValidationError, pre_load, pre_dump
 from marshmallow import fields
 from app.api.v1.helpers.validators import *
 
-from app import app, global_config
+from app import app, GLOBAL_CONF
 from app.api.v1.models.status import Status
 from app.api.v1.models.devicequota import DeviceQuota
 
@@ -59,7 +59,7 @@ class DeRegDetailsSchema(Schema):
     @pre_dump()
     def get_file_link(self, data):
         """Return file link."""
-        upload_dir_path = global_config['global']['upload_directory']
+        upload_dir_path = GLOBAL_CONF['upload_directory']
         data.file_link = '{server_dir}/{local_dir}/{file_name}'.format(
                                 server_dir=upload_dir_path,
                                 local_dir=data.tracking_id,
