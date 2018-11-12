@@ -40,16 +40,16 @@ try:
     app.config['DRS_UPLOADS'] = app.config['DRS_CONFIG']['global']['upload_directory']  # file upload dir
     app.config['DRS_LISTS'] = app.config['DRS_CONFIG']['lists']['path']  # lists dir
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://%s:%s@%s:%s/%s' % \
-                                            (app.config['drs_config']['database']['user'],
-                                             app.config['drs_config']['database']['password'],
-                                             app.config['drs_config']['database']['host'],
-                                             app.config['drs_config']['database']['port'],
-                                             app.config['drs_config']['database']['database'])
+                                            (app.config['DRS_CONFIG']['database']['user'],
+                                             app.config['DRS_CONFIG']['database']['password'],
+                                             app.config['DRS_CONFIG']['database']['host'],
+                                             app.config['DRS_CONFIG']['database']['port'],
+                                             app.config['DRS_CONFIG']['database']['database'])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_POOL_SIZE'] = app.config['drs_config']['database']['pool_size']
-    app.config['SQLALCHEMY_POOL_RECYCLE'] = app.config['drs_config']['database']['pool_recycle']
-    app.config['SQLALCHEMY_MAX_OVERFLOW'] = app.config['drs_config']['database']['max_overflow']
-    app.config['SQLALCHEMY_POOL_TIMEOUT'] = app.config['drs_config']['database']['pool_timeout']
+    app.config['SQLALCHEMY_POOL_SIZE'] = app.config['DRS_CONFIG']['database']['pool_size']
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = app.config['DRS_CONFIG']['database']['pool_recycle']
+    app.config['SQLALCHEMY_MAX_OVERFLOW'] = app.config['DRS_CONFIG']['database']['max_overflow']
+    app.config['SQLALCHEMY_POOL_TIMEOUT'] = app.config['DRS_CONFIG']['database']['pool_timeout']
     # app.config['MAX_CONTENT_LENGTH'] = 28 * 3 * 1024 * 1024
 
     db = SQLAlchemy(session_options={'autocommit': False})
