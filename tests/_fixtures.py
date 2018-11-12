@@ -33,10 +33,11 @@ import re
 import json
 import copy
 import shutil
+from os import path
+
 import pytest
 import httpretty
 
-from os import path
 from testing.postgresql import Postgresql
 
 from app.config import ConfigParser
@@ -47,9 +48,9 @@ from tests._helpers import seed_database, create_views
 def mocked_config():
     """Fixture for mocking config.yml so that tests do not depend on user config at all."""
     mocked_config_path = path.abspath(path.dirname(__file__) + '/unittest_data/config/config.yml')
-    mocked_config = ConfigParser(mocked_config_path).parse_config()
+    config = ConfigParser(mocked_config_path).parse_config()
 
-    yield mocked_config
+    yield config
 
 
 # pylint: disable=redefined-outer-name
