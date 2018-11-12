@@ -67,7 +67,7 @@ global:
   #Directories
   dereg_sample_file: '../mock/dereg_sample_file'
   reg_sample_file: '../mock/reg_sample_file.tsv'
-  upload_directory: 'UPLOAD_DIRECTORY'
+  upload_directory: '/home/rameez/Documents/3gca/Device-Registration-Subsystem/uploads'
 
 # DRS configurations for list generations
 # Configurations should be defined when deploying the software.
