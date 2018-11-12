@@ -37,7 +37,6 @@ from app.api.v1.models.approvedimeis import ApprovedImeis
 
 class Utilities:
     """Class for different util and helper functions used through out the app."""
-    upload_directoy = GLOBAL_CONF['upload_directory']
     reg_sample_file = GLOBAL_CONF['reg_sample_file']
     dereg_sample_file = GLOBAL_CONF['dereg_sample_file']
     core_api_v1 = GLOBAL_CONF['core_api_v1']
@@ -47,7 +46,7 @@ class Utilities:
     @staticmethod
     def remove_directory(tracking_id):
         """Method to remove/delete existing directory of a request."""
-        complete_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id))
+        complete_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
         if os.path.isdir(complete_path):
             shutil.rmtree(complete_path, ignore_errors=False, onerror=None)
         return
@@ -105,7 +104,7 @@ class Utilities:
     def generate_summary(cls, imeis, tracking_id):
         """Method to send IMEIs to DVS to get compliance summary and report."""
         try:
-            upload_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id))
+            upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
             complete_path = os.path.join(upload_path, 'dvs_input_file.txt')
             task_url = cls.dvs_api_v1 + '/drs_bulk'
             with open(complete_path, 'w') as file:
@@ -162,7 +161,7 @@ class Utilities:
     @staticmethod
     def generate_imeis_file(imeis, tracking_id, file_type):
         """Method to generate a file for duplicated imeis."""
-        upload_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id))
+        upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
         complete_path = os.path.join(upload_path, '{0}.txt'.format(file_type))
 
         try:
@@ -232,7 +231,7 @@ class Utilities:
         try:
             if req.report:
                 report_url = cls.dvs_api_v1 + '/download/' + req.report
-                upload_path = os.path.join(Utilities.upload_directoy, '{0}'.format(req.tracking_id))
+                upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(req.tracking_id))
                 response = requests.post(url=report_url)
                 file = open(os.path.join(upload_path, req.report), "w+")
                 file.write(response.text)
@@ -352,7 +351,7 @@ class Utilities:
         """Method to store files associated with a request."""
         errors = {}
         try:
-            upload_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id))
+            upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
             if not os.path.isdir(upload_path):
                 os.mkdir(upload_path)
             for file_name in files:
@@ -382,7 +381,7 @@ class Utilities:
     @staticmethod
     def create_directory(tracking_id):
         """Create a separate directory for request."""
-        upload_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id))
+        upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
         if not os.path.isdir(upload_path):
             os.mkdir(upload_path)
 
@@ -391,7 +390,7 @@ class Utilities:
         """Method to store single file of a request."""
         errors = {}
         try:
-            upload_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id))
+            upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
             Utilities.create_directory(tracking_id)
             file_path = os.path.join(upload_path, file.filename)
             file.save(file_path)
@@ -409,7 +408,7 @@ class Utilities:
                 os.remove(file)
                 return
             file_name = file if isinstance(file, str) else file.filename
-            upload_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id))
+            upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
             if os.path.isdir(upload_path):
                 file_path = os.path.join(upload_path, file_name)
                 if os.path.isfile(file_path):
@@ -442,7 +441,7 @@ class Utilities:
     @staticmethod
     def process_reg_file(filename, tracking_id, args):
         """Process registration input file."""
-        file_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id), filename)
+        file_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id), filename)
         processor = Processor(file_path, args)
         response = processor.process('registration')
         return response
@@ -450,7 +449,7 @@ class Utilities:
     @staticmethod
     def process_de_reg_file(filename, tracking_id, args):
         """Process de registration input file."""
-        file_path = os.path.join(Utilities.upload_directoy, '{0}'.format(tracking_id), filename)
+        file_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id), filename)
         processor = Processor(file_path, args)
         response = processor.process('de_registration')
         return response

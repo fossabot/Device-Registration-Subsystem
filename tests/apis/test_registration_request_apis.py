@@ -57,7 +57,6 @@ REQUEST_DATA = {
 def test_device_registration_post_method(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration post
         method is working properly and response is correct"""
-
     headers = {'Content-Type': 'multipart/form-data'}
 
     rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=REQUEST_DATA, headers=headers)

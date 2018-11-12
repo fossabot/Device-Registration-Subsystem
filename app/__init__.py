@@ -20,7 +20,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 import sys
-import yaml
 
 from flask_restful import Api
 from flask import Flask
@@ -35,18 +34,22 @@ api = Api(app)
 
 try:
     # read and load DRS base configuration to the app
-    app.config['drs_config'] = ConfigParser().parse_config()
-    CORE_BASE_URL = app.config['drs_config']['dirbs_core']['base_url']  # core api base url
-    GLOBAL_CONF = app.config['drs_config']['global']  # load & export global configs
-    db_config = app.config['drs_config']['database']
+    app.config['DRS_CONFIG'] = ConfigParser('etc/config.yml').parse_config()
+    CORE_BASE_URL = app.config['DRS_CONFIG']['dirbs_core']['base_url']  # core api base url
+    GLOBAL_CONF = app.config['DRS_CONFIG']['global']  # load & export global configs
+    app.config['DRS_UPLOADS'] = app.config['DRS_CONFIG']['global']['upload_directory']  # file upload dir
+    app.config['DRS_LISTS'] = app.config['DRS_CONFIG']['lists']['path']  # lists dir
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://%s:%s@%s:%s/%s' % \
-                                            (db_config['user'], db_config['password'], db_config['host'],
-                                             db_config['port'], db_config['database'])
+                                            (app.config['drs_config']['database']['user'],
+                                             app.config['drs_config']['database']['password'],
+                                             app.config['drs_config']['database']['host'],
+                                             app.config['drs_config']['database']['port'],
+                                             app.config['drs_config']['database']['database'])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_POOL_SIZE'] = db_config['pool_size']
-    app.config['SQLALCHEMY_POOL_RECYCLE'] = db_config['pool_recycle']
-    app.config['SQLALCHEMY_MAX_OVERFLOW'] = db_config['max_overflow']
-    app.config['SQLALCHEMY_POOL_TIMEOUT'] = db_config['pool_timeout']
+    app.config['SQLALCHEMY_POOL_SIZE'] = app.config['drs_config']['database']['pool_size']
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = app.config['drs_config']['database']['pool_recycle']
+    app.config['SQLALCHEMY_MAX_OVERFLOW'] = app.config['drs_config']['database']['max_overflow']
+    app.config['SQLALCHEMY_POOL_TIMEOUT'] = app.config['drs_config']['database']['pool_timeout']
     # app.config['MAX_CONTENT_LENGTH'] = 28 * 3 * 1024 * 1024
 
     db = SQLAlchemy(session_options={'autocommit': False})

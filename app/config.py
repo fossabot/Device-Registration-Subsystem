@@ -32,14 +32,15 @@ class ParseException(Exception):
 class ConfigParser:
     """Class to parse the DRS YAML config and turn it into python config object."""
 
-    def __init__(self):
+    def __init__(self, path):
         """Constructor."""
         self.logger = DRSLogger().get_logger()
+        self.config_path = path
 
     def parse_config(self):
         """Helper method to parse the config file from the disk."""
         try:
-            cfg = yaml.safe_load(open('etc/config.yml'))
+            cfg = yaml.safe_load(open(self.config_path))
             if cfg is None:
                 self.logger.error('Error in parsing config file @ etc/config.yml')
                 raise ParseException('Error in parsing config file @ etc/config.yml')
