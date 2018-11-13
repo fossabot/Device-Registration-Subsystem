@@ -20,7 +20,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 from app import db
-from sqlalchemy.sql import exists
 
 
 class ApprovedImeis(db.Model):
@@ -87,8 +86,9 @@ class ApprovedImeis(db.Model):
     @staticmethod
     def exists(imei_norm):
         """Check if an imei exists"""
-        return db.session.query(exists().where(
-            ApprovedImeis.imei == imei_norm and ApprovedImeis.removed is not True)).scalar()
+        if ApprovedImeis.get_imei(imei_norm):
+            return True
+        return False
 
     @staticmethod
     def bulk_insert_imeis(imeis):
@@ -109,6 +109,7 @@ class ApprovedImeis(db.Model):
         res = db.engine.execute(stmt)
         res.close()
 
+    @staticmethod
     def imei_to_export():
         """Method to return imeis that needs to be exported along with make, model, model_number etc
            based on type of the list generation.
