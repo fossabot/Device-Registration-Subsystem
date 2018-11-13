@@ -33,7 +33,6 @@ import json
 
 from app.api.v1.models.notification import Notification
 
-# pylint: disable=redefined-outer-name
 # api urls
 NOTIFICATION_API = 'api/v1/notification'
 

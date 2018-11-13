@@ -31,7 +31,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-# pylint: disable=redefined-outer-name,unused-argument
 # api urls
 UNASSIGN_REVIEWER_API = 'api/v1/review/unassign-reviewer'
 
@@ -107,7 +106,7 @@ def test_null_input_params(flask_app):
     assert data['error'] == ["reviewer_id is required"]
 
 
-def test_request_not_exists(flask_app, db):
+def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     """Verify that api responds for request which does not exists in system."""
     # registration_request test
     headers = {'Content-Type': 'application/json'}

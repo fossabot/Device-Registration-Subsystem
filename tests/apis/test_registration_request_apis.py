@@ -35,8 +35,6 @@ import uuid
 
 from tests._helpers import create_registraiton
 
-# pylint: disable=redefined-outer-name
-
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 USER_NAME = 'test-abc'
 USER_ID = '17102'

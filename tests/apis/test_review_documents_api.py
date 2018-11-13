@@ -31,7 +31,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-# pylint: disable=redefined-outer-name,unused-argument
 # api urls
 DOCUMENTS_API = 'api/v1/review/documents'
 
@@ -78,7 +77,7 @@ def test_with_invalid_params(flask_app):
     assert data['error'] == ['request_type is required']
 
 
-def test_request_not_exists(flask_app, db):
+def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api responds with correct message when request_id is
     invalid i.e request does not exists in the system.
     """

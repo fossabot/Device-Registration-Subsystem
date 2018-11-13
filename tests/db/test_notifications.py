@@ -36,8 +36,6 @@ from tests._helpers import get_notification_id, get_single_notification, get_use
 from app.api.v1.models.notification import Notification
 
 
-# pylint: disable=redefined-outer-name
-# noinspection SqlDialectInspection,SqlNoDataSourceInspection
 # noinspection PyUnusedLocal,PyShadowingNames
 def test_add_notification(db, session):  # pylint: disable=unused-argument
     """Verify that the notifications model add functionality works correctly."""

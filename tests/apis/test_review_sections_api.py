@@ -31,7 +31,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-# pylint: disable=redefined-outer-name,unused-argument
 # api urls
 SECTIONS_API = 'api/v1/review/sections'
 
@@ -78,7 +77,7 @@ def test_invalid_input_params(flask_app):
     assert data['error'] == ['request_type is required']
 
 
-def test_request_not_exists(flask_app, db):
+def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api responds correctly when a request_id is given which does not exists in system."""
     # registration_request test
     request_id = 748574387344767294723704

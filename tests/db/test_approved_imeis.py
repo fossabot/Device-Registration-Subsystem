@@ -24,7 +24,7 @@ from sqlalchemy import text
 from app.api.v1.models.approvedimeis import ApprovedImeis
 
 
-def test_add(db, session):
+def test_add(db, session):  # pylint: disable=unused-argument
     """Verify that the approved imeis add function works correctly."""
     # add data using model's add function
     imei_norm = '12345678901234'
@@ -35,7 +35,7 @@ def test_add(db, session):
     approved_imei.add()
 
     # extract data and verify
-    imei_data = session.execute(text("""SELECT * 
+    imei_data = session.execute(text("""SELECT *
                                           FROM public.approvedimeis 
                                          WHERE imei='{0}'""".format(imei_norm))).fetchone()
     assert imei_data
@@ -57,14 +57,14 @@ def test_add(db, session):
     approved_imei = ApprovedImeis(imei_norm, request_id, status, delta_status, True, True)
     approved_imei.add()
 
-    imei_data = session.execute(text("""SELECT * 
+    imei_data = session.execute(text("""SELECT *
                                               FROM public.approvedimeis 
                                              WHERE imei='{0}'""".format(imei_norm))).fetchone()
     assert imei_data.exported
     assert imei_data.removed
 
 
-def test_get_imei(db, session):
+def test_get_imei(db, session):  # pylint: disable=unused-argument
     """Verify that the get_imei() return the same imei which is not removed."""
     imei_norm = '23456421264573'
     request_id = 237654998
@@ -90,7 +90,7 @@ def test_get_imei(db, session):
     assert not imei_data
 
 
-def test_exists(db, session):
+def test_exists(db, session):  # pylint: disable=unused-argument
     """Verify that the exists function works correctly."""
     # if there is no imei in the table
     imei_norm = '64728204390652'
@@ -118,7 +118,7 @@ def test_exists(db, session):
     assert not ApprovedImeis.exists(imei_norm)
 
 
-def test_bulk_insert_imeis(db, session):
+def test_bulk_insert_imeis(db, session):  # pylint: disable=unused-argument
     """Verify that the bulk_insert_imeis() works as expected."""
     imei_norm1 = '67895678901234'
     imei_norm2 = '76545678906548'
@@ -137,7 +137,7 @@ def test_bulk_insert_imeis(db, session):
     assert ApprovedImeis.exists(imei_norm3)
 
 
-def test_imeis_to_export(db, session):
+def test_imeis_to_export(db, session):  # pylint: disable=unused-argument
     """Verify that imeis_to_export() works as expected."""
     imei_norm1 = '67890000001234'
     imei_norm2 = '71111178906548'
