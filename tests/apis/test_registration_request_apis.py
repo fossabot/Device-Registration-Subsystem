@@ -33,7 +33,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 import json
 import uuid
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
 from tests._helpers import create_registraiton
 
 # pylint: disable=redefined-outer-name

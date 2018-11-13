@@ -31,8 +31,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
-
 # pylint: disable=redefined-outer-name
 # api urls
 ASSIGN_REVIEWER_API = 'api/v1/review/assign-reviewer'

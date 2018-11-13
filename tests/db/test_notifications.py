@@ -31,7 +31,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 from sqlalchemy import text
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
 from tests._helpers import get_notification_id, get_single_notification, get_user_notifications, exists_notification, \
     exists_user_notifications, delete_user_notifications
 from app.api.v1.models.notification import Notification

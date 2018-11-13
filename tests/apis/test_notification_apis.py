@@ -31,7 +31,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
 from app.api.v1.models.notification import Notification
 
 # pylint: disable=redefined-outer-name

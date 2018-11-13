@@ -21,7 +21,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 from sqlalchemy import text
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
 from app.api.v1.models.approvedimeis import ApprovedImeis
 
 

@@ -30,7 +30,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 import os
-import json
 
 from tests._fixtures import *  # pylint: disable=wildcard-import
 from app.api.v1.models.status import Status

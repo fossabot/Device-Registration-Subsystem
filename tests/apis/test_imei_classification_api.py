@@ -31,8 +31,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
-
 # pylint: disable=redefined-outer-name,unused-argument
 # api urls
 CLASSIFICATION_API = 'api/v1/review/imei-classification'
