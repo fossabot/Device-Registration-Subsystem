@@ -20,12 +20,15 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+import uuid
+
 from sqlalchemy import text
 
 from scripts.db.seeders import Seed
 from scripts.db.views import Views
 from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.models.deregdetails import DeRegDetails
+
 
 def seed_database(db):
     """Helper method to seed data into the database."""
@@ -97,12 +100,29 @@ def delete_user_notifications(session, user_id):
 
 
 # registration request creation
-def create_registraiton(data, tracking_id):
+def create_registration(data, tracking_id):
     """ Helper method to create a registration request"""
     return RegDetails.create(data, tracking_id)
 
 
 # de_registration request creation
-def create_de_registraiton(data, tracking_id):
+def create_de_registration(data, tracking_id):
     """ Helper method to create a registration request"""
     return DeRegDetails.create(data, tracking_id)
+
+
+def create_dummy_request(data, request_type, status='Pending Review'):
+    """Helper method to create a dummy request in the database tables
+    based on the request type and convert it into a input status.
+    Default = Request will be in pending review
+    """
+    if request_type == 'Registration':
+        request = create_registration(data, uuid.uuid4())
+        request.update_report_file('test report')
+        request.update_status(status)
+        return request
+    else:
+        request = create_de_registration(data, uuid.uuid4())
+        request.update_report_file('test report')
+        request.update_status(status)
+        return request
