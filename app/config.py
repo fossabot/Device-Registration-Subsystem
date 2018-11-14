@@ -1,5 +1,5 @@
 """
-DRS Server config package.
+DRS configuration file parser.
 Copyright (c) 2018 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
@@ -19,22 +19,36 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+import yaml
+
+from app.logger import DRSLogger
 
 
-class BaseConfig:  # base config class for server
-    """Base configuration class"""
-    SECRET_KEY = 'SecretKey'
-    DEBUG = True
-    TESTING = False
+class ParseException(Exception):
+    """Indicates that there was an exception encountered when parsing the DRS config file."""
+    pass
 
 
-class StagingConfig(BaseConfig):
-    """Staging Specific Configuration"""
-    DEBUG = True
+class ConfigParser:
+    """Class to parse the DRS YAML config and turn it into python config object."""
 
+    def __init__(self, path):
+        """Constructor."""
+        self.logger = DRSLogger().get_logger()
+        self.config_path = path
 
-class DevelopmentConfig(BaseConfig):
-    """Development Specific Configurations"""
-    DEBUG = True
-    TESTING = True
-    SECRET_KEY = 'DevSecretKey'
+    def parse_config(self):
+        """Helper method to parse the config file from the disk."""
+        try:
+            cfg = yaml.safe_load(open(self.config_path))
+            if cfg is None:
+                self.logger.error('Error in parsing config file @ etc/config.yml')
+                raise ParseException('Error in parsing config file @ etc/config.yml')
+            self.logger.debug('successfully parsed DRS config @ etc/config.yml')
+            return cfg
+        except yaml.YAMLError as e:
+            self.logger.error('Error in parsing config file @ etc/config.yml')
+            raise ParseException(str(e))
+        except IOError:
+            self.logger.error('config file does not exists @ etc/config.yml')
+            raise ParseException('config file does not exists @ etc/config.yml')

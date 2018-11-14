@@ -26,7 +26,7 @@ from app.api.v1.models.devicequota import DeviceQuota
 from app.api.v1.models.status import Status
 import ast
 import pydash
-from app import app, global_config
+from app import app, GLOBAL_CONF
 
 
 class RegistrationDetailsSchema(Schema):
@@ -101,7 +101,7 @@ class RegistrationDetailsSchema(Schema):
     def get_file_link(self, data):
         """Returns downloadable links to the files."""
         if not data.imeis:
-            upload_dir_path = global_config['global']['upload_directory']
+            upload_dir_path = GLOBAL_CONF['upload_directory']
             data.file_link = '{server_dir}/{local_dir}/{file_name}'.format(
                                     server_dir=upload_dir_path,
                                     local_dir=data.tracking_id,

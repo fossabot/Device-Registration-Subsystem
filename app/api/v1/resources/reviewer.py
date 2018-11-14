@@ -27,7 +27,7 @@ from flask import Response
 from sqlalchemy.exc import SQLAlchemyError
 from flask_apispec import marshal_with, doc, MethodResource, use_kwargs
 
-from app import app, global_config, GLOBAL_CONF
+from app import app, GLOBAL_CONF
 from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.helpers.utilities import Utilities
 from app.api.v1.models.notification import Notification
@@ -299,8 +299,8 @@ class DeviceQuota(MethodResource):
             return Response(json.dumps(ErrorResponse().dump(res).data),
                             status=422, mimetype='application/json')
 
-        allowed_import_quota = global_config['global'].get('importer')
-        allowed_export_quota = global_config['global'].get('exporter')
+        allowed_import_quota = GLOBAL_CONF.get('importer')
+        allowed_export_quota = GLOBAL_CONF.get('exporter')
 
         try:
             if RegDetails.exists(request_id):
@@ -572,7 +572,7 @@ class RequestDocuments(MethodResource):
                             status=422, mimetype='application/json')
 
         try:
-            upload_dir_path = global_config['global']['upload_directory']
+            upload_dir_path = GLOBAL_CONF['upload_directory']
 
             if request_type == RequestTypes.REG_REQUEST.value:
                 if RegDetails.exists(request_id):
