@@ -71,4 +71,4 @@ test:
 
 lint:
 	pip3 install pylint
-	pylint --verbose app/* scripts/* tests/* manage.py run.py server_config.py setup.py
+	pylint --verbose app/* scripts/* tests/* manage.py setup.py

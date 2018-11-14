@@ -25,9 +25,9 @@ import datetime
 
 from flask import Response
 from sqlalchemy.exc import SQLAlchemyError
-from app import app, global_config, GLOBAL_CONF
 from flask_apispec import marshal_with, doc, MethodResource, use_kwargs
 
+from app import app, global_config, GLOBAL_CONF
 from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.helpers.utilities import Utilities
 from app.api.v1.models.notification import Notification
@@ -501,7 +501,7 @@ class IMEIRegistrationStatus(MethodResource):
 
                     # calc duplicated imeis
                     duplicated_imeis = RegDetails.get_duplicate_imeis(request)
-                    if len(duplicated_imeis) > 0 and not request.status == 6:
+                    if duplicated_imeis and not request.status == 6:
                         res.update({'duplicated': len(RegDetails.get_duplicate_imeis(request))})
                         Utilities.generate_imeis_file(duplicated_imeis, request.tracking_id, 'duplicated_imeis')
                         request.duplicate_imeis_file = '{upload_dir}/{tracking_id}/{file}'.format(
@@ -525,7 +525,7 @@ class IMEIRegistrationStatus(MethodResource):
                     res.update({'invalid': len(invalid_imeis)})
 
                     # generate invalid imei file
-                    if len(invalid_imeis) > 0:
+                    if invalid_imeis:
                         Utilities.generate_imeis_file(invalid_imeis, request.tracking_id, 'invalid_imeis')
                         request.invalid_imeis_file = '{upload_dir}/{tracking_id}/{file}'.format(
                             upload_dir=GLOBAL_CONF.get('upload_directory'),
@@ -580,9 +580,9 @@ class RequestDocuments(MethodResource):
                     tracking_id = request.tracking_id
                     docs = []
                     for document in request.documents:
-                        doc = ReqDocument.get_document_by_id(document.document_id)
+                        reg_doc = ReqDocument.get_document_by_id(document.document_id)
                         dat = {
-                            'document_type': doc.label,
+                            'document_type': reg_doc.label,
                             'link': '{server_dir}/{local_dir}/{file_name}'.format(
                                 server_dir=upload_dir_path,
                                 local_dir=tracking_id,
@@ -602,9 +602,9 @@ class RequestDocuments(MethodResource):
                     tracking_id = request.tracking_id
                     docs = []
                     for document in request.documents:
-                        doc = ReqDocument.get_document_by_id(document.document_id)
+                        dreg_doc = ReqDocument.get_document_by_id(document.document_id)
                         dat = {
-                            'document_type': doc.label,
+                            'document_type': dreg_doc.label,
                             'link': '{server_dir}/{local_dir}/{file_name}'.format(
                                 server_dir=upload_dir_path,
                                 local_dir=tracking_id,
@@ -694,7 +694,7 @@ class SubmitReview(MethodResource):
             notification = Notification(user_id, request_id, request_type, request_status, message)
             notification.add()
             return True
-        except Exception as e:
+        except SQLAlchemyError as e:
             app.logger.error('Unable to generate notification for this request, see logs below')
             app.logger.exception(e)
             return False
@@ -734,6 +734,7 @@ class SubmitReview(MethodResource):
     @marshal_with(ErrorResponse, code=204, description='On Error (Request content not found)')
     @marshal_with(ErrorResponse, code=500, description='On Error (Un-identified error)')
     @use_kwargs(SubmitReviewArgs().fields_dict, locations=['json'])
+    # pylint: disable=too-many-statements
     def put(self, **kwargs):
         """PUT method handler."""
         for key, value in kwargs.items():
@@ -794,7 +795,7 @@ class SubmitReview(MethodResource):
 
                                 # check if imeis are already duplicated than don't approve
                                 duplicated_imeis = RegDetails.get_duplicate_imeis(request)
-                                if len(duplicated_imeis) > 0:
+                                if duplicated_imeis:
                                     res = {'error': [
                                         'unable to approve case {id}, duplicated imeis found'.format(id=request_id)
                                     ]}
@@ -933,7 +934,7 @@ class SubmitReview(MethodResource):
                                     }
                                     return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
                                                     status=201, mimetype='application/json')
-                                elif return_status is False and len(invalid_imeis) > 0:
+                                elif return_status is False and invalid_imeis:
                                     res = {
                                         'error': 'Unable to approve, invalid imeis found'
                                     }

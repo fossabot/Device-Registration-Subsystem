@@ -163,6 +163,7 @@ def test_get_single(db, session):  # pylint: disable=unused-argument
 def test_mark_read(db, session):  # pylint: disable=unused-argument
     """Verify that mark_read() mark marked_read column as True."""
     # add a notification
+    print(db.app.config['SQLALCHEMY_DATABASE_URI'])
     user_id = 'notf-user'
     request_id = 226
     request_type = 'registration'
