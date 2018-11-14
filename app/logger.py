@@ -1,5 +1,6 @@
 """
-DRS run package package.
+Custom logger for the app.
+
 Copyright (c) 2018 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
@@ -19,11 +20,34 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+import logging
 
-from app import app, HOST, PORT
 
+class DRSLogger:
+    """Custom logger implementation for the app."""
 
-app.config.from_object('server_config.DevelopmentConfig')  # app configs
+    def __init__(self, logger_name='drs_logger', logging_level=logging.INFO, logging_format=None):
+        """Constructor."""
+        self.logger_name = logger_name
+        self.logging_level = logging_level
+        if logging_format:
+            self.logging_format = logging_format
+        else:
+            self.logging_format = logging.BASIC_FORMAT
 
-if __name__ == "__main__":
-    app.run(host=HOST, port=PORT)
+    def get_logger(self):
+        """Method to define and return a logger."""
+        logger = logging.getLogger(self.logger_name)
+        logger.setLevel(self.logging_level)
+
+        # create a console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(self.logging_level)
+
+        # set formatter
+        formatter = logging.Formatter(self.logging_format)
+        console_handler.setFormatter(formatter)
+
+        logger.addHandler(console_handler)
+
+        return logger

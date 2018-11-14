@@ -1,4 +1,4 @@
-# configuration file
+# temp configuration file for test server
 
 # (C) 2016 Qualcomm Technologies, Inc.  All rights reserved.
 
@@ -31,7 +31,7 @@
 
 # DIRBS Core configurations
 dirbs_core:
-  base_url: http://dirbs.pta.gov.pk/coreapi
+  base_url: 'http://test-core-base-api:5000/api/v2'
 
 
 # DRS global configurations
@@ -60,12 +60,45 @@ global:
   max_imei_per_device: 5
 
   #URLS
-  core_api_v1: 'http://dirbs.pta.gov.pk/core_api/api/v1'
-  core_api_v2: 'http://192.168.100.12:5000/api/v2'
-  dvs_api_v1: 'http://192.168.100.74/api/v1'
+  core_api_v1: 'http://test-core-base-api:5000/api/v1/'
+  core_api_v2: 'http://test-core-base-api:5000/api/v2/'
+  dvs_api_v1: 'http://test-dvs-api:5000/api/v1/'
 
   #Directories
   dereg_sample_file: '../mock/dereg_sample_file'
   reg_sample_file: '../mock/reg_sample_file.tsv'
   upload_directory: 'UPLOAD_DIRECTORY'
-  lists: '' # use absolute path of the dir as per current system
+
+# DRS configurations for list generations
+# Configurations should be defined when deploying the software.
+lists:
+  # directory path to generate the list,
+  # only absolute paths to the directories are acceptable
+  path: ''
+
+  # maximum number of workers used for the list generation
+  # typically it should be 2 x num_of_cpus in the system
+  max_workers: 10
+
+# Postgresql settings used to build SqlAlchemy connection string and configs
+database:
+  # Database name (an empty database on the first run)
+  database: drs
+  # Host the PostgreSQL server runs on
+  host: localhost
+  # PostgreSQL port if not running on standard port 5432
+  port: 5432
+  # Database role/user that DRS will connect to
+  user: admin
+  # Password used to connect to the database
+  password: admin
+  # SQLAlchemy connection pool size, the number of connections to keep open inside
+  # the connection pool
+  # (for more details: https://docs.sqlalchemy.org/en/latest/core/engines.html#sqlalchemy.create_engine
+  pool_size: 100
+  # number of seconds to wait before giving up on getting a connection from the pool
+  pool_timeout: 20
+  # number of seconds for pool to recycle the connections after the given number of seconds has passed
+  pool_recycle: 10
+  # number of max connections to overflow the pool size
+  max_overflow: 275

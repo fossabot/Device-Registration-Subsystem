@@ -20,48 +20,39 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 import sys
-import configparser
-import yaml
 
 from flask_restful import Api
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
+from app.config import ConfigParser
+
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
 try:
-    config = configparser.ConfigParser()
-    config.read("config.ini")
-
-    global_config = yaml.load(open("etc/config.yml"))
-
-    db_params = {
-        'Host': config['Database']['Host'],
-        'Port': config['Database']['Port'],
-        'Database': config['Database']['Database'],
-        'User': config['Database']['UserName'],
-        'Password': config['Database']['Password']
-    }
-
-    HOST = str(config['Server']['Host'])  # Host addr required as str
-    PORT = int(config['Server']['Port'])  # Host port required as int
-    CORE_BASE_URL = global_config['dirbs_core']['base_url']  # core api base url
-    GLOBAL_CONF = global_config['global']  # load & export global configs
-
+    # read and load DRS base configuration to the app
+    app.config['DRS_CONFIG'] = ConfigParser('etc/config.yml').parse_config()
+    CORE_BASE_URL = app.config['DRS_CONFIG']['dirbs_core']['base_url']  # core api base url
+    GLOBAL_CONF = app.config['DRS_CONFIG']['global']  # load & export global configs
+    app.config['DRS_UPLOADS'] = app.config['DRS_CONFIG']['global']['upload_directory']  # file upload dir
+    app.config['DRS_LISTS'] = app.config['DRS_CONFIG']['lists']['path']  # lists dir
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://%s:%s@%s:%s/%s' % \
-                                            (db_params['User'], db_params['Password'], db_params['Host'],
-                                             db_params['Port'], db_params['Database'])
+                                            (app.config['DRS_CONFIG']['database']['user'],
+                                             app.config['DRS_CONFIG']['database']['password'],
+                                             app.config['DRS_CONFIG']['database']['host'],
+                                             app.config['DRS_CONFIG']['database']['port'],
+                                             app.config['DRS_CONFIG']['database']['database'])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_POOL_SIZE'] = int(config['Database']['pool_size'])
-    app.config['SQLALCHEMY_POOL_RECYCLE'] = int(config['Database']['pool_recycle'])
-    app.config['SQLALCHEMY_MAX_OVERFLOW'] = int(config['Database']['overflow_size'])
-    app.config['SQLALCHEMY_POOL_TIMEOUT'] = int(config['Database']['pool_timeout'])
+    app.config['SQLALCHEMY_POOL_SIZE'] = app.config['DRS_CONFIG']['database']['pool_size']
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = app.config['DRS_CONFIG']['database']['pool_recycle']
+    app.config['SQLALCHEMY_MAX_OVERFLOW'] = app.config['DRS_CONFIG']['database']['max_overflow']
+    app.config['SQLALCHEMY_POOL_TIMEOUT'] = app.config['DRS_CONFIG']['database']['pool_timeout']
     # app.config['MAX_CONTENT_LENGTH'] = 28 * 3 * 1024 * 1024
-    db = SQLAlchemy(session_options={'autocommit': False})
 
+    db = SQLAlchemy(session_options={'autocommit': False})
     db.init_app(app)
 
     # we really need wild-card import here for now

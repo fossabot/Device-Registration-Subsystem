@@ -23,6 +23,9 @@
 #
 
 .PHONY: clean-pyc dist install-db start-dev, genlist-delta, genlist-full, test, lint
+.EXPORT_ALL_VARIABLES:
+FLASK_ENV = development
+FLASK_DEBUG = True
 
 clean: clean-pyc
 	rm	-rf dist .cache migrations drs.egg-info
@@ -35,7 +38,7 @@ clean-pyc:
 
 start-dev:
 	pip3 install -r requirements.txt
-	python3 run.py
+	flask run -h 0.0.0.0 -p 5000
 
 install-db:
 	python3 manage.py db init

@@ -32,17 +32,30 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 import re
 import json
 import copy
+import shutil
+from os import path
+
 import pytest
 import httpretty
 
 from testing.postgresql import Postgresql
 
+from app.config import ConfigParser
 from tests._helpers import seed_database, create_views
+
+
+@pytest.fixture(scope='session')
+def mocked_config():
+    """Fixture for mocking config.yml so that tests do not depend on user config at all."""
+    mocked_config_path = path.abspath(path.dirname(__file__) + '/unittest_data/config/config.yml')
+    config = ConfigParser(mocked_config_path).parse_config()
+
+    yield config
 
 
 # pylint: disable=redefined-outer-name
 @pytest.yield_fixture(scope='session')
-def app():
+def app(mocked_config, tmpdir_factory):
     """Method to create an app for testing."""
     # need to import this late as it might have side effects
     from app import app as app_
@@ -56,15 +69,30 @@ def app():
     old_config = copy.copy(app_.config)
 
     # initialize temp database and yield app
-    with Postgresql() as postgresql:
-        app_.config['SQLALCHEMY_DATABASE_URI'] = postgresql.url()
-        yield app_
+    postgresql = Postgresql()
+    dsn = postgresql.dsn()
+    # monkey patch database configs
+    for setting in ['user', 'password', 'port', 'host', 'database']:
+        mocked_config['database'][setting] = dsn.get(setting, '')
 
-        # restore old configs after successful session
-        app_.url_map = old_url_map
-        app_.view_functions = old_view_functions
-        app_.config = old_config
-        postgresql.stop()
+    # monkey patch temp dirs
+    temp_lists = tmpdir_factory.mktemp('lists')
+    mocked_config['lists']['path'] = str(temp_lists)
+    temp_uploads = tmpdir_factory.mktemp('uploads')
+    mocked_config['global']['upload_directory'] = str(temp_uploads)
+    app_.config['drs_config'] = mocked_config
+    app_.config['SQLALCHEMY_DATABASE_URI'] = postgresql.url()
+    app_.config['DRS_UPLOADS'] = str(temp_uploads)
+    app_.config['DRS_LISTS'] = str(temp_lists)
+    yield app_
+
+    # restore old configs after successful session
+    app_.url_map = old_url_map
+    app_.view_functions = old_view_functions
+    app_.config = old_config
+    shutil.rmtree(temp_lists)
+    shutil.rmtree(temp_uploads)
+    postgresql.stop()
 
 
 @pytest.fixture(scope='session')

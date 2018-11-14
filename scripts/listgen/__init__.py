@@ -30,7 +30,7 @@ import numpy
 
 from flask_script import Command, Option  # pylint: disable=deprecated-module
 
-from app import global_config
+from app import app
 from app.api.v1.models.approvedimeis import ApprovedImeis
 from scripts.common import ScriptLogger
 from scripts.listgen.worker import IMEIWorker
@@ -52,7 +52,7 @@ class ListGenerator(Command):
         self.list_type = ''
         self.logger = ScriptLogger('list_generator').get_logger()
         self.__doc__ = self._command_description()
-        self.dir_path = global_config['lists']['path']
+        self.dir_path = app.config['DRS_LISTS']
         self.current_time_stamp = datetime.datetime.now()
 
     # noinspection PyMethodMayBeStatic
@@ -152,7 +152,7 @@ class ListGenerator(Command):
         self.logger.info('calculating imeis for {0} registration list'.format(param))
         imei_records = ApprovedImeis.imei_to_export()
         self.logger.info('{0} imei records to analyze for export'.format(len(imei_records)))
-        max_workers = global_config['lists']['max_workers']
+        max_workers = app.config['DRS_CONFIG']['lists']['max_workers']
         self.logger.info('using {0} thread workers for calculation'.format(max_workers))
         self.logger.info('spliting imeis into {0} batches'.format(max_workers))
         imei_records = numpy.array_split(imei_records, max_workers)

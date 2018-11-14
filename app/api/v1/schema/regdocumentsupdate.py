@@ -27,7 +27,7 @@ from app.api.v1.helpers.validators import *
 from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.models.status import Status
 from app.api.v1.helpers.error_handlers import ALLOWED_FORMATS
-from app import app, global_config
+from app import app, GLOBAL_CONF
 
 
 class RegistrationDocumentsUpdateSchema(Schema):
@@ -47,7 +47,7 @@ class RegistrationDocumentsUpdateSchema(Schema):
     def get_document_label(self, data):
         """Returns appropriate document label."""
         reg_details = RegDetails.get_by_id(data.reg_details_id)
-        upload_dir_path = global_config['global']['upload_directory']
+        upload_dir_path = GLOBAL_CONF['upload_directory']
         document = Documents.get_document_by_id(data.document_id)
         data.label = document.label
         data.required = Documents.required
