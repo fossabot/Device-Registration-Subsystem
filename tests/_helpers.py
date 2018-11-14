@@ -126,3 +126,21 @@ def create_dummy_request(data, request_type, status='Pending Review'):
         request.update_report_file('test report')
         request.update_status(status)
         return request
+
+
+def create_assigned_dummy_request(data, request_type, reviewer_id, reviewer_name):
+    """Helper method to create a dummy request in the database tables based on the
+    request type and convert it into the already assigned request.
+    """
+    if request_type == 'Registration':
+        request = create_registration(data, uuid.uuid4())
+        request.update_report_file('test report')
+        request.update_status('Pending Review')
+        request.update_reviewer_id(reviewer_id, reviewer_name, request.id)
+        return request
+    else:
+        request = create_de_registration(data, uuid.uuid4())
+        request.update_report_file('test report')
+        request.update_status('Pending Review')
+        request.update_reviewer_id(reviewer_id, reviewer_name, request.id)
+        return request
