@@ -1,15 +1,25 @@
 """
-DRS Status Model package.
+Status Model Unittests
+
 Copyright (c) 2018 Qualcomm Technologies, Inc.
+
  All rights reserved.
+
+
+
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
+
+
  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  disclaimer.
+
  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
  disclaimer in the documentation and/or other materials provided with the distribution.
+
  * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
  products derived from this software without specific prior written permission.
+
  NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
  THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
@@ -19,36 +29,53 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-from app import db
-from functools import lru_cache
+from app.api.v1.models.status import Status
 
 
-class Status(db.Model):
-    """Database model for status table."""
-    __tablename__ = 'status'
+def test_get_status_id(session):
+    """Verify that the get_status_id() returns correct
+    status id provided the description.
+    """
+    # create an entry in table
+    statuses = [
+        Status(id=111, description='ABCD'),
+        Status(id=112, description='BCDE'),
+        Status(id=133, description='GHIJK')
+    ]
+    session.bulk_save_objects(statuses)
+    session.commit()
+    assert Status.get_status_id('ABCD') == 111
+    assert Status.get_status_id('BCDE') == 112
+    assert Status.get_status_id('GHIJK') == 133
+    assert Status.get_status_id('test') is None
 
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(30), nullable=False)
 
-    @staticmethod
-    @lru_cache(maxsize=32)
-    def get_status_id(status_description):
-        """Return id of a status."""
-        status = Status.query.filter_by(description=status_description).first()
-        if status:
-            return status.id
-        return status
+def test_get_status_type(session):
+    """Verify that the get_status_type returns
+    correct status description provided the status id.
+    """
+    # create an entry in table
+    statuses = [
+        Status(id=115, description='ABCD'),
+        Status(id=116, description='BCDE'),
+        Status(id=122, description='GHIJK')
+    ]
+    session.bulk_save_objects(statuses)
+    session.commit()
+    assert Status.get_status_type(115) == 'ABCD'
+    assert Status.get_status_type(116) == 'BCDE'
+    assert Status.get_status_type(122) == 'GHIJK'
+    assert Status.get_status_type(32424453453) is None
 
-    @staticmethod
-    @lru_cache(maxsize=32)
-    def get_status_type(status_id):
-        """Return type of status."""
-        status = Status.query.filter_by(id=status_id).first()
-        if status:
-            return status.description
-        return status
 
-    @staticmethod
-    def get_status_types():
-        """Return all status types."""
-        return Status.query.all()
+def test_get_status_types(session):
+    """Verify that the status_types() returns all the statuses in the table."""
+    statuses = [
+        Status(id=344, description='ABCD'),
+        Status(id=888, description='BCDE'),
+        Status(id=999, description='GHIJK')
+    ]
+    session.bulk_save_objects(statuses)
+    session.commit()
+    res = Status.get_status_types()
+    assert res

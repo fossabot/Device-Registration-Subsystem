@@ -65,8 +65,6 @@ def test_request_not_exist(flask_app, db):  # pylint: disable=unused-argument
 
 def test_user_device_quota(flask_app, db):
     """Verify that the api correctly responds the user's device quota."""
-    headers = {'Content-Type': 'application/json'}
-
     # registration request
     reviewer_id = 'section-rev-1'
     reviewer_name = 'section rev'
