@@ -35,25 +35,30 @@ class Technologies(db.Model):
     def get_technology_id(technology_type):
         """Return a technology id."""
         technology = Technologies.query.filter_by(description=technology_type).first()
-        return technology.id
+        if technology:
+            return technology.id
+        return technology
 
     @staticmethod
     @lru_cache(maxsize=32)
     def get_technologies():
         """Return all the supported technologies."""
-        technologies = Technologies.query.all()
-        return technologies
+        return Technologies.query.all()
 
     @staticmethod
     @lru_cache(maxsize=32)
     def get_technologies_names():
         """Return name of all supported technologies."""
         technologies = Technologies.query.all()
-        return list(map(lambda x: x.description, technologies))
+        if technologies:
+            return list(map(lambda x: x.description, technologies))
+        return []
 
     @staticmethod
     @lru_cache(maxsize=32)
     def get_technology_by_id(technology_id):
         """Return technology by id."""
         technology = Technologies.query.filter_by(id=technology_id).first()
-        return technology.description
+        if technology:
+            return technology.description
+        return technology
