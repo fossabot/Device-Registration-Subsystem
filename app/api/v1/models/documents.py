@@ -37,33 +37,30 @@ class Documents(db.Model):
     def get_label_by_id(document_id):
         """Return document label by id."""
         document = Documents.query.filter_by(id=document_id).first()
-        return document.label
+        if document:
+            return document.label
+        return document
 
     @staticmethod
     def get_document_by_id(document_id):
         """Return a document object by id."""
-        document = Documents.query.filter_by(id=document_id).first()
-        return document
+        return Documents.query.filter_by(id=document_id).first()
 
     @staticmethod
     def get_document_by_name(label, doc_type):
         """Return a document by name."""
-        document = Documents.query.filter_by(type=doc_type, label=label).first()
-        return document
+        return Documents.query.filter_by(type=doc_type, label=label).first()
 
     @staticmethod
     @lru_cache(maxsize=32)
     def get_documents(doc_type):
         """Return documents by request type."""
         doc_type = 1 if doc_type == 'registration' else 2
-        documents = Documents.query.filter_by(type=doc_type).all()
-        return documents
+        return Documents.query.filter_by(type=doc_type).all()
 
     @staticmethod
     # @lru_cache(maxsize=32)
     def get_required_docs(doc_type):
         """Return list of required documents by document type."""
         doc_type = 1 if doc_type == 'registration' else 2
-        documents = Documents.query.filter_by(type=doc_type, required=True).all()
-        return documents
-
+        return Documents.query.filter_by(type=doc_type, required=True).all()
