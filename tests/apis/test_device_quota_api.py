@@ -31,6 +31,9 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
+from tests._helpers import create_assigned_dummy_request
+from app.api.v1.models.devicequota import DeviceQuota
+
 # api urls
 DEVICE_QUOTA_API = 'api/v1/review/device-quota'
 
@@ -58,6 +61,40 @@ def test_request_not_exist(flask_app, db):  # pylint: disable=unused-argument
     request_id = 123131363612863612682816
     rv = flask_app.get('{0}?request_id={1}'.format(DEVICE_QUOTA_API, request_id))
     assert rv.status_code == 204
+
+
+def test_user_device_quota(flask_app, db):
+    """Verify that the api correctly responds the user's device quota."""
+    headers = {'Content-Type': 'application/json'}
+
+    # registration request
+    reviewer_id = 'section-rev-1'
+    reviewer_name = 'section rev'
+    user_name = 'dev quota user'
+    user_id = 'dev_quota_user_1'
+    data = {
+        'device_count': 2,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010', '86834403015011']]",
+        'm_location': 'local',
+        'user_name': user_name,
+        'user_id': user_id
+    }
+    request = create_assigned_dummy_request(data, 'Registration', reviewer_id, reviewer_name)
+    assert request
+    request_id = request.id
+
+    # create a device quota
+    quota = DeviceQuota.get_or_create(user_id, 3)
+    assert quota
+    # api call
+    rv = flask_app.get('{0}?request_id={1}'.format(DEVICE_QUOTA_API, request_id))
+    assert rv.status_code == 200
+    response = json.loads(rv.data.decode('utf-8'))
+    assert response['allowed_import_quota'] == quota['reg_quota']
+    assert response['allowed_export_quota']
+    assert quota['user_id'] == user_id
+    assert response['request_device_count'] == 2
 
 
 def test_post_method_not_allowed(flask_app):
