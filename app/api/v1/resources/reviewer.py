@@ -347,7 +347,7 @@ class DeviceDescription(MethodResource):
         request_id = kwargs.get('request_id')
         request_type = kwargs.get('request_type')
         try:
-            # if it is a reqistration type request
+            # if it is a registration type request
             if request_type == RequestTypes.REG_REQUEST.value:
                 if RegDetails.exists(request_id):
                     request = RegDetails.get_by_id(request_id)

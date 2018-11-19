@@ -31,6 +31,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
+from tests._helpers import create_assigned_dummy_request, create_dummy_devices
+
 # api urls
 DEVICE_DESCRIPTION_API = 'api/v1/review/device-description'
 
@@ -71,6 +73,84 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     rv = flask_app.get('{0}?request_id={1}&request_type={2}'.format(DEVICE_DESCRIPTION_API,
                                                                     request_id, request_type))
     assert rv.status_code == 204
+
+
+def test_single_tac_device_description(flask_app, db, dirbs_core_mock, app):
+    """Verify that the api responds properly with one tac in devices of a request."""
+    # registration request test
+    registration_data = {
+        'device_count': 1,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010']]",
+        'm_location': 'local',
+        'user_name': 'assign rev user 1',
+        'user_id': 'assign-rev-user-1'
+    }
+    request = create_assigned_dummy_request(registration_data, 'Registration', 'dev-descp-1', 'dev descp')
+    device_data = {
+        'brand': 'samsung',
+        'operating_system': 'android',
+        'model_name': 's9',
+        'model_num': '30jjd',
+        'device_type': 'Smartphone',
+        'technologies': '2G,3G,4G',
+        'reg_id': request.id
+    }
+    request = create_dummy_devices(device_data, 'Registration', request)
+    rv = flask_app.get('{0}?request_id={1}&request_type=registration_request'.format(
+        DEVICE_DESCRIPTION_API, request.id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data
+    assert data.get('gsma_device_description')
+    assert data.get('user_device_description')
+    user_device_description = data['user_device_description']
+    assert user_device_description[0]['model_number'] == 'TA-1034'
+    assert user_device_description[0]['brand'] == 'NOKIA'
+    assert user_device_description[0]['model_name'] == 'TA-1034'
+    assert user_device_description[0]['device_type'] == 'Mobile Phone/Feature phone'
+    assert user_device_description[0]['operating_system'] == 'N/A'
+
+    # de registration request
+    de_registration_data = {
+        'file': 'de-reg-test-file.txt',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_assigned_dummy_request(de_registration_data, 'De_Registration', 'dereg-rev', 'de reg rev')
+    device_data = {
+        'devices': """[
+            {
+                "tac": "35732108",
+                "model_name": "TA-1034",
+                "brand_name": "NOKIA",
+                "model_num": "TA-1034",
+                "technology": "NONE",
+                "device_type": "Mobile Phone/Feature phone",
+                "count": 2,
+                "operating_system": "N/A"
+            }
+        ]""",
+        'dereg_id': request.id
+    }
+    request = create_dummy_devices(device_data, 'De_Registration', request, db, file_content=['357321082345123'],
+                                   file_path='{0}/{1}/{2}'.format(app.config['DRS_UPLOADS'], request.tracking_id,
+                                                                  de_registration_data.get('file')))
+    rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(
+        DEVICE_DESCRIPTION_API, request.id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data
+    assert data.get('user_device_description')
+    assert data.get('gsma_device_description')
+    user_device_description = data['user_device_description']
+    assert user_device_description[0]['model_number'] == 'TA-1034'
+    assert user_device_description[0]['brand'] == 'NOKIA'
+    assert user_device_description[0]['model_name'] == 'TA-1034'
+    assert user_device_description[0]['device_type'] == 'Mobile Phone/Feature phone'
+    assert user_device_description[0]['operating_system'] == 'N/A'
 
 
 def test_post_method_not_allowed(flask_app):

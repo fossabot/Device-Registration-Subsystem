@@ -20,6 +20,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+import os
 import uuid
 
 from sqlalchemy import text
@@ -28,6 +29,12 @@ from scripts.db.seeders import Seed
 from scripts.db.views import Views
 from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.models.deregdetails import DeRegDetails
+from app.api.v1.models.regdevice import RegDevice
+from app.api.v1.models.devicetechnology import DeviceTechnology
+from app.api.v1.models.device import Device
+from app.api.v1.models.deregdevice import DeRegDevice
+from app.api.v1.helpers.utilities import Utilities
+from app.api.v1.models.deregimei import DeRegImei
 
 
 def seed_database(db):
@@ -144,3 +151,32 @@ def create_assigned_dummy_request(data, request_type, reviewer_id, reviewer_name
         request.update_status('Pending Review')
         request.update_reviewer_id(reviewer_id, reviewer_name, request.id)
         return request
+
+
+def create_dummy_devices(data, request_type, request, db=None, file_path=None, file_content=None):
+    """Helper method to create a dummy request with devices and assign it to a dummy reviewer.
+    based on request_type.
+    """
+    if request_type == 'Registration':
+        data.update({'reg_details_id': request.id})
+        device = RegDevice.create(data)
+        device.technologies = DeviceTechnology.create(device.id, data.get('technologies'))
+        Device.create(RegDetails.get_by_id(request.id), device.id)
+    else:  # De-registration
+        # creating sample file
+        print(file_path)
+        if not os.path.exists(os.path.dirname(file_path)):
+            os.makedirs(os.path.dirname(file_path))
+        with open(file_path, 'w') as f:
+            for content in file_content:
+                f.write(content)
+
+        data = DeRegDevice.curate_args(data, request)
+        imei_tac_map = Utilities.extract_imeis_tac_map(data, request)
+        created = DeRegDevice.bulk_create(data, request)
+        device_id_tac_map = Utilities.get_id_tac_map(created)
+        for device in device_id_tac_map:
+            device_imeis = imei_tac_map.get(device.get('tac'))
+            dereg_imei_list = DeRegImei.get_deregimei_list(device.get('id'), device_imeis)
+            db.session.execute(DeRegImei.__table__.insert(), dereg_imei_list)
+    return request
