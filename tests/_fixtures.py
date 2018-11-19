@@ -141,8 +141,10 @@ def session(db):
 
 
 @pytest.yield_fixture(scope='session')
-def dirbs_core_mock(app):
-    """Monkey patch DIRBS-Core calls made by DRS."""
+def dirbs_core(app):
+    """
+    Mock server fixture to simulate DIRBS Core API behaviours.
+    Monkey patch DIRBS-Core calls made by DRS."""
     httpretty.enable()
     single_tac_response = {
         "gsma": {

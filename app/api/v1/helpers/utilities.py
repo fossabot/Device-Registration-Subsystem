@@ -165,6 +165,8 @@ class Utilities:
         complete_path = os.path.join(upload_path, '{0}.txt'.format(file_type))
 
         try:
+            if not os.path.exists(os.path.dirname(complete_path)):
+                os.makedirs(os.path.dirname(complete_path))
             with open(complete_path, 'w') as duplicate_imei_file:
                 for imei in imeis:
                     duplicate_imei_file.write('%s\n' % imei)

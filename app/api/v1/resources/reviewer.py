@@ -505,7 +505,7 @@ class IMEIRegistrationStatus(MethodResource):
                         res.update({'duplicated': len(RegDetails.get_duplicate_imeis(request))})
                         Utilities.generate_imeis_file(duplicated_imeis, request.tracking_id, 'duplicated_imeis')
                         request.duplicate_imeis_file = '{upload_dir}/{tracking_id}/{file}'.format(
-                            upload_dir=GLOBAL_CONF.get('upload_directory'),
+                            upload_dir=app.config['DRS_UPLOADS'],
                             tracking_id=request.tracking_id,
                             file='duplicated_imeis.txt'
                         )

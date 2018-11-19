@@ -164,7 +164,6 @@ def create_dummy_devices(data, request_type, request, db=None, file_path=None, f
         Device.create(RegDetails.get_by_id(request.id), device.id)
     else:  # De-registration
         # creating sample file
-        print(file_path)
         if not os.path.exists(os.path.dirname(file_path)):
             os.makedirs(os.path.dirname(file_path))
         with open(file_path, 'w') as f:

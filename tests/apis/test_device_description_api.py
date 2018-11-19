@@ -75,7 +75,7 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     assert rv.status_code == 204
 
 
-def test_single_tac_device_description(flask_app, db, dirbs_core_mock, app):
+def test_single_tac_device_description(flask_app, db, dirbs_core, app):
     """Verify that the api responds properly with one tac in devices of a request."""
     # registration request test
     registration_data = {
@@ -105,11 +105,11 @@ def test_single_tac_device_description(flask_app, db, dirbs_core_mock, app):
     assert data.get('gsma_device_description')
     assert data.get('user_device_description')
     user_device_description = data['user_device_description']
-    assert user_device_description[0]['model_number'] == 'TA-1034'
-    assert user_device_description[0]['brand'] == 'NOKIA'
-    assert user_device_description[0]['model_name'] == 'TA-1034'
-    assert user_device_description[0]['device_type'] == 'Mobile Phone/Feature phone'
-    assert user_device_description[0]['operating_system'] == 'N/A'
+    assert user_device_description[0]['model_number'] == '30jjd'
+    assert user_device_description[0]['brand'] == 'samsung'
+    assert user_device_description[0]['model_name'] == 's9'
+    assert user_device_description[0]['device_type'] == 'Smartphone'
+    assert user_device_description[0]['operating_system'] == 'android'
 
     # de registration request
     de_registration_data = {
@@ -151,6 +151,56 @@ def test_single_tac_device_description(flask_app, db, dirbs_core_mock, app):
     assert user_device_description[0]['model_name'] == 'TA-1034'
     assert user_device_description[0]['device_type'] == 'Mobile Phone/Feature phone'
     assert user_device_description[0]['operating_system'] == 'N/A'
+
+
+def test_multiple_tac_device_de_registration(flask_app, app, db, dirbs_core):
+    """Verify that the device description api returns description for multiple devices."""
+    # de registration request
+    de_registration_data = {
+        'file': 'de-reg-test-file.txt',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_assigned_dummy_request(de_registration_data, 'De_Registration', 'dereg-rev', 'de reg rev')
+    device_data = {
+        'devices': """[
+                {
+                    "tac": "35732108",
+                    "model_name": "TA-1034",
+                    "brand_name": "NOKIA",
+                    "model_num": "TA-1034",
+                    "technology": "NONE",
+                    "device_type": "Mobile Phone/Feature phone",
+                    "count": 2,
+                    "operating_system": "N/A"
+                },
+                {
+                    "tac": "35733109",
+                    "model_name": "TA-11132",
+                    "brand_name": "NOKIA",
+                    "model_num": "TA-11132",
+                    "technology": "TEC",
+                    "device_type": "Smartphone",
+                    "count": 1,
+                    "operating_system": "Android"
+                }
+            ]""",
+        'dereg_id': request.id
+    }
+    request = create_dummy_devices(device_data, 'De_Registration', request, db, file_content=['357321082345123'],
+                                   file_path='{0}/{1}/{2}'.format(app.config['DRS_UPLOADS'], request.tracking_id,
+                                                                  de_registration_data.get('file')))
+    rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(
+        DEVICE_DESCRIPTION_API, request.id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data
+    assert data.get('user_device_description')
+    assert data.get('gsma_device_description')
+    assert len(data.get('user_device_description')) == 2
+    assert type(data.get('gsma_device_description')) is list
 
 
 def test_post_method_not_allowed(flask_app):
