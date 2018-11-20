@@ -1061,7 +1061,10 @@ class IMEIClassification(MethodResource):
                             'per_condition_classification_state': {
                                 key: value for key, value in summary.get('count_per_condition').items()
                             },
-                            'lost_stolen_status': summary.get('lost_stolen'),
+                            'lost_stolen_status': {
+                                'provisional_stolen': summary.get('provisional_stolen'),
+                                'stolen': summary.get('stolen')
+                            },
                             'seen_on_network': summary.get('seen_on_network')
                         }
                         return Response(json.dumps(IMEIClassificationSchema().dump(res).data),

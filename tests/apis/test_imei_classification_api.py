@@ -31,6 +31,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
+from tests._helpers import create_assigned_dummy_request
+
 # api urls
 CLASSIFICATION_API = 'api/v1/review/imei-classification'
 
@@ -90,6 +92,112 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     request_type = 'de_registration_request'
     rv = flask_app.get('{0}?request_id={1}&request_type={2}'.format(CLASSIFICATION_API, request_id, request_type))
     assert rv.status_code == 204
+
+
+def test_imei_classification(flask_app, db):
+    """Verify that the api returns correct imei classification information."""
+    # registration request
+    registration_data = {
+        'device_count': 2,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010', '868344039012345']]",
+        'm_location': 'local',
+        'user_name': '4yyjhhkhkimei stat user 1',
+        'user_id': 'imeihfhdhhd-stat-user-1'
+    }
+
+    summary = {
+        "provisional_compliant": 0,
+        "non_complaint": 10,
+        "count_per_condition": {
+            "not_on_registration_list": 0,
+            "on_local_stolen_list": 0,
+            "gsma_not_found": 0,
+            "duplicate_compound": 0
+        },
+        "provisional_stolen": 0,
+        "compliant_report_name": "compliant_report669f9938-1ffb-468e-b303-f73385a1b9e0.tsv",
+        "provisional_non_compliant": 0,
+        "complaint": 0,
+        "seen_on_network": 0,
+        "stolen": 0,
+        "verified_imei": 10
+    }
+    request = create_assigned_dummy_request(registration_data, 'Registration', '23233eeedev-descp-1', '3323eeedev descp')
+    request.update_summary(summary)
+    rv = flask_app.get('{0}?request_id={1}&request_type=registration_request'.format(CLASSIFICATION_API, request.id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['lost_stolen_status']['provisional_stolen'] == 0
+    assert data['lost_stolen_status']['stolen'] == 0
+    assert data['seen_on_network'] == 0
+    assert data['imei_compliance_status']['compliant_imeis'] == 0
+    assert data['imei_compliance_status']['non_compliant_imeis'] == 10
+    assert data['imei_compliance_status']['provisional_non_compliant'] == 0
+    assert data['imei_compliance_status']['provisional_compliant'] == 0
+    assert data['per_condition_classification_state']['not_on_registration_list'] == 0
+    assert data['per_condition_classification_state']['on_local_stolen_list'] == 0
+    assert data['per_condition_classification_state']['gsma_not_found'] == 0
+    assert data['per_condition_classification_state']['duplicate_compound'] == 0
+
+    # de-registration
+    data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'avbvvssign-rev-user-1',
+        'user_name': 'avbvbbvssign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_assigned_dummy_request(data, 'De-Registration', 'dew3223ev-descp-1', 'de322ev descp')
+    assert request
+    request.update_summary(summary)
+    rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(CLASSIFICATION_API, request.id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['lost_stolen_status']['provisional_stolen'] == 0
+    assert data['lost_stolen_status']['stolen'] == 0
+    assert data['seen_on_network'] == 0
+    assert data['imei_compliance_status']['compliant_imeis'] == 0
+    assert data['imei_compliance_status']['non_compliant_imeis'] == 10
+    assert data['imei_compliance_status']['provisional_non_compliant'] == 0
+    assert data['imei_compliance_status']['provisional_compliant'] == 0
+    assert data['per_condition_classification_state']['not_on_registration_list'] == 0
+    assert data['per_condition_classification_state']['on_local_stolen_list'] == 0
+    assert data['per_condition_classification_state']['gsma_not_found'] == 0
+    assert data['per_condition_classification_state']['duplicate_compound'] == 0
+
+
+def test_empty_classification_state(flask_app, db):
+    """Verify that the api responds properly if there is no summary in the summary column."""
+    # registration
+    registration_data = {
+        'device_count': 2,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010', '868344039012345']]",
+        'm_location': 'local',
+        'user_name': '3234323imei stat user 1',
+        'user_id': '434334imei-stat-user-1'
+    }
+    request = create_assigned_dummy_request(registration_data, 'Registration', '434dev-descp-1', 'd4343ev descp')
+    rv = flask_app.get('{0}?request_id={1}&request_type=registration_request'.format(CLASSIFICATION_API, request.id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data == {}
+
+    # de-registration
+    # de-registration
+    data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': '2323323assign-rev-user-1',
+        'user_name': '3233assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_assigned_dummy_request(data, 'De-Registration', '323dev-descp-1', '3233dev descp')
+    rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(CLASSIFICATION_API, request.id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data == {}
 
 
 def test_post_method_not_allowed(flask_app):
