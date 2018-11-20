@@ -31,6 +31,10 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
+from tests._helpers import create_assigned_dummy_request
+from app.api.v1.models.regdetails import RegDetails
+from app.api.v1.models.deregdetails import DeRegDetails
+
 # api urls
 SECTIONS_API = 'api/v1/review/sections'
 
@@ -90,6 +94,129 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     request_type = 'de_registration_request'
     rv = flask_app.get('{0}?request_id={1}&request_type={2}'.format(SECTIONS_API, request_id, request_type))
     assert rv.status_code == 204
+
+
+def test_review_sections(flask_app, db):
+    """Verify that the api returns correct information of sections."""
+    # registration request
+    data = {
+        'device_count': 2,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010', '86834403015011']]",
+        'm_location': 'local',
+        'user_name': 'section rev user 1',
+        'user_id': 'section-rev-user-1'
+    }
+    reviewer_id = 'section-rev-1'
+    reviewer_name = 'section rev'
+    section = 'device_quota'
+    status = 6
+    comment = 'this is a test comment'
+
+    request = create_assigned_dummy_request(data, 'Registration', reviewer_id, reviewer_name)
+    assert request
+    request_id = request.id
+    RegDetails.add_comment(section, comment, reviewer_id, reviewer_name, status, request_id)
+
+    rv = flask_app.get('{0}?request_id={1}&request_type=registration_request'.format(SECTIONS_API, request_id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))['sections']
+    for sect in data:
+        if sect.get('comments'):
+            assert sect.get('section_type') == section
+            assert sect.get('section_status') == status
+            sect_comment = sect.get('comments')[0]
+            assert sect_comment.get('user_name') == reviewer_name
+            assert sect_comment.get('user_id') == reviewer_id
+            assert sect_comment.get('comment') == comment
+            assert sect_comment.get('datetime')
+        else:
+            assert sect.get('section_type') in ['device_description', 'imei_classification',
+                                                'imei_registration', 'approval_documents']
+            assert sect.get('comments') is None
+            assert sect.get('section_status') is None
+
+        # de-registration test
+        dereg_data = {
+            'file': 'de-reg-test-file',
+            'device_count': 1,
+            'user_id': 'assign-rev-user-1',
+            'user_name': 'assign rev user 1',
+            'reason': 'because we have to run tests successfully'
+        }
+        request = create_assigned_dummy_request(dereg_data, 'De-Registration', reviewer_id, reviewer_name)
+        assert request
+        request_id = request.id
+        reviewer_id = 'section-rev-2'
+        reviewer_name = 'section rev 2'
+        section = 'device_description'
+        status = 7
+        comment = 'this is a test comment'
+        DeRegDetails.add_comment(section, comment, reviewer_id, reviewer_name, status, request_id)
+
+        rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(SECTIONS_API, request_id))
+        assert rv.status_code == 200
+        data = json.loads(rv.data.decode('utf-8'))['sections']
+        for sect in data:
+            if sect.get('comments'):
+                assert sect.get('section_type') == section
+                assert sect.get('section_status') == status
+                sect_comment = sect.get('comments')[0]
+                assert sect_comment.get('user_name') == reviewer_name
+                assert sect_comment.get('user_id') == reviewer_id
+                assert sect_comment.get('comment') == comment
+                assert sect_comment.get('datetime')
+            else:
+                assert sect.get('section_type') in ['device_description', 'imei_classification',
+                                                    'imei_registration', 'approval_documents']
+                assert sect.get('comments') is None
+                assert sect.get('section_status') is None
+
+
+def test_empty_sections(flask_app, db):
+    """Verify that the api returns correct info when there is not data in sections table."""
+    # registration request
+    data = {
+        'device_count': 2,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010', '86834403015011']]",
+        'm_location': 'local',
+        'user_name': 'section rev user 1',
+        'user_id': 'section-rev-user-1'
+    }
+    reviewer_id = 'section-rev-1'
+    reviewer_name = 'section rev'
+    request = create_assigned_dummy_request(data, 'Registration', reviewer_id, reviewer_name)
+    assert request
+    request_id = request.id
+    rv = flask_app.get('{0}?request_id={1}&request_type=registration_request'.format(SECTIONS_API, request_id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))['sections']
+    for sect in data:
+        assert sect.get('section_type') in ['device_description', 'imei_classification',
+                                            'imei_registration', 'approval_documents', 'device_quota']
+        assert sect.get('comments') is None
+        assert sect.get('section_status') is None
+
+    # de-registration test
+    dereg_data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_assigned_dummy_request(dereg_data, 'De-Registration', reviewer_id, reviewer_name)
+    assert request
+    request_id = request.id
+    rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(SECTIONS_API, request_id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))['sections']
+    for sect in data:
+        assert sect.get('section_type') in ['device_description', 'imei_classification',
+                                            'imei_registration', 'approval_documents']
+        assert sect.get('comments') is None
+        assert sect.get('section_status') is None
 
 
 def test_post_method_not_allowed(flask_app):
