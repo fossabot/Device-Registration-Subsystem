@@ -31,6 +31,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
+from tests._helpers import create_dummy_request, create_dummy_devices, create_dummy_documents
+
 # api urls
 DOCUMENTS_API = 'api/v1/review/documents'
 
@@ -92,6 +94,88 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     request_type = 'de_registration_request'
     rv = flask_app.get('{0}?request_id={1}&request_type={2}'.format(DOCUMENTS_API, request_id, request_type))
     assert rv.status_code == 204
+
+
+def test_document_api(flask_app, app, db):
+    """Verify that the api responds with correct path and file name of a document."""
+    # registration request
+    data = {
+        'registration': {
+            'device_count': 2,
+            'imei_per_device': 1,
+            'imeis': "[['86834403015010', '868344039012345']]",
+            'm_location': 'local',
+            'user_name': 'imei stat user 1',
+            'user_id': 'imei-stat-user-1'
+        },
+        'devices': {
+            'brand': 'samsung',
+            'operating_system': 'android',
+            'model_name': 's9',
+            'model_num': '30jjd',
+            'device_type': 'Smartphone',
+            'technologies': '2G,3G,4G'
+        },
+        'documents': [
+            {'label': 'shipment document', 'file_name': 'shipment.pdf'},
+            {'label': 'authorization document', 'file_name': 'authorize.pdf'},
+            {'label': 'certificate document', 'file_name': 'certf.pdf'},
+        ]
+    }
+
+    request = create_dummy_request(data.get('registration'), 'Registration')
+    request = create_dummy_devices(data.get('devices'), 'Registration', request)
+    request = create_dummy_documents(data.get('documents'), 'Registration', request, app)
+    assert request
+    request_id = request.id
+    rv = flask_app.get('{0}?request_id={1}&request_type=registration_request'.format(DOCUMENTS_API, request_id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))['documents']
+    for document in data:
+        assert document.get('document_type') in ['shipment document', 'authorization document', 'certificate document']
+        assert document.get('link')
+
+    # de registration
+    de_registration_data = {
+        'file': 'de-reg-test-file.txt',
+        'device_count': 1,
+        'user_id': 'imei-stat-user-2',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_dummy_request(de_registration_data, 'De_Registration')
+    device_data = {
+        'devices': """[
+                    {
+                        "tac": "35732108",
+                        "model_name": "TA-1034",
+                        "brand_name": "NOKIA",
+                        "model_num": "TA-1034",
+                        "technology": "NONE",
+                        "device_type": "Mobile Phone/Feature phone",
+                        "count": 2,
+                        "operating_system": "N/A"
+                    }
+                ]""",
+        'dereg_id': request.id
+    }
+    documents = [
+            {'label': 'shipment document', 'file_name': 'shipment.pdf'},
+            {'label': 'authorization document', 'file_name': 'authorize.pdf'},
+            {'label': 'certificate document', 'file_name': 'certf.pdf'},
+        ]
+    request = create_dummy_devices(device_data, 'De_Registration', request, db, file_content=['357321082345123'],
+                                   file_path='{0}/{1}/{2}'.format(app.config['DRS_UPLOADS'], request.tracking_id,
+                                                                  de_registration_data.get('file')))
+    request = create_dummy_documents(documents, 'De-Registration', request, app)
+    assert request
+    request_id = request.id
+    rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(DOCUMENTS_API, request_id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))['documents']
+    for document in data:
+        assert document.get('document_type') in ['shipment document', 'authorization document', 'certificate document']
+        assert document.get('link')
 
 
 def test_post_method_not_allowed(flask_app):

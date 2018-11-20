@@ -22,6 +22,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import os
 import uuid
+import datetime
 
 from sqlalchemy import text
 
@@ -35,6 +36,9 @@ from app.api.v1.models.device import Device
 from app.api.v1.models.deregdevice import DeRegDevice
 from app.api.v1.helpers.utilities import Utilities
 from app.api.v1.models.deregimei import DeRegImei
+from app.api.v1.models.regdocuments import RegDocuments
+from app.api.v1.models.deregdocuments import DeRegDocuments
+from app.api.v1.models.documents import Documents
 
 
 def seed_database(db):
@@ -178,4 +182,40 @@ def create_dummy_devices(data, request_type, request, db=None, file_path=None, f
             device_imeis = imei_tac_map.get(device.get('tac'))
             dereg_imei_list = DeRegImei.get_deregimei_list(device.get('id'), device_imeis)
             db.session.execute(DeRegImei.__table__.insert(), dereg_imei_list)
+    return request
+
+
+def create_dummy_documents(files, request_type, request, app=None):
+    """Helper method to create dummy documents for a request.
+    """
+    if request_type == 'Registration':
+        current_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        for file in files:
+            document = Documents.get_document_by_name(file.get('label'), 1)
+            reg_doc = RegDocuments(filename='{0}_{1}'.format(current_time, file.get('file_name')))
+            reg_doc.reg_details_id = request.id
+            reg_doc.document_id = document.id
+            reg_doc.save()
+
+            file_path = '{0}/{1}/{2}'.format(app.config['DRS_UPLOADS'], request.tracking_id, file.get('file_name'))
+            if not os.path.exists(os.path.dirname(file_path)):
+                os.makedirs(os.path.dirname(file_path))
+            with open(file_path, 'wb') as f:
+                f.seek(1073741824-1)
+                f.write(b"\0")
+    else:
+        current_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        for file in files:
+            document = Documents.get_document_by_name(file.get('label'), 2)
+            dereg_doc = DeRegDocuments(filename='{0}_{1}'.format(current_time, file.get('file_name')))
+            dereg_doc.dereg_id = request.id
+            dereg_doc.document_id = document.id
+            dereg_doc.save()
+
+            file_path = '{0}/{1}/{2}'.format(app.config['DRS_UPLOADS'], request.tracking_id, file.get('file_name'))
+            if not os.path.exists(os.path.dirname(file_path)):
+                os.makedirs(os.path.dirname(file_path))
+            with open(file_path, 'wb') as f:
+                f.seek(1073741824-1)
+                f.write(b"\0")
     return request

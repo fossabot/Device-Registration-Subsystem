@@ -572,8 +572,6 @@ class RequestDocuments(MethodResource):
                             status=422, mimetype='application/json')
 
         try:
-            upload_dir_path = GLOBAL_CONF['upload_directory']
-
             if request_type == RequestTypes.REG_REQUEST.value:
                 if RegDetails.exists(request_id):
                     request = RegDetails.get_by_id(request_id)
@@ -584,7 +582,7 @@ class RequestDocuments(MethodResource):
                         dat = {
                             'document_type': reg_doc.label,
                             'link': '{server_dir}/{local_dir}/{file_name}'.format(
-                                server_dir=upload_dir_path,
+                                server_dir=app.config['DRS_UPLOADS'],
                                 local_dir=tracking_id,
                                 file_name=document.filename
                             )
@@ -606,7 +604,7 @@ class RequestDocuments(MethodResource):
                         dat = {
                             'document_type': dreg_doc.label,
                             'link': '{server_dir}/{local_dir}/{file_name}'.format(
-                                server_dir=upload_dir_path,
+                                server_dir=app.config['DRS_UPLOADS'],
                                 local_dir=tracking_id,
                                 file_name=document.filename
                             )
