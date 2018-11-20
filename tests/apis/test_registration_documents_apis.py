@@ -29,3 +29,31 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+
+import json
+import uuid
+import copy
+
+from tests._fixtures import *  # pylint: disable=wildcard-import
+from tests._helpers import create_registraiton
+
+# pylint: disable=redefined-outer-name
+
+DEVICE_REGISTRATION_DOC_API = 'api/v1/registration/documents'
+USER_NAME = 'test-abc'
+USER_ID = '17102'
+REQUEST_DATA = {
+    'user_id': USER_ID
+}
+
+
+def test_registration_document_post_method(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration document
+        method is working properly and response is correct"""
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    # rv = flask_app.post(DEVICE_REGISTRATION_DOC_API, data=REQUEST_DATA, headers=headers)
+    # assert rv.status_code == 200
+
+    # data = json.loads(rv.data.decode('utf-8'))

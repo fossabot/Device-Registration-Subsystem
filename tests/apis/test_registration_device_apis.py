@@ -29,3 +29,922 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+import json
+import uuid
+import copy
+
+from tests._fixtures import *  # pylint: disable=wildcard-import
+from tests._helpers import create_registraiton
+from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
+
+# pylint: disable=redefined-outer-name
+
+DEVICE_REGISTRATION_API = 'api/v1/registration/device'
+USER_ID = '17102'
+USER_NAME = 'test-abc'
+IMEIS = "[['86834403015010']]"
+REG_ID = 12345
+BRAND = 'Apple'
+OPERATING_SYSTEM = 'osx'
+MODEL_NAME = 'Iphone-X'
+MODEL_NUMBER = '702-TEST'
+DEVICE_TYPE = 'Tablet'
+TECHNOLOGIES = '3G'
+
+REQUEST_DATA = {
+    'user_id': USER_ID,
+    'reg_id': REG_ID,
+    'brand': BRAND,
+    'operating_system': OPERATING_SYSTEM,
+    'model_name': MODEL_NAME,
+    'model_num': MODEL_NUMBER,
+    'device_type': DEVICE_TYPE,
+    'technologies': TECHNOLOGIES
+}
+
+
+def test_device_post_method_reg_id_not_found(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=REQUEST_DATA, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_device_post_method_string_reg_id(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = 'abc-xyz'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+
+    assert rv.status_code == 422
+    assert 'message' in data
+    assert data['message'][0] == 'Registration Request not found.'
+
+
+def test_device_post_method_empty_reg_id(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+
+    assert rv.status_code == 422
+    assert 'message' in data
+    assert data['message'][0] == 'Registration Request not found.'
+
+
+def test_device_post_method_missing_reg_id(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data.pop('reg_id')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+
+    assert rv.status_code == 422
+    assert 'message' in data
+    assert data['message'][0] == 'Registration Request not found.'
+
+
+def test_device_post_method_missing_user_id(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data.pop('user_id')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'user_id' in data
+    assert data['user_id'][0] == 'user_id is required'
+
+
+def test_device_post_method_empty_user_id(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['user_id'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'user_id' in data
+    assert data['user_id'][0] == 'Permission denied for this request'
+
+
+def test_device_post_method_empty_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'brand value should be between 1 and 1000'
+
+
+def test_device_post_method_missing_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data.pop('brand')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'Brand is required'
+
+
+def test_device_post_method_start_with_tab_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = '\tapple'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'brand cannot start or ends with tabs'
+
+
+def test_device_post_method_end_with_tab_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = 'apple\t'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'brand cannot start or ends with tabs'
+
+
+def test_device_post_method_start_with_space_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = ' apple'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'brand cannot start or ends with spaces'
+
+
+def test_device_post_method_end_with_space_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = 'apple  '
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'brand cannot start or ends with spaces'
+
+
+def test_device_post_method_start_with_line_break_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = '\napple'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'brand cannot end with line breaks'
+
+
+def test_device_post_method_end_with_line_break_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = 'apple\n'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'brand' in data
+    assert data['brand'][0] == 'brand cannot end with line breaks'
+
+
+def test_device_post_method_string_in_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = 'apple'
+    """
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 200
+    assert 'brand' in data
+    assert data['brand'] == request_data['brand']
+    assert data['model_num'] == request_data['model_num']
+    assert data['device_type'] == request_data['device_type']
+    assert data['model_name'] == request_data['model_name']
+    assert data['operating_system'] == request_data['operating_system']
+    assert data['reg_details_id'] == registration.id 
+    """
+
+
+def test_device_post_method_number_in_brand(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['brand'] = '12345'
+    """
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 200
+    assert 'brand' in data
+    assert data['brand'] == request_data['brand']
+    assert data['model_num'] == request_data['model_num']
+    assert data['device_type'] == request_data['device_type']
+    assert data['model_name'] == request_data['model_name']
+    assert data['operating_system'] == request_data['operating_system']
+    assert data['reg_details_id'] == registration.id """
+
+
+def test_device_post_method_empty_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['operating_system'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'operating system value should be between 1 and 1000'
+
+
+def test_device_post_method_missing_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data.pop('operating_system')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'Operating system is required'
+
+
+def test_device_post_method_start_with_tab_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['operating_system'] = '\tosx'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'operating system cannot start or ends with tabs'
+
+
+def test_device_post_method_end_with_tab_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['operating_system'] = 'osx\t'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'operating system cannot start or ends with tabs'
+
+
+def test_device_post_method_start_with_space_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['operating_system'] = ' osx'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'operating system cannot start or ends with spaces'
+
+
+def test_device_post_method_end_with_space_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['operating_system'] = 'osx  '
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'operating system cannot start or ends with spaces'
+
+
+def test_device_post_method_start_with_line_break_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['operating_system'] = '\nosx'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'operating system cannot end with line breaks'
+
+
+def test_device_post_method_end_with_line_break_operating_system(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['operating_system'] = 'osx\n'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'operating_system' in data
+    assert data['operating_system'][0] == 'operating system cannot end with line breaks'
+
+
+def test_device_post_method_empty_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_name'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'model name value should be between 1 and 1000'
+
+
+def test_device_post_method_missing_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data.pop('model_name')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'Model name is required'
+
+
+def test_device_post_method_start_with_tab_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_name'] = '\tosx'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'model name cannot start or ends with tabs'
+
+
+def test_device_post_method_end_with_tab_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_name'] = 'osx\t'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'model name cannot start or ends with tabs'
+
+
+def test_device_post_method_start_with_space_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_name'] = ' osx'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'model name cannot start or ends with spaces'
+
+
+def test_device_post_method_end_with_space_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_name'] = 'osx  '
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'model name cannot start or ends with spaces'
+
+
+def test_device_post_method_start_with_line_break_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_name'] = '\nosx'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'model name cannot end with line breaks'
+
+
+def test_device_post_method_end_with_line_break_model_name(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_name'] = 'osx\n'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_name' in data
+    assert data['model_name'][0] == 'model name cannot end with line breaks'
+
+
+def test_device_post_method_empty_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_num'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'model number value should be between 1 and 1000'
+
+
+def test_device_post_method_missing_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data.pop('model_num')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'Model number is required'
+
+
+def test_device_post_method_start_with_tab_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_num'] = '\tiphone-x'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'model number cannot start or ends with tabs'
+
+
+def test_device_post_method_end_with_tab_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_num'] = 'iphone-x\t'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'model number cannot start or ends with tabs'
+
+
+def test_device_post_method_start_with_space_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_num'] = ' iphone-x'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'model number cannot start or ends with spaces'
+
+
+def test_device_post_method_end_with_space_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_num'] = 'iphone-x  '
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'model number cannot start or ends with spaces'
+
+
+def test_device_post_method_start_with_line_break_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_num'] = '\niphone-x'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'model number cannot end with line breaks'
+
+
+def test_device_post_method_end_with_line_break_model_num(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['model_num'] = 'iphone-x\n'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'model_num' in data
+    assert data['model_num'][0] == 'model number cannot end with line breaks'
+
+
+def test_device_post_method_empty_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['device_type'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 500
+
+
+def test_device_post_method_missing_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data.pop('device_type')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'device_type' in data
+    assert data['device_type'][0] == 'Device type is required'
+
+
+def test_device_post_method_start_with_tab_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['device_type'] = '\tSmartphone'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 500
+
+
+def test_device_post_method_end_with_tab_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['device_type'] = 'Smartphone\t'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 500
+
+
+def test_device_post_method_start_with_space_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['device_type'] = ' Smartphone'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 500
+
+
+def test_device_post_method_end_with_space_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['device_type'] = 'Smartphone  '
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 500
+
+
+def test_device_post_method_start_with_line_break_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['device_type'] = '\nSmartphone'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 500
+
+
+def test_device_post_method_end_with_line_break_device_type(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['device_type'] = 'Smartphone\n'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 500
+
+
+def test_device_post_method_missing_technologies(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data.pop('technologies')
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_device_post_method_end_with_empty_technologies(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['technologies'] = ''
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_device_post_method_end_with_invalid_technologies(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration device
+        method is working properly and response is correct"""
+
+    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = registration.id
+    request_data['technologies'] = 'test'
+
+    rv = flask_app.post(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
