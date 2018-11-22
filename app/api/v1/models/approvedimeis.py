@@ -19,6 +19,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+from sqlalchemy.exc import SQLAlchemyError
+
 from app import db
 
 
@@ -74,14 +76,19 @@ class ApprovedImeis(db.Model):
         try:
             db.session.add(self)
             db.session.commit()
-        except Exception:
+        except SQLAlchemyError:
             db.session.rollback()
-            raise Exception
+            raise SQLAlchemyError
 
     @staticmethod
     def get_imei(imei_norm):
         """Method to get a single imei."""
         return ApprovedImeis.query.filter_by(imei=imei_norm).filter_by(removed=False).first()
+
+    @staticmethod
+    def get_request_imeis(request_id):
+        """Method to get all imeis associated to a request id."""
+        return ApprovedImeis.query.filter_by(request_id=request_id).filter_by(removed=False).all()
 
     @staticmethod
     def exists(imei_norm):
@@ -96,9 +103,9 @@ class ApprovedImeis(db.Model):
         try:
             db.session.add_all(imeis)
             db.session.commit()
-        except Exception:
+        except SQLAlchemyError:
             db.session.rollback()
-            raise Exception
+            raise SQLAlchemyError
 
     @staticmethod
     def bulk_delete_imeis(reg_details):

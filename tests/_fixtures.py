@@ -120,6 +120,7 @@ def db(app):
     db.engine.execute('DROP TABLE status CASCADE')
     db.engine.execute('DROP TABLE devicetype CASCADE')
     db.engine.execute('DROP TABLE documents CASCADE')
+    db.session.close()
     db.drop_all()
 
 
