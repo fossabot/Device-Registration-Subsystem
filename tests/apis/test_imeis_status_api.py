@@ -162,7 +162,7 @@ def test_pending_registration_status(flask_app, db, app):
     assert data['registered'] == 0
 
 
-def test_registered_imeis_count(flask_app, app, db):
+def test_registered_imeis_count(flask_app, app, db):  # pylint: disable=unused-argument
     """Verify that the api returns correct count of registered imeis of a user."""
     # registration request
     registration_data = {
@@ -192,7 +192,7 @@ def test_registered_imeis_count(flask_app, app, db):
     assert data['not_registered'] == 0
 
 
-def test_duplicated_imeis_count(flask_app, db, app):
+def test_duplicated_imeis_count(flask_app, db, app):  # pylint: disable=unused-argument
     """Verify that the system detects duplicate imeis and generated a related file."""
     registration_data = {
         'device_count': 3,

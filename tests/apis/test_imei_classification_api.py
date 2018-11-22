@@ -94,7 +94,7 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     assert rv.status_code == 204
 
 
-def test_imei_classification(flask_app, db):
+def test_imei_classification(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api returns correct imei classification information."""
     # registration request
     registration_data = {
@@ -123,7 +123,8 @@ def test_imei_classification(flask_app, db):
         "stolen": 0,
         "verified_imei": 10
     }
-    request = create_assigned_dummy_request(registration_data, 'Registration', '23233eeedev-descp-1', '3323eeedev descp')
+    request = create_assigned_dummy_request(registration_data, 'Registration',
+                                            '23233eeedev-descp-1', '3323eeedev descp')
     request.update_summary(summary)
     rv = flask_app.get('{0}?request_id={1}&request_type=registration_request'.format(CLASSIFICATION_API, request.id))
     assert rv.status_code == 200
@@ -167,7 +168,7 @@ def test_imei_classification(flask_app, db):
     assert data['per_condition_classification_state']['duplicate_compound'] == 0
 
 
-def test_empty_classification_state(flask_app, db):
+def test_empty_classification_state(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api responds properly if there is no summary in the summary column."""
     # registration
     registration_data = {

@@ -63,7 +63,7 @@ def test_request_not_exist(flask_app, db):  # pylint: disable=unused-argument
     assert rv.status_code == 204
 
 
-def test_user_device_quota(flask_app, db):
+def test_user_device_quota(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api correctly responds the user's device quota."""
     # registration request
     reviewer_id = 'section-rev-1'

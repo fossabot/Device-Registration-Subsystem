@@ -75,7 +75,7 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     assert rv.status_code == 204
 
 
-def test_single_tac_device_description(flask_app, db, dirbs_core, app):
+def test_single_tac_device_description(flask_app, db, dirbs_core, app):  # pylint: disable=unused-argument
     """Verify that the api responds properly with one tac in devices of a request."""
     # registration request test
     registration_data = {
@@ -153,7 +153,7 @@ def test_single_tac_device_description(flask_app, db, dirbs_core, app):
     assert user_device_description[0]['operating_system'] == 'N/A'
 
 
-def test_multiple_tac_device_de_registration(flask_app, app, db, dirbs_core):
+def test_multiple_tac_device_de_registration(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """Verify that the device description api returns description for multiple devices."""
     # de registration request
     de_registration_data = {
@@ -200,7 +200,7 @@ def test_multiple_tac_device_de_registration(flask_app, app, db, dirbs_core):
     assert data.get('user_device_description')
     assert data.get('gsma_device_description')
     assert len(data.get('user_device_description')) == 2
-    assert type(data.get('gsma_device_description')) is list
+    assert isinstance(data.get('gsma_device_description'), list)
 
 
 def test_post_method_not_allowed(flask_app):

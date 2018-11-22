@@ -96,7 +96,7 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     assert rv.status_code == 204
 
 
-def test_review_sections(flask_app, db):
+def test_review_sections_registration(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api returns correct information of sections."""
     # registration request
     data = {
@@ -136,44 +136,49 @@ def test_review_sections(flask_app, db):
             assert sect.get('comments') is None
             assert sect.get('section_status') is None
 
-        # de-registration test
-        dereg_data = {
-            'file': 'de-reg-test-file',
-            'device_count': 1,
-            'user_id': 'assign-rev-user-1',
-            'user_name': 'assign rev user 1',
-            'reason': 'because we have to run tests successfully'
-        }
-        request = create_assigned_dummy_request(dereg_data, 'De-Registration', reviewer_id, reviewer_name)
-        assert request
-        request_id = request.id
-        reviewer_id = 'section-rev-2'
-        reviewer_name = 'section rev 2'
-        section = 'device_description'
-        status = 7
-        comment = 'this is a test comment'
-        DeRegDetails.add_comment(section, comment, reviewer_id, reviewer_name, status, request_id)
 
-        rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(SECTIONS_API, request_id))
-        assert rv.status_code == 200
-        data = json.loads(rv.data.decode('utf-8'))['sections']
-        for sect in data:
-            if sect.get('comments'):
-                assert sect.get('section_type') == section
-                assert sect.get('section_status') == status
-                sect_comment = sect.get('comments')[0]
-                assert sect_comment.get('user_name') == reviewer_name
-                assert sect_comment.get('user_id') == reviewer_id
-                assert sect_comment.get('comment') == comment
-                assert sect_comment.get('datetime')
-            else:
-                assert sect.get('section_type') in ['device_description', 'imei_classification',
-                                                    'imei_registration', 'approval_documents']
-                assert sect.get('comments') is None
-                assert sect.get('section_status') is None
+def test_review_sections_de_registration(flask_app, db):  # pylint: disable=unused-argument
+    """Verify that the api returns correct information of sections."""
+    # de-registration test
+    reviewer_id = 'section-rev-1-0'
+    reviewer_name = 'section rev0'
+    dereg_data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_assigned_dummy_request(dereg_data, 'De-Registration', reviewer_id, reviewer_name)
+    assert request
+    request_id = request.id
+    reviewer_id = 'section-rev-2'
+    reviewer_name = 'section rev 2'
+    section = 'device_description'
+    status = 7
+    comment = 'this is a test comment'
+    DeRegDetails.add_comment(section, comment, reviewer_id, reviewer_name, status, request_id)
+
+    rv = flask_app.get('{0}?request_id={1}&request_type=de_registration_request'.format(SECTIONS_API, request_id))
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))['sections']
+    for sect in data:
+        if sect.get('comments'):
+            assert sect.get('section_type') == section
+            assert sect.get('section_status') == status
+            sect_comment = sect.get('comments')[0]
+            assert sect_comment.get('user_name') == reviewer_name
+            assert sect_comment.get('user_id') == reviewer_id
+            assert sect_comment.get('comment') == comment
+            assert sect_comment.get('datetime')
+        else:
+            assert sect.get('section_type') in ['device_description', 'imei_classification',
+                                                'imei_registration', 'approval_documents']
+            assert sect.get('comments') is None
+            assert sect.get('section_status') is None
 
 
-def test_empty_sections(flask_app, db):
+def test_empty_sections(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api returns correct info when there is not data in sections table."""
     # registration request
     data = {

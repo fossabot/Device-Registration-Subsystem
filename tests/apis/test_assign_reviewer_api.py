@@ -30,7 +30,6 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 import json
-import uuid
 
 from tests._helpers import create_dummy_request
 
@@ -112,7 +111,7 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     assert rv.status_code == 204
 
 
-def test_assign_reviewer(flask_app, db):
+def test_assign_reviewer(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the assign reviewer api assigns a reviewer to a
     request in pending review status.
     """
@@ -164,7 +163,7 @@ def test_assign_reviewer(flask_app, db):
     assert data['message'] == 'reviewer {0} assigned to request {1}'.format(reviewer_id, request_id)
 
 
-def test_incomplete_request(flask_app, db):
+def test_incomplete_request(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api do not assign an incomplete request and respond accordingly."""
     # registration request
     headers = {'Content-Type': 'application/json'}
@@ -213,7 +212,7 @@ def test_incomplete_request(flask_app, db):
     assert data['error'] == ['incomplete request {0} can not be assigned/reviewed'.format(request_id)]
 
 
-def test_already_assigned_request(flask_app, db):
+def test_already_assigned_request(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api do not reassign an already assigned request and respond accordingly."""
     # make dummy registration request, assign it and then try to reassign it
     headers = {'Content-Type': 'application/json'}

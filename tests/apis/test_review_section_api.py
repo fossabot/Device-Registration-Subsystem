@@ -219,7 +219,7 @@ def test_review_section_status_param(flask_app):
         assert data['error'] == ['section_status must be Information Requested, Approved or Rejected']
 
 
-def test_review_section(flask_app, db):
+def test_review_section(flask_app, db):  # pylint: disable=unused-argument
     """Verify that if a request is in review already than a section of it can be reviewed."""
     headers = {'Content-Type': 'application/json'}
 
@@ -285,7 +285,7 @@ def test_review_section(flask_app, db):
     assert json.loads(rv.data.decode('utf-8'))['error'] == ['invalid reviewer test-abc']
 
 
-def test_pending_review_request(flask_app, db):
+def test_pending_review_request(flask_app, db):  # pylint: disable=unused-argument
     """Verify that a pending request sections can not be reviewed."""
     headers = {'Content-Type': 'application/json'}
 

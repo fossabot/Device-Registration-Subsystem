@@ -126,7 +126,7 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     assert rv.status_code == 204
 
 
-def test_un_assign_request(flask_app, db):
+def test_un_assign_request(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api successfully un-assign a user from a request."""
     # registration test
     headers = {'Content-Type': 'application/json'}
@@ -176,7 +176,7 @@ def test_un_assign_request(flask_app, db):
     assert response_data['message'] == 'Successfully un-assigned the request'
 
 
-def test_invalid_reviewer(flask_app, db):
+def test_invalid_reviewer(flask_app, db):  # pylint: disable=unused-argument
     """Verify that only assigned reviewer can un-assign the request and api responds
     accordingly.
     """

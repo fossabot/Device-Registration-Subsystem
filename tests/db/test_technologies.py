@@ -73,7 +73,7 @@ def test_get_technologies_names(session):
     session.bulk_save_objects(techs)
     session.commit()
     for name in Technologies.get_technologies_names():
-        assert type(name) is str
+        assert isinstance(name, str)
 
 
 def test_get_technology_by_id(session):
