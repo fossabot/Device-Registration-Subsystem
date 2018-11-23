@@ -90,6 +90,45 @@ def test_with_invalid_params(flask_app, db):  # pylint: disable=unused-argument
     assert data.get('reviewer_name') == ["Bad 'reviewer_name':'23234' argument format."]
 
 
+def test_null_params(flask_app):
+    """Verify that the api responds properly when null params are supplied."""
+    # no request_id param
+    headers = {'Content-Type': 'application/json'}
+    body_data = {
+        'request_type': 'registration_request',
+        'reviewer_id': 'string',
+        'reviewer_name': 'string'
+    }
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['request_id is required']
+
+    # no request_type param
+    body_data.update({'request_id': 5667})
+    del body_data['request_type']
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['request_type is required']
+
+    # no reviewer_id
+    body_data.update({'request_type': 'registration_request'})
+    del body_data['reviewer_id']
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['reviewer_id is required']
+
+    # no reviewer_name
+    body_data.update({'reviewer_id': 'dgggd'})
+    del body_data['reviewer_name']
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['reviewer_name is required']
+
+
 def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api responds with correct message if the request for which
     id is given does not exists in the system.
