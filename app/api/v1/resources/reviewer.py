@@ -67,57 +67,52 @@ class AssignReviewer(MethodResource):
         reviewer_id = kwargs.get('reviewer_id')
         reviewer_name = kwargs.get('reviewer_name')
         request_type = kwargs.get('request_type')
-        try:
-            if request_type == RequestTypes.REG_REQUEST.value:  # if it is a registration request
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
-                    if request.status == 3 and request.report is not None:
-                        assigned = RegDetails.update_reviewer_id(reviewer_id, reviewer_name, request_id)
-                        if assigned is True:
-                            res = {'message': 'reviewer {rev_id} assigned to request {req_id}'.format(
-                                rev_id=reviewer_id, req_id=request_id)}
-                            return Response(json.dumps(SuccessResponse().dump(res).data),
-                                            status=201, mimetype='application/json')
-                        else:
-                            res = {'error': ['Unable to assign already assigned request']}
-                            return Response(json.dumps(ErrorResponse().dump(res).data),
-                                            status=400, mimetype='application/json')
-                    else:
-                        res = {'error': ['incomplete request {id} can not be assigned/reviewed'.format(id=request_id)]}
-                        return Response(json.dumps(ErrorResponse().dump(res).data),
-                                        status=400, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-            else:  # if it is a de-registration request
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
-                    if request.status == 3 and request.report is not None:
-                        assigned = DeRegDetails.update_reviewer_id(reviewer_id, reviewer_name, request_id)
-                        if assigned is True:
-                            res = {'message': 'reviewer {rev_id} assigned to request {req_id}'.format(
-                                rev_id=reviewer_id, req_id=request_id)}
-                            return Response(json.dumps(SuccessResponse().dump(res).data),
-                                            status=201,
-                                            mimetype='application/json')
-                        else:
-                            res = {'error': ['Unable to assign reviewer to already assigned request']}
-                            return Response(json.dumps(ErrorResponse().dump(res).data),
-                                            status=400, mimetype='application/json')
-                    else:
-                        res = {'error': ['incomplete request {id} can not be assigned/reviewed'.format(id=request_id)]}
-                        return Response(json.dumps(ErrorResponse().dump(res).data),
-                                        status=400, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {'error': ['Unable to process the request']}
 
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+        if request_type == RequestTypes.REG_REQUEST.value:  # if it is a registration request
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
+                if request.status == 3 and request.report is not None:
+                    assigned = RegDetails.update_reviewer_id(reviewer_id, reviewer_name, request_id)
+                    if assigned is True:
+                        res = {'message': 'reviewer {rev_id} assigned to request {req_id}'.format(
+                            rev_id=reviewer_id, req_id=request_id)}
+                        return Response(json.dumps(SuccessResponse().dump(res).data),
+                                        status=201, mimetype='application/json')
+                    else:
+                        res = {'error': ['Unable to assign already assigned request']}
+                        return Response(json.dumps(ErrorResponse().dump(res).data),
+                                        status=400, mimetype='application/json')
+                else:
+                    res = {'error': ['incomplete request {id} can not be assigned/reviewed'.format(id=request_id)]}
+                    return Response(json.dumps(ErrorResponse().dump(res).data),
+                                    status=400, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+        else:  # if it is a de-registration request
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
+                if request.status == 3 and request.report is not None:
+                    assigned = DeRegDetails.update_reviewer_id(reviewer_id, reviewer_name, request_id)
+                    if assigned is True:
+                        res = {'message': 'reviewer {rev_id} assigned to request {req_id}'.format(
+                            rev_id=reviewer_id, req_id=request_id)}
+                        return Response(json.dumps(SuccessResponse().dump(res).data),
+                                        status=201,
+                                        mimetype='application/json')
+                    else:
+                        res = {'error': ['Unable to assign reviewer to already assigned request']}
+                        return Response(json.dumps(ErrorResponse().dump(res).data),
+                                        status=400, mimetype='application/json')
+                else:
+                    res = {'error': ['incomplete request {id} can not be assigned/reviewed'.format(id=request_id)]}
+                    return Response(json.dumps(ErrorResponse().dump(res).data),
+                                    status=400, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
 
 class UnAssignReviewer(MethodResource):
@@ -141,48 +136,42 @@ class UnAssignReviewer(MethodResource):
         reviewer_id = kwargs.get('reviewer_id')
         request_type = kwargs.get('request_type')
 
-        try:
-            if request_type == RequestTypes.REG_REQUEST.value:
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
-                    if request.reviewer_id == reviewer_id:
-                        RegDetails.un_assign_request(request_id)
-                        res = {
-                            'message': 'Successfully un-assigned the request'
-                        }
-                        return Response(json.dumps(SuccessResponse().dump(res).data),
-                                        status=201, mimetype='application/json')
-                    else:
-                        res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
-                        return Response(json.dumps(ErrorResponse().dump(res).data),
-                                        status=400, mimetype='application/json')
+        if request_type == RequestTypes.REG_REQUEST.value:
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
+                if request.reviewer_id == reviewer_id:
+                    RegDetails.un_assign_request(request_id)
+                    res = {
+                        'message': 'Successfully un-assigned the request'
+                    }
+                    return Response(json.dumps(SuccessResponse().dump(res).data),
+                                    status=201, mimetype='application/json')
                 else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                    res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
                     return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
+                                    status=400, mimetype='application/json')
             else:
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
-                    if request.reviewer_id == reviewer_id:
-                        DeRegDetails.un_assign_request(request_id)
-                        res = {
-                            'message': 'Successfully un-assigned the request'
-                        }
-                        return Response(json.dumps(SuccessResponse().dump(res).data),
-                                        status=201, mimetype='application/json')
-                    else:
-                        res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
-                        return Response(json.dumps(ErrorResponse().dump(res).data),
-                                        status=400, mimetype='application/json')
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+        else:
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
+                if request.reviewer_id == reviewer_id:
+                    DeRegDetails.un_assign_request(request_id)
+                    res = {
+                        'message': 'Successfully un-assigned the request'
+                    }
+                    return Response(json.dumps(SuccessResponse().dump(res).data),
+                                    status=201, mimetype='application/json')
                 else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                    res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
                     return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {'error': ['Unable to process the request']}
-
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+                                    status=400, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
 
 class ReviewSection(MethodResource):
@@ -218,68 +207,59 @@ class ReviewSection(MethodResource):
             return Response(json.dumps(ErrorResponse().dump(res).data),
                             status=422, mimetype='application/json')
 
-        try:
-            if request_type == RequestTypes.REG_REQUEST.value:
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
-                    if request.status == 4:
-                        if request.reviewer_id == reviewer_id:
-                            RegDetails.add_comment(review_section,
-                                                   comment,
-                                                   reviewer_id,
-                                                   reviewer_name,
-                                                   section_status,
-                                                   request_id)
-                        else:
-                            res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
-                            return Response(json.dumps(ErrorResponse().dump(res).data),
-                                            status=400, mimetype='application/json')
+        if request_type == RequestTypes.REG_REQUEST.value:
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
+                if request.status == 4:
+                    if request.reviewer_id == reviewer_id:
+                        RegDetails.add_comment(review_section,
+                                               comment,
+                                               reviewer_id,
+                                               reviewer_name,
+                                               section_status,
+                                               request_id)
                     else:
-                        res = {'error': ['request {id} should be in-review'.format(id=request_id)]}
+                        res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
                         return Response(json.dumps(ErrorResponse().dump(res).data),
                                         status=400, mimetype='application/json')
                 else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                    res = {'error': ['request {id} should be in-review'.format(id=request_id)]}
                     return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
+                                    status=400, mimetype='application/json')
             else:
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
-                    if request.status == 4:
-                        if request.reviewer_id == reviewer_id:
-                            DeRegDetails.add_comment(review_section,
-                                                     comment,
-                                                     reviewer_id,
-                                                     reviewer_name,
-                                                     section_status,
-                                                     request_id)
-                        else:
-                            res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
-                            return Response(json.dumps(ErrorResponse().dump(res).data),
-                                            status=400, mimetype='application/json')
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+        else:
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
+                if request.status == 4:
+                    if request.reviewer_id == reviewer_id:
+                        DeRegDetails.add_comment(review_section,
+                                                 comment,
+                                                 reviewer_id,
+                                                 reviewer_name,
+                                                 section_status,
+                                                 request_id)
                     else:
-                        res = {'error': ['request {id} should be in-review'.format(id=request_id)]}
+                        res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
                         return Response(json.dumps(ErrorResponse().dump(res).data),
                                         status=400, mimetype='application/json')
                 else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                    res = {'error': ['request {id} should be in-review'.format(id=request_id)]}
                     return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
+                                    status=400, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
-            res = {
-                'message': 'Comment on request added successfully'
-            }
+        res = {
+            'message': 'Comment on request added successfully'
+        }
 
-            return Response(json.dumps(SuccessResponse().dump(res).data),
-                            status=201, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
-            }
-
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data),
-                            status=500, mimetype='application/json')
+        return Response(json.dumps(SuccessResponse().dump(res).data),
+                        status=201, mimetype='application/json')
 
 
 class DeviceQuota(MethodResource):
@@ -302,35 +282,27 @@ class DeviceQuota(MethodResource):
         allowed_import_quota = GLOBAL_CONF.get('importer')
         allowed_export_quota = GLOBAL_CONF.get('exporter')
 
-        try:
-            if RegDetails.exists(request_id):
-                request = RegDetails.get_by_id(request_id)
-                # get user device quota
-                device_quota = DeviceQuotaModel.get(request.user_id)
-                # get request device count
-                device_count = request.device_count
+        if RegDetails.exists(request_id):
+            request = RegDetails.get_by_id(request_id)
+            # get user device quota
+            device_quota = DeviceQuotaModel.get(request.user_id)
+            # get request device count
+            device_count = request.device_count
 
-                resp = {
-                    'allowed_import_quota': allowed_import_quota,
-                    'allowed_export_quota': allowed_export_quota,
-                    'used_registration_quota': allowed_import_quota - device_quota.reg_quota,
-                    'used_de_registration_quota': allowed_export_quota - device_quota.dreg_quota,
-                    'request_device_count': device_count
-                }
-
-                return Response(json.dumps(DeviceQuotaSchema().dump(resp).data),
-                                status=200, mimetype='application/json')
-            else:
-                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                return Response(json.dumps(ErrorResponse().dump(res).data),
-                                status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
+            resp = {
+                'allowed_import_quota': allowed_import_quota,
+                'allowed_export_quota': allowed_export_quota,
+                'used_registration_quota': allowed_import_quota - device_quota.reg_quota,
+                'used_de_registration_quota': allowed_export_quota - device_quota.dreg_quota,
+                'request_device_count': device_count
             }
 
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+            return Response(json.dumps(DeviceQuotaSchema().dump(resp).data),
+                            status=200, mimetype='application/json')
+        else:
+            res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+            return Response(json.dumps(ErrorResponse().dump(res).data),
+                            status=204, mimetype='application/json')
 
 
 class DeviceDescription(MethodResource):
@@ -346,120 +318,112 @@ class DeviceDescription(MethodResource):
         """GET method handler for Devices Descriptions of a Request."""
         request_id = kwargs.get('request_id')
         request_type = kwargs.get('request_type')
-        try:
-            # if it is a registration type request
-            if request_type == RequestTypes.REG_REQUEST.value:
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
-                    devices = request.devices
-                    device_imeis = []
-                    for device in devices:
-                        device_imeis.append(device.imeis)
-                    normalized_imeis = []
-                    for imei in device_imeis:
-                        normalized_imeis.append(imei[0].normalized_imei)
+        # if it is a registration type request
+        if request_type == RequestTypes.REG_REQUEST.value:
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
+                devices = request.devices
+                device_imeis = []
+                for device in devices:
+                    device_imeis.append(device.imeis)
+                normalized_imeis = []
+                for imei in device_imeis:
+                    normalized_imeis.append(imei[0].normalized_imei)
 
-                    tacs = self.extract_tacs(normalized_imeis)
-                    app.logger.info('tacs for device description: {0}'.format(tacs))
-                    gsma_device_descp = Utilities.get_devices_description(tacs)
+                tacs = self.extract_tacs(normalized_imeis)
+                app.logger.info('tacs for device description: {0}'.format(tacs))
+                gsma_device_descp = Utilities.get_devices_description(tacs)
 
-                    device = RegDevice.get_by_id(request.devices[0].reg_device_id)
-                    device_type = DeviceType.get_device_type_by_id(device.device_types_id)
+                device = RegDevice.get_by_id(request.devices[0].reg_device_id)
+                device_type = DeviceType.get_device_type_by_id(device.device_types_id)
 
-                    technologies = []
-                    for tech in device.device_technologies:
-                        tec_id = tech.technology_id
-                        technology = Technologies.get_technology_by_id(tec_id)
-                        technologies.append(technology)
+                technologies = []
+                for tech in device.device_technologies:
+                    tec_id = tech.technology_id
+                    technology = Technologies.get_technology_by_id(tec_id)
+                    technologies.append(technology)
 
-                    user_device_descp = [{
-                        'brand': device.brand,
-                        'model_name': device.model_name,
-                        'model_number': device.model_num,
-                        'operating_system': device.operating_system,
-                        'device_type': device_type,
-                        'radio_access_technology': ','.join(str(tech) for tech in technologies)
-                    }]
+                user_device_descp = [{
+                    'brand': device.brand,
+                    'model_name': device.model_name,
+                    'model_number': device.model_num,
+                    'operating_system': device.operating_system,
+                    'device_type': device_type,
+                    'radio_access_technology': ','.join(str(tech) for tech in technologies)
+                }]
 
-                    response = {
-                        'user_device_description': user_device_descp
-                    }
+                response = {
+                    'user_device_description': user_device_descp
+                }
 
-                    if len(tacs) > 1:
-                        if gsma_device_descp.get('results') is not None:
-                            gsma = []
-                            for gsma_descp in gsma_device_descp.get('results'):
-                                gsma.append(gsma_descp.get('gsma'))
-                            response['gsma_device_description'] = gsma
-                        else:
-                            gsma = []
-                            for tac in tacs:  # pylint: disable=unused-variable
-                                gsma.append(None)
-                            response['gsma_device_description'] = gsma
+                if len(tacs) > 1:
+                    if gsma_device_descp.get('results') is not None:
+                        gsma = []
+                        for gsma_descp in gsma_device_descp.get('results'):
+                            gsma.append(gsma_descp.get('gsma'))
+                        response['gsma_device_description'] = gsma
                     else:
-                        if gsma_device_descp.get('gsma') is not None:
-                            response['gsma_device_description'] = gsma_device_descp.get('gsma')
-                        else:
-                            response['gsma_device_description'] = [None]
-
-                    return Response(json.dumps(DevicesDescription().dump(response).data),
-                                    status=200, mimetype='application/json')
+                        gsma = []
+                        for tac in tacs:  # pylint: disable=unused-variable
+                            gsma.append(None)
+                        response['gsma_device_description'] = gsma
                 else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-            else:  # if it is de-registration type request
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
-                    devices = request.devices
-                    tacs = [device.tac for device in devices]
-                    gsma_device_descp = Utilities.get_devices_description(tacs)
-
-                    user_devices_descp = []
-                    for device in devices:
-                        user_device = DeRegDevice.get_by_id(device.id)
-                        device_descp = {
-                            'brand': user_device.brand,
-                            'model_name': user_device.model_name,
-                            'model_number': user_device.model_num,
-                            'operating_system': user_device.operating_system,
-                            'device_type': user_device.device_type,
-                            'radio_access_technology': user_device.technology
-                        }
-                        user_devices_descp.append(device_descp)
-
-                    response = {
-                        'user_device_description': user_devices_descp
-                    }
-                    if len(tacs) > 1:
-                        if gsma_device_descp.get('results') is not None:
-                            gsma = []
-                            for gsma_descp in gsma_device_descp.get('results'):
-                                gsma.append(gsma_descp.get('gsma'))
-                            response['gsma_device_description'] = gsma
-                        else:
-                            gsma = [None for tac in tacs]
-                            response['gsma_device_description'] = gsma
+                    if gsma_device_descp.get('gsma') is not None:
+                        response['gsma_device_description'] = gsma_device_descp.get('gsma')
                     else:
-                        if gsma_device_descp.get('gsma') is not None:
-                            response['gsma_device_description'] = gsma_device_descp.get('gsma')
-                        else:
-                            response['gsma_device_description'] = [None]
+                        response['gsma_device_description'] = [None]
 
-                    return Response(json.dumps(DevicesDescription().dump(response).data),
-                                    status=200, mimetype='application/json')
+                return Response(json.dumps(DevicesDescription().dump(response).data),
+                                status=200, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+        else:  # if it is de-registration type request
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
+                devices = request.devices
+                tacs = [device.tac for device in devices]
+                gsma_device_descp = Utilities.get_devices_description(tacs)
+
+                user_devices_descp = []
+                for device in devices:
+                    user_device = DeRegDevice.get_by_id(device.id)
+                    device_descp = {
+                        'brand': user_device.brand,
+                        'model_name': user_device.model_name,
+                        'model_number': user_device.model_num,
+                        'operating_system': user_device.operating_system,
+                        'device_type': user_device.device_type,
+                        'radio_access_technology': user_device.technology
+                    }
+                    user_devices_descp.append(device_descp)
+
+                response = {
+                    'user_device_description': user_devices_descp
+                }
+                if len(tacs) > 1:
+                    if gsma_device_descp.get('results') is not None:
+                        gsma = []
+                        for gsma_descp in gsma_device_descp.get('results'):
+                            gsma.append(gsma_descp.get('gsma'))
+                        response['gsma_device_description'] = gsma
+                    else:
+                        gsma = [None for tac in tacs]
+                        response['gsma_device_description'] = gsma
                 else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
+                    if gsma_device_descp.get('gsma') is not None:
+                        response['gsma_device_description'] = gsma_device_descp.get('gsma')
+                    else:
+                        response['gsma_device_description'] = [None]
 
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
-            }
+                return Response(json.dumps(DevicesDescription().dump(response).data),
+                                status=200, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
 
     # noinspection PyMethodMayBeStatic
     def extract_tacs(self, imeis):
@@ -493,58 +457,50 @@ class IMEIRegistrationStatus(MethodResource):
             return Response(json.dumps(ErrorResponse().dump(res).data),
                             status=422, mimetype='application/json')
 
-        try:
-            if request_type == RequestTypes.REG_REQUEST.value:
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
-                    res = RegDetails.get_imeis_count(request.user_id)
+        if request_type == RequestTypes.REG_REQUEST.value:
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
+                res = RegDetails.get_imeis_count(request.user_id)
 
-                    # calc duplicated imeis
-                    duplicated_imeis = RegDetails.get_duplicate_imeis(request)
-                    if duplicated_imeis and not request.status == 6:
-                        res.update({'duplicated': len(RegDetails.get_duplicate_imeis(request))})
-                        Utilities.generate_imeis_file(duplicated_imeis, request.tracking_id, 'duplicated_imeis')
-                        request.duplicate_imeis_file = '{upload_dir}/{tracking_id}/{file}'.format(
-                            upload_dir=app.config['DRS_UPLOADS'],
-                            tracking_id=request.tracking_id,
-                            file='duplicated_imeis.txt'
-                        )
-                    RegDetails.commit_case_changes(request)
-                    return Response(json.dumps(IMEIRegStatus().dump(res).data), status=200, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-            # return for de-reg request
+                # calc duplicated imeis
+                duplicated_imeis = RegDetails.get_duplicate_imeis(request)
+                if duplicated_imeis and not request.status == 6:
+                    res.update({'duplicated': len(RegDetails.get_duplicate_imeis(request))})
+                    Utilities.generate_imeis_file(duplicated_imeis, request.tracking_id, 'duplicated_imeis')
+                    request.duplicate_imeis_file = '{upload_dir}/{tracking_id}/{file}'.format(
+                        upload_dir=app.config['DRS_UPLOADS'],
+                        tracking_id=request.tracking_id,
+                        file='duplicated_imeis.txt'
+                    )
+                RegDetails.commit_case_changes(request)
+                return Response(json.dumps(IMEIRegStatus().dump(res).data), status=200, mimetype='application/json')
             else:
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
-                    res = DeRegDetails.get_imeis_count(request.user_id)
-                    imeis = DeRegDetails.get_normalized_imeis(request)
-                    invalid_imeis = Utilities.get_not_registered_imeis(imeis)  # return only invalid imeis
-                    res.update({'invalid': len(invalid_imeis)})
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+        # return for de-reg request
+        else:
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
+                res = DeRegDetails.get_imeis_count(request.user_id)
+                imeis = DeRegDetails.get_normalized_imeis(request)
+                invalid_imeis = Utilities.get_not_registered_imeis(imeis)  # return only invalid imeis
+                res.update({'invalid': len(invalid_imeis)})
 
-                    # generate invalid imei file
-                    if invalid_imeis:
-                        Utilities.generate_imeis_file(invalid_imeis, request.tracking_id, 'invalid_imeis')
-                        request.invalid_imeis_file = '{upload_dir}/{tracking_id}/{file}'.format(
-                            upload_dir=GLOBAL_CONF.get('upload_directory'),
-                            tracking_id=request.tracking_id,
-                            file='invalid_imeis.txt'
-                        )
-                    DeRegDetails.commit_case_changes(request)
-                    return Response(json.dumps(IMEIRegStatus().dump(res).data), status=200, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
-            }
-
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+                # generate invalid imei file
+                if invalid_imeis:
+                    Utilities.generate_imeis_file(invalid_imeis, request.tracking_id, 'invalid_imeis')
+                    request.invalid_imeis_file = '{upload_dir}/{tracking_id}/{file}'.format(
+                        upload_dir=GLOBAL_CONF.get('upload_directory'),
+                        tracking_id=request.tracking_id,
+                        file='invalid_imeis.txt'
+                    )
+                DeRegDetails.commit_case_changes(request)
+                return Response(json.dumps(IMEIRegStatus().dump(res).data), status=200, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
 
 class RequestDocuments(MethodResource):
@@ -571,58 +527,50 @@ class RequestDocuments(MethodResource):
             return Response(json.dumps(ErrorResponse().dump(res).data),
                             status=422, mimetype='application/json')
 
-        try:
-            if request_type == RequestTypes.REG_REQUEST.value:
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
-                    tracking_id = request.tracking_id
-                    docs = []
-                    for document in request.documents:
-                        reg_doc = ReqDocument.get_document_by_id(document.document_id)
-                        dat = {
-                            'document_type': reg_doc.label,
-                            'link': '{server_dir}/{local_dir}/{file_name}'.format(
-                                server_dir=app.config['DRS_UPLOADS'],
-                                local_dir=tracking_id,
-                                file_name=document.filename
-                            )
-                        }
-                        docs.append(dat)
-                    return Response(json.dumps(Documents().dump({'documents': docs}).data), status=200,
-                                    mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
+        if request_type == RequestTypes.REG_REQUEST.value:
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
+                tracking_id = request.tracking_id
+                docs = []
+                for document in request.documents:
+                    reg_doc = ReqDocument.get_document_by_id(document.document_id)
+                    dat = {
+                        'document_type': reg_doc.label,
+                        'link': '{server_dir}/{local_dir}/{file_name}'.format(
+                            server_dir=app.config['DRS_UPLOADS'],
+                            local_dir=tracking_id,
+                            file_name=document.filename
+                        )
+                    }
+                    docs.append(dat)
+                return Response(json.dumps(Documents().dump({'documents': docs}).data), status=200,
+                                mimetype='application/json')
             else:
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
-                    tracking_id = request.tracking_id
-                    docs = []
-                    for document in request.documents:
-                        dreg_doc = ReqDocument.get_document_by_id(document.document_id)
-                        dat = {
-                            'document_type': dreg_doc.label,
-                            'link': '{server_dir}/{local_dir}/{file_name}'.format(
-                                server_dir=app.config['DRS_UPLOADS'],
-                                local_dir=tracking_id,
-                                file_name=document.filename
-                            )
-                        }
-                        docs.append(dat)
-                    return Response(json.dumps(Documents().dump({'documents': docs}).data), status=200,
-                                    mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
-            }
-
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+        else:
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
+                tracking_id = request.tracking_id
+                docs = []
+                for document in request.documents:
+                    dreg_doc = ReqDocument.get_document_by_id(document.document_id)
+                    dat = {
+                        'document_type': dreg_doc.label,
+                        'link': '{server_dir}/{local_dir}/{file_name}'.format(
+                            server_dir=app.config['DRS_UPLOADS'],
+                            local_dir=tracking_id,
+                            file_name=document.filename
+                        )
+                    }
+                    docs.append(dat)
+                return Response(json.dumps(Documents().dump({'documents': docs}).data), status=200,
+                                mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
 
 class Sections(MethodResource):
@@ -645,41 +593,33 @@ class Sections(MethodResource):
         request_id = kwargs.get('request_id')
         request_type = kwargs.get('request_type')
 
-        try:
-            # if registration request
-            if request_type == RequestTypes.REG_REQUEST.value:
-                if RegDetails.exists(request_id):
-                    response = []
-                    for section in SectionTypes:
-                        sec = RegDetails.get_section_by_state(request_id, section.value)
+        # if registration request
+        if request_type == RequestTypes.REG_REQUEST.value:
+            if RegDetails.exists(request_id):
+                response = []
+                for section in SectionTypes:
+                    sec = RegDetails.get_section_by_state(request_id, section.value)
+                    response.append(sec)
+                return Response(json.dumps(SectionSchema().dump(dict({'sections': response})).data),
+                                status=200, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+
+        else:  # de-registration request
+            if DeRegDetails.exists(request_id):
+                response = []
+                for section in SectionTypes:
+                    if section.value != SectionTypes.DEVICE_QUOTA.value:
+                        sec = DeRegDetails.get_section_by_state(request_id, section.value)
                         response.append(sec)
-                    return Response(json.dumps(SectionSchema().dump(dict({'sections': response})).data),
-                                    status=200, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-
-            else:  # de-registration request
-                if DeRegDetails.exists(request_id):
-                    response = []
-                    for section in SectionTypes:
-                        if section.value != SectionTypes.DEVICE_QUOTA.value:
-                            sec = DeRegDetails.get_section_by_state(request_id, section.value)
-                            response.append(sec)
-                    return Response(json.dumps(SectionSchema().dump(dict({'sections': response})).data),
-                                    status=200, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
-            }
-
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+                return Response(json.dumps(SectionSchema().dump(dict({'sections': response})).data),
+                                status=200, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
 
 # noinspection PyMethodMayBeStatic
@@ -745,74 +685,177 @@ class SubmitReview(MethodResource):
         request_type = kwargs.get('request_type')
         reviewer_id = kwargs.get('reviewer_id')
 
-        try:
-            if request_type == RequestTypes.REG_REQUEST.value:  # registration request
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
-                    # if request is approved, rejected or closed, do nothing
-                    if request.status in [f.value for f in RequestStatusTypes]:
-                        res = {
-                            'error': ['Request cannot be entertained, request is already {0}'.format(
-                                RequestStatusTypes(request.status).name)]
-                        }
+        if request_type == RequestTypes.REG_REQUEST.value:  # registration request
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
+                # if request is approved, rejected or closed, do nothing
+                if request.status in [f.value for f in RequestStatusTypes]:
+                    res = {
+                        'error': ['Request cannot be entertained, request is already {0}'.format(
+                            RequestStatusTypes(request.status).name)]
+                    }
+                    return Response(json.dumps(ErrorResponse().dump(res).data),
+                                    status=400, mimetype='application/json')
+                else:
+                    if request.reviewer_id == reviewer_id:
+                        sections_info = []
+                        for section in SectionTypes:
+                            sec = RegDetails.get_section_by_state(request_id, section.value)
+                            sections_info.append(sec.get('section_status'))
+
+                        # check if any section is rejected
+                        if any(status == 7 for status in sections_info):
+                            case_status = 7
+                            request.status = case_status
+                            RegDetails.commit_case_changes(request)
+
+                            # change imei status
+                            imeis = RegDetails.get_normalized_imeis(request)
+                            self.__change_rejected_imeis_status(imeis)
+
+                            # generate notification
+                            message = 'Your request {id} has been rejected'.format(id=request.id)
+                            self.__generate_notification(user_id=request.user_id, request_id=request_id,
+                                                         request_type=request_type, request_status=case_status,
+                                                         message=message)
+
+                            res = {
+                                'request_id': request_id,
+                                'request_type': request_type,
+                                'status': request.status,
+                                'message': 'case {id} updated successfully'.format(id=request_id)
+                            }
+                            return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
+                                            status=201, mimetype='application/json')
+                        elif all(status == 6 for status in sections_info):
+                            case_status = 6
+
+                            # check if imeis are already duplicated than don't approve
+                            duplicated_imeis = RegDetails.get_duplicate_imeis(request)
+                            if duplicated_imeis:
+                                res = {'error': [
+                                    'unable to approve case {id}, duplicated imeis found'.format(id=request_id)
+                                ]}
+                                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                                status=400, mimetype='application/json')
+
+                            # else if not duplicated continue
+                            request.status = case_status
+                            RegDetails.commit_case_changes(request)
+
+                            # checkout device quota
+                            imeis = RegDetails.get_normalized_imeis(request)
+                            user_quota = DeviceQuotaModel.get(request.user_id)
+                            current_quota = user_quota.reg_quota
+                            user_quota.reg_quota = current_quota - len(imeis)
+                            DeviceQuotaModel.commit_quota_changes(user_quota)
+
+                            # add imeis to approved imeis table
+                            self.__update_to_approved_imeis(imeis)
+
+                            # generate notification
+                            message = 'Your request {id} has been approved'.format(id=request.id)
+                            self.__generate_notification(user_id=request.user_id, request_id=request_id,
+                                                         request_type=request_type, request_status=case_status,
+                                                         message=message)
+
+                            res = {
+                                'request_id': request_id,
+                                'request_type': request_type,
+                                'status': request.status,
+                                'message': 'case {id} updated successfully'.format(id=request_id)
+                            }
+                            return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
+                                            status=201, mimetype='application/json')
+                        # check if any section is information requested state
+                        elif any(status == 5 for status in sections_info):
+                            case_status = 5
+                            request.status = case_status
+                            RegDetails.commit_case_changes(request)
+
+                            # generate notification
+                            message = 'Your request {id} has been reviewed'.format(id=request.id)
+                            self.__generate_notification(user_id=request.user_id, request_id=request_id,
+                                                         request_type=request_type, request_status=case_status,
+                                                         message=message)
+
+                            res = {
+                                'request_id': request_id,
+                                'request_type': request_type,
+                                'status': request.status,
+                                'message': 'case {id} updated successfully'.format(id=request_id)
+                            }
+                            return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
+                                            status=201, mimetype='application/json')
+                        elif any(status is None for status in sections_info):
+                            res = {'error': [
+                                'unable to update case {id}, complete review process'.format(id=request_id)
+                            ]}
+                            return Response(json.dumps(ErrorResponse().dump(res).data),
+                                            status=400, mimetype='application/json')
+                        else:
+                            res = {'error': [
+                                'unable to update case {id}, complete review process'.format(id=request_id)
+                            ]}
+                            return Response(json.dumps(ErrorResponse().dump(res).data),
+                                            status=400, mimetype='application/json')
+                    else:
+                        res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
                         return Response(json.dumps(ErrorResponse().dump(res).data),
                                         status=400, mimetype='application/json')
-                    else:
-                        if request.reviewer_id == reviewer_id:
-                            sections_info = []
-                            for section in SectionTypes:
-                                sec = RegDetails.get_section_by_state(request_id, section.value)
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+
+        else:  # de-registration request
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
+                # if request is approved, rejected or closed, do nothing
+                if request.status in [f.value for f in RequestStatusTypes]:
+                    res = {
+                        'error': ['Request cannot be entertained, request is already {0}'.format(
+                            RequestStatusTypes(request.status).name)]
+                    }
+                    return Response(json.dumps(ErrorResponse().dump(res).data),
+                                    status=400, mimetype='application/json')
+                else:
+                    if request.reviewer_id == reviewer_id:
+                        sections_info = []
+                        for section in SectionTypes:
+                            if not section.value == SectionTypes.DEVICE_QUOTA.value:
+                                # skip device quota
+                                sec = DeRegDetails.get_section_by_state(request_id, section.value)
                                 sections_info.append(sec.get('section_status'))
 
-                            # check if any section is rejected
-                            if any(status == 7 for status in sections_info):
-                                case_status = 7
+                        # check if any section is rejected
+                        if any(status == 7 for status in sections_info):
+                            case_status = 7
+                            request.status = case_status
+                            DeRegDetails.commit_case_changes(request)
+
+                            # generate notification
+                            message = 'Your request {id} has been rejected'.format(id=request.id)
+                            self.__generate_notification(user_id=request.user_id, request_id=request_id,
+                                                         request_type=request_type, request_status=case_status,
+                                                         message=message)
+
+                            res = {
+                                'request_id': request_id,
+                                'request_type': request_type,
+                                'status': request.status,
+                                'message': 'case {id} updated successfully'.format(id=request_id)
+                            }
+                            return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
+                                            status=201, mimetype='application/json')
+                        elif all(status == 6 for status in sections_info):
+                            case_status = 6
+                            imeis = DeRegDetails.get_normalized_imeis(request)
+                            return_status = Utilities.de_register_imeis(imeis)
+                            invalid_imeis = Utilities.get_not_registered_imeis(imeis)
+                            if return_status:
                                 request.status = case_status
-                                RegDetails.commit_case_changes(request)
-
-                                # change imei status
-                                imeis = RegDetails.get_normalized_imeis(request)
-                                self.__change_rejected_imeis_status(imeis)
-
-                                # generate notification
-                                message = 'Your request {id} has been rejected'.format(id=request.id)
-                                self.__generate_notification(user_id=request.user_id, request_id=request_id,
-                                                             request_type=request_type, request_status=case_status,
-                                                             message=message)
-
-                                res = {
-                                    'request_id': request_id,
-                                    'request_type': request_type,
-                                    'status': request.status,
-                                    'message': 'case {id} updated successfully'.format(id=request_id)
-                                }
-                                return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
-                                                status=201, mimetype='application/json')
-                            elif all(status == 6 for status in sections_info):
-                                case_status = 6
-
-                                # check if imeis are already duplicated than don't approve
-                                duplicated_imeis = RegDetails.get_duplicate_imeis(request)
-                                if duplicated_imeis:
-                                    res = {'error': [
-                                        'unable to approve case {id}, duplicated imeis found'.format(id=request_id)
-                                    ]}
-                                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                                    status=400, mimetype='application/json')
-
-                                # else if not duplicated continue
-                                request.status = case_status
-                                RegDetails.commit_case_changes(request)
-
-                                # checkout device quota
-                                imeis = RegDetails.get_normalized_imeis(request)
-                                user_quota = DeviceQuotaModel.get(request.user_id)
-                                current_quota = user_quota.reg_quota
-                                user_quota.reg_quota = current_quota - len(imeis)
-                                DeviceQuotaModel.commit_quota_changes(user_quota)
-
-                                # add imeis to approved imeis table
-                                self.__update_to_approved_imeis(imeis)
+                                DeRegDetails.commit_case_changes(request)
 
                                 # generate notification
                                 message = 'Your request {id} has been approved'.format(id=request.id)
@@ -828,168 +871,57 @@ class SubmitReview(MethodResource):
                                 }
                                 return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
                                                 status=201, mimetype='application/json')
-                            # check if any section is information requested state
-                            elif any(status == 5 for status in sections_info):
-                                case_status = 5
-                                request.status = case_status
-                                RegDetails.commit_case_changes(request)
-
-                                # generate notification
-                                message = 'Your request {id} has been reviewed'.format(id=request.id)
-                                self.__generate_notification(user_id=request.user_id, request_id=request_id,
-                                                             request_type=request_type, request_status=case_status,
-                                                             message=message)
-
+                            elif return_status is False and invalid_imeis:
                                 res = {
-                                    'request_id': request_id,
-                                    'request_type': request_type,
-                                    'status': request.status,
-                                    'message': 'case {id} updated successfully'.format(id=request_id)
+                                    'error': 'Unable to approve, invalid imeis found'
                                 }
-                                return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
-                                                status=201, mimetype='application/json')
-                            elif any(status is None for status in sections_info):
-                                res = {'error': [
-                                    'unable to update case {id}, complete the review process'.format(id=request_id)
-                                ]}
                                 return Response(json.dumps(ErrorResponse().dump(res).data),
                                                 status=400, mimetype='application/json')
                             else:
-                                res = {'error': [
-                                    'unable to update case {id}, complete the review process'.format(id=request_id)
-                                ]}
+                                res = {
+                                    'error': 'Unable to De-Register IMEIs, check system logs'
+                                }
                                 return Response(json.dumps(ErrorResponse().dump(res).data),
-                                                status=400, mimetype='application/json')
-                        else:
-                            res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
+                                                status=500, mimetype='application/json')
+
+                        # check if any section is information requested state
+                        elif any(status == 5 for status in sections_info):
+                            case_status = 5
+                            request.status = case_status
+                            DeRegDetails.commit_case_changes(request)
+
+                            # generate notification
+                            message = 'Your request {id} has been reviewed'.format(id=request.id)
+                            self.__generate_notification(user_id=request.user_id, request_id=request_id,
+                                                         request_type=request_type, request_status=case_status,
+                                                         message=message)
+
+                            res = {
+                                'request_id': request_id,
+                                'request_type': request_type,
+                                'status': request.status,
+                                'message': 'case {id} updated successfully'.format(id=request_id)
+                            }
+                            return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
+                                            status=201, mimetype='application/json')
+                        elif any(status is None for status in sections_info):
+                            res = {'error': [
+                                'unable to update case {id}, complete the review process'.format(id=request_id)]}
                             return Response(json.dumps(ErrorResponse().dump(res).data),
                                             status=400, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-
-            else:  # de-registration request
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
-                    # if request is approved, rejected or closed, do nothing
-                    if request.status in [f.value for f in RequestStatusTypes]:
-                        res = {
-                            'error': ['Request cannot be entertained, request is already {0}'.format(
-                                RequestStatusTypes(request.status).name)]
-                        }
+                        else:
+                            res = {'error': [
+                                'unable to update case {id}, complete the review process'.format(id=request_id)]}
+                            return Response(json.dumps(ErrorResponse().dump(res).data),
+                                            status=400, mimetype='application/json')
+                    else:
+                        res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
                         return Response(json.dumps(ErrorResponse().dump(res).data),
                                         status=400, mimetype='application/json')
-                    else:
-                        if request.reviewer_id == reviewer_id:
-                            sections_info = []
-                            for section in SectionTypes:
-                                if not section.value == SectionTypes.DEVICE_QUOTA.value:
-                                    # skip device quota
-                                    sec = DeRegDetails.get_section_by_state(request_id, section.value)
-                                    sections_info.append(sec.get('section_status'))
-
-                            # check if any section is rejected
-                            if any(status == 7 for status in sections_info):
-                                case_status = 7
-                                request.status = case_status
-                                DeRegDetails.commit_case_changes(request)
-
-                                # generate notification
-                                message = 'Your request {id} has been rejected'.format(id=request.id)
-                                self.__generate_notification(user_id=request.user_id, request_id=request_id,
-                                                             request_type=request_type, request_status=case_status,
-                                                             message=message)
-
-                                res = {
-                                    'request_id': request_id,
-                                    'request_type': request_type,
-                                    'status': request.status,
-                                    'message': 'case {id} updated successfully'.format(id=request_id)
-                                }
-                                return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
-                                                status=201, mimetype='application/json')
-                            elif all(status == 6 for status in sections_info):
-                                case_status = 6
-                                imeis = DeRegDetails.get_normalized_imeis(request)
-                                return_status = Utilities.de_register_imeis(imeis)
-                                invalid_imeis = Utilities.get_not_registered_imeis(imeis)
-                                if return_status:
-                                    request.status = case_status
-                                    DeRegDetails.commit_case_changes(request)
-
-                                    # generate notification
-                                    message = 'Your request {id} has been approved'.format(id=request.id)
-                                    self.__generate_notification(user_id=request.user_id, request_id=request_id,
-                                                                 request_type=request_type, request_status=case_status,
-                                                                 message=message)
-
-                                    res = {
-                                        'request_id': request_id,
-                                        'request_type': request_type,
-                                        'status': request.status,
-                                        'message': 'case {id} updated successfully'.format(id=request_id)
-                                    }
-                                    return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
-                                                    status=201, mimetype='application/json')
-                                elif return_status is False and invalid_imeis:
-                                    res = {
-                                        'error': 'Unable to approve, invalid imeis found'
-                                    }
-                                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                                    status=400, mimetype='application/json')
-                                else:
-                                    res = {
-                                        'error': 'Unable to De-Register IMEIs, check system logs'
-                                    }
-                                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                                    status=500, mimetype='application/json')
-
-                            # check if any section is information requested state
-                            elif any(status == 5 for status in sections_info):
-                                case_status = 5
-                                request.status = case_status
-                                DeRegDetails.commit_case_changes(request)
-
-                                # generate notification
-                                message = 'Your request {id} has been reviewed'.format(id=request.id)
-                                self.__generate_notification(user_id=request.user_id, request_id=request_id,
-                                                             request_type=request_type, request_status=case_status,
-                                                             message=message)
-
-                                res = {
-                                    'request_id': request_id,
-                                    'request_type': request_type,
-                                    'status': request.status,
-                                    'message': 'case {id} updated successfully'.format(id=request_id)
-                                }
-                                return Response(json.dumps(SubmitSuccessResponse().dump(res).data),
-                                                status=201, mimetype='application/json')
-                            elif any(status is None for status in sections_info):
-                                res = {'error': [
-                                    'unable to update case {id}, complete the review process'.format(id=request_id)]}
-                                return Response(json.dumps(ErrorResponse().dump(res).data),
-                                                status=400, mimetype='application/json')
-                            else:
-                                res = {'error': [
-                                    'unable to update case {id}, complete the review process'.format(id=request_id)]}
-                                return Response(json.dumps(ErrorResponse().dump(res).data),
-                                                status=400, mimetype='application/json')
-                        else:
-                            res = {'error': ['invalid reviewer {id}'.format(id=reviewer_id)]}
-                            return Response(json.dumps(ErrorResponse().dump(res).data),
-                                            status=400, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
-            }
-
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
 
 
 class IMEIClassification(MethodResource):
@@ -1016,67 +948,59 @@ class IMEIClassification(MethodResource):
             return Response(json.dumps(ErrorResponse().dump(res).data),
                             status=422, mimetype='application/json')
 
-        try:
-            if request_type == RequestTypes.REG_REQUEST.value:
-                if RegDetails.exists(request_id):
-                    request = RegDetails.get_by_id(request_id)
+        if request_type == RequestTypes.REG_REQUEST.value:
+            if RegDetails.exists(request_id):
+                request = RegDetails.get_by_id(request_id)
 
-                    if request.summary is not None:
-                        summary = json.loads(request.summary).get('summary')
-                        res = {
-                            'imei_compliance_status': {
-                                'compliant_imeis': summary.get('complaint'),
-                                'non_compliant_imeis': summary.get('non_complaint'),
-                                'provisional_compliant': summary.get('provisional_compliant'),
-                                'provisional_non_compliant': summary.get('provisional_non_compliant')
-                            },
-                            'per_condition_classification_state': {
-                                key: value for key, value in summary.get('count_per_condition').items()
-                            },
-                            'lost_stolen_status': {
-                                'provisional_stolen': summary.get('provisional_stolen'),
-                                'stolen': summary.get('stolen')
-                            },
-                            'seen_on_network': summary.get('seen_on_network')
-                        }
-                        return Response(json.dumps(IMEIClassificationSchema().dump(res).data),
-                                        status=200, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
+                if request.summary is not None:
+                    summary = json.loads(request.summary).get('summary')
+                    res = {
+                        'imei_compliance_status': {
+                            'compliant_imeis': summary.get('complaint'),
+                            'non_compliant_imeis': summary.get('non_complaint'),
+                            'provisional_compliant': summary.get('provisional_compliant'),
+                            'provisional_non_compliant': summary.get('provisional_non_compliant')
+                        },
+                        'per_condition_classification_state': {
+                            key: value for key, value in summary.get('count_per_condition').items()
+                        },
+                        'lost_stolen_status': {
+                            'provisional_stolen': summary.get('provisional_stolen'),
+                            'stolen': summary.get('stolen')
+                        },
+                        'seen_on_network': summary.get('seen_on_network')
+                    }
+                    return Response(json.dumps(IMEIClassificationSchema().dump(res).data),
+                                    status=200, mimetype='application/json')
             else:
-                if DeRegDetails.exists(request_id):
-                    request = DeRegDetails.get_by_id(request_id)
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
+        else:
+            if DeRegDetails.exists(request_id):
+                request = DeRegDetails.get_by_id(request_id)
 
-                    if request.summary is not None:
-                        summary = json.loads(request.summary).get('summary')
-                        res = {
-                            'imei_compliance_status': {
-                                'compliant_imeis': summary.get('complaint'),
-                                'non_compliant_imeis': summary.get('non_complaint'),
-                                'provisional_compliant': summary.get('provisional_compliant'),
-                                'provisional_non_compliant': summary.get('provisional_non_compliant')
-                            },
-                            'per_condition_classification_state': {
-                                key: value for key, value in summary.get('count_per_condition').items()
-                            },
-                            'lost_stolen_status': {
-                                'provisional_stolen': summary.get('provisional_stolen'),
-                                'stolen': summary.get('stolen')
-                            },
-                            'seen_on_network': summary.get('seen_on_network')
-                        }
-                        return Response(json.dumps(IMEIClassificationSchema().dump(res).data),
-                                        status=200, mimetype='application/json')
-                else:
-                    res = {'error': ['request {id} does not exists'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
-                                    status=204, mimetype='application/json')
-        except SQLAlchemyError as e:
-            res = {
-                'error': ['Unable to process the request']
-            }
-
-            app.logger.exception(e)
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+                if request.summary is not None:
+                    summary = json.loads(request.summary).get('summary')
+                    res = {
+                        'imei_compliance_status': {
+                            'compliant_imeis': summary.get('complaint'),
+                            'non_compliant_imeis': summary.get('non_complaint'),
+                            'provisional_compliant': summary.get('provisional_compliant'),
+                            'provisional_non_compliant': summary.get('provisional_non_compliant')
+                        },
+                        'per_condition_classification_state': {
+                            key: value for key, value in summary.get('count_per_condition').items()
+                        },
+                        'lost_stolen_status': {
+                            'provisional_stolen': summary.get('provisional_stolen'),
+                            'stolen': summary.get('stolen')
+                        },
+                        'seen_on_network': summary.get('seen_on_network')
+                    }
+                    return Response(json.dumps(IMEIClassificationSchema().dump(res).data),
+                                    status=200, mimetype='application/json')
+            else:
+                res = {'error': ['request {id} does not exists'.format(id=request_id)]}
+                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                status=204, mimetype='application/json')
