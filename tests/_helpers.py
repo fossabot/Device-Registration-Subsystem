@@ -106,3 +106,4 @@ def create_registraiton(data, tracking_id):
 def create_de_registraiton(data, tracking_id):
     """ Helper method to create a registration request"""
     return DeRegDetails.create(data, tracking_id)
+
