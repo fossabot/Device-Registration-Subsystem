@@ -46,14 +46,3 @@ REQUEST_DATA = {
     'user_id': USER_ID
 }
 
-
-def test_registration_document_post_method(flask_app, db):  # pylint: disable=unused-argument
-    """ To verify that registration document
-        method is working properly and response is correct"""
-
-    headers = {'Content-Type': 'multipart/form-data'}
-
-    # rv = flask_app.post(DEVICE_REGISTRATION_DOC_API, data=REQUEST_DATA, headers=headers)
-    # assert rv.status_code == 200
-
-    # data = json.loads(rv.data.decode('utf-8'))
