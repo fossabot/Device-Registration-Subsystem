@@ -34,7 +34,10 @@ import json
 import uuid
 import copy
 
+from tests._fixtures import *  # pylint: disable=wildcard-import
 from tests._helpers import create_registration
+
+# pylint: disable=redefined-outer-name
 
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 USER_NAME = 'test-abc'

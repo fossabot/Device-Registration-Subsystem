@@ -34,7 +34,7 @@ import uuid
 import copy
 
 from tests._fixtures import *  # pylint: disable=wildcard-import
-from tests._helpers import create_registraiton
+from tests._helpers import create_registration
 from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
 
 # pylint: disable=redefined-outer-name
@@ -130,7 +130,7 @@ def test_device_post_method_missing_user_id(flask_app, db):  # pylint: disable=u
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -148,7 +148,7 @@ def test_device_post_method_empty_user_id(flask_app, db):  # pylint: disable=unu
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -166,7 +166,7 @@ def test_device_post_method_empty_brand(flask_app, db):  # pylint: disable=unuse
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -184,7 +184,7 @@ def test_device_post_method_missing_brand(flask_app, db):  # pylint: disable=unu
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -202,7 +202,7 @@ def test_device_post_method_start_with_tab_brand(flask_app, db):  # pylint: disa
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -220,7 +220,7 @@ def test_device_post_method_end_with_tab_brand(flask_app, db):  # pylint: disabl
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -238,7 +238,7 @@ def test_device_post_method_start_with_space_brand(flask_app, db):  # pylint: di
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -256,7 +256,7 @@ def test_device_post_method_end_with_space_brand(flask_app, db):  # pylint: disa
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -274,7 +274,7 @@ def test_device_post_method_start_with_line_break_brand(flask_app, db):  # pylin
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -292,7 +292,7 @@ def test_device_post_method_end_with_line_break_brand(flask_app, db):  # pylint:
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -310,7 +310,7 @@ def test_device_post_method_empty_operating_system(flask_app, db):  # pylint: di
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -328,7 +328,7 @@ def test_device_post_method_missing_operating_system(flask_app, db):  # pylint: 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -346,7 +346,7 @@ def test_device_post_method_start_with_tab_operating_system(flask_app, db):  # p
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -364,7 +364,7 @@ def test_device_post_method_end_with_tab_operating_system(flask_app, db):  # pyl
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -382,7 +382,7 @@ def test_device_post_method_start_with_space_operating_system(flask_app, db):  #
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -400,7 +400,7 @@ def test_device_post_method_end_with_space_operating_system(flask_app, db):  # p
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -418,7 +418,7 @@ def test_device_post_method_start_with_line_break_operating_system(flask_app, db
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -436,7 +436,7 @@ def test_device_post_method_end_with_line_break_operating_system(flask_app, db):
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -454,7 +454,7 @@ def test_device_post_method_empty_model_name(flask_app, db):  # pylint: disable=
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -472,7 +472,7 @@ def test_device_post_method_missing_model_name(flask_app, db):  # pylint: disabl
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -490,7 +490,7 @@ def test_device_post_method_start_with_tab_model_name(flask_app, db):  # pylint:
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -508,7 +508,7 @@ def test_device_post_method_end_with_tab_model_name(flask_app, db):  # pylint: d
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -526,7 +526,7 @@ def test_device_post_method_start_with_space_model_name(flask_app, db):  # pylin
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -544,7 +544,7 @@ def test_device_post_method_end_with_space_model_name(flask_app, db):  # pylint:
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -562,7 +562,7 @@ def test_device_post_method_start_with_line_break_model_name(flask_app, db):  # 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -580,7 +580,7 @@ def test_device_post_method_end_with_line_break_model_name(flask_app, db):  # py
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -598,7 +598,7 @@ def test_device_post_method_empty_model_num(flask_app, db):  # pylint: disable=u
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -616,7 +616,7 @@ def test_device_post_method_missing_model_num(flask_app, db):  # pylint: disable
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -634,7 +634,7 @@ def test_device_post_method_start_with_tab_model_num(flask_app, db):  # pylint: 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -652,7 +652,7 @@ def test_device_post_method_end_with_tab_model_num(flask_app, db):  # pylint: di
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -670,7 +670,7 @@ def test_device_post_method_start_with_space_model_num(flask_app, db):  # pylint
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -688,7 +688,7 @@ def test_device_post_method_end_with_space_model_num(flask_app, db):  # pylint: 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -706,7 +706,7 @@ def test_device_post_method_start_with_line_break_model_num(flask_app, db):  # p
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -724,7 +724,7 @@ def test_device_post_method_end_with_line_break_model_num(flask_app, db):  # pyl
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -742,7 +742,7 @@ def test_device_post_method_empty_device_type(flask_app, db):  # pylint: disable
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -757,7 +757,7 @@ def test_device_post_method_missing_device_type(flask_app, db):  # pylint: disab
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -775,7 +775,7 @@ def test_device_post_method_start_with_tab_device_type(flask_app, db):  # pylint
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -790,7 +790,7 @@ def test_device_post_method_end_with_tab_device_type(flask_app, db):  # pylint: 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -805,7 +805,7 @@ def test_device_post_method_start_with_space_device_type(flask_app, db):  # pyli
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -820,7 +820,7 @@ def test_device_post_method_end_with_space_device_type(flask_app, db):  # pylint
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -835,7 +835,7 @@ def test_device_post_method_start_with_line_break_device_type(flask_app, db):  #
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -850,7 +850,7 @@ def test_device_post_method_end_with_line_break_device_type(flask_app, db):  # p
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -865,7 +865,7 @@ def test_device_post_method_missing_technologies(flask_app, db):  # pylint: disa
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -880,7 +880,7 @@ def test_device_post_method_end_with_empty_technologies(flask_app, db):  # pylin
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -895,7 +895,7 @@ def test_device_post_method_end_with_invalid_technologies(flask_app, db):  # pyl
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -974,7 +974,7 @@ def test_device_put_method_update_not_allowed(flask_app, db):  # pylint: disable
     headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REQUEST_DATA)
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     request_data['reg_id'] = registration.id
 
     rv = flask_app.put(DEVICE_REGISTRATION_API, data=request_data, headers=headers)
@@ -989,7 +989,7 @@ def test_device_put_method_missing_user_id(flask_app, db):  # pylint: disable=un
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1008,7 +1008,7 @@ def test_device_put_method_empty_user_id(flask_app, db):  # pylint: disable=unus
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1027,7 +1027,7 @@ def test_device_put_method_start_with_tab_brand(flask_app, db):  # pylint: disab
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1046,7 +1046,7 @@ def test_device_put_method_end_with_tab_brand(flask_app, db):  # pylint: disable
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1065,7 +1065,7 @@ def test_device_put_method_start_with_space_brand(flask_app, db):  # pylint: dis
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1084,7 +1084,7 @@ def test_device_put_method_end_with_space_brand(flask_app, db):  # pylint: disab
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1103,7 +1103,7 @@ def test_device_put_method_start_with_line_break_brand(flask_app, db):  # pylint
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1122,7 +1122,7 @@ def test_device_put_method_end_with_line_break_brand(flask_app, db):  # pylint: 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1141,7 +1141,7 @@ def test_device_put_method_empty_operating_system(flask_app, db):  # pylint: dis
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1160,7 +1160,7 @@ def test_device_put_method_start_with_tab_operating_system(flask_app, db):  # py
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1179,7 +1179,7 @@ def test_device_put_method_end_with_tab_operating_system(flask_app, db):  # pyli
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1198,7 +1198,7 @@ def test_device_put_method_start_with_space_operating_system(flask_app, db):  # 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1217,7 +1217,7 @@ def test_device_put_method_end_with_space_operating_system(flask_app, db):  # py
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1236,7 +1236,7 @@ def test_device_put_method_start_with_line_break_operating_system(flask_app, db)
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1255,7 +1255,7 @@ def test_device_put_method_end_with_line_break_operating_system(flask_app, db): 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1274,7 +1274,7 @@ def test_device_put_method_empty_model_name(flask_app, db):  # pylint: disable=u
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1293,7 +1293,7 @@ def test_device_put_method_start_with_tab_model_name(flask_app, db):  # pylint: 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1312,7 +1312,7 @@ def test_device_put_method_end_with_tab_model_name(flask_app, db):  # pylint: di
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1331,7 +1331,7 @@ def test_device_put_method_start_with_space_model_name(flask_app, db):  # pylint
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1350,7 +1350,7 @@ def test_device_put_method_end_with_space_model_name(flask_app, db):  # pylint: 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1369,7 +1369,7 @@ def test_device_put_method_start_with_line_break_model_name(flask_app, db):  # p
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1388,7 +1388,7 @@ def test_device_put_method_end_with_line_break_model_name(flask_app, db):  # pyl
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1407,7 +1407,7 @@ def test_device_put_method_empty_model_num(flask_app, db):  # pylint: disable=un
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1426,7 +1426,7 @@ def test_device_put_method_start_with_tab_model_num(flask_app, db):  # pylint: d
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1445,7 +1445,7 @@ def test_device_put_method_end_with_tab_model_num(flask_app, db):  # pylint: dis
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1464,7 +1464,7 @@ def test_device_put_method_start_with_space_model_num(flask_app, db):  # pylint:
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1483,7 +1483,7 @@ def test_device_put_method_end_with_space_model_num(flask_app, db):  # pylint: d
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1502,7 +1502,7 @@ def test_device_put_method_start_with_line_break_model_num(flask_app, db):  # py
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1521,7 +1521,7 @@ def test_device_put_method_end_with_line_break_model_num(flask_app, db):  # pyli
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1540,7 +1540,7 @@ def test_device_put_method_empty_device_type(flask_app, db):  # pylint: disable=
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1556,7 +1556,7 @@ def test_device_put_method_start_with_tab_device_type(flask_app, db):  # pylint:
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1572,7 +1572,7 @@ def test_device_put_method_end_with_tab_device_type(flask_app, db):  # pylint: d
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1588,7 +1588,7 @@ def test_device_put_method_start_with_space_device_type(flask_app, db):  # pylin
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1604,7 +1604,7 @@ def test_device_put_method_end_with_space_device_type(flask_app, db):  # pylint:
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1620,7 +1620,7 @@ def test_device_put_method_start_with_line_break_device_type(flask_app, db):  # 
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1636,7 +1636,7 @@ def test_device_put_method_end_with_line_break_device_type(flask_app, db):  # py
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1652,7 +1652,7 @@ def test_device_put_method_end_with_empty_technologies(flask_app, db):  # pylint
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
@@ -1668,7 +1668,7 @@ def test_device_put_method_end_with_invalid_technologies(flask_app, db):  # pyli
     """ To verify that registration device
         method is working properly and response is correct"""
 
-    registration = create_registraiton(REG_REQ_DATA, uuid.uuid4())
+    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
     registration.update_status('Pending Review')
     headers = {'Content-Type': 'multipart/form-data'}
 
