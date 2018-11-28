@@ -35,7 +35,7 @@ import uuid
 import copy
 
 from tests._fixtures import *  # pylint: disable=wildcard-import
-from tests._helpers import create_registraiton
+from tests._helpers import create_registration
 
 # pylint: disable=redefined-outer-name
 

@@ -97,13 +97,13 @@ def delete_user_notifications(session, user_id):
 
 
 # registration request creation
-def create_registraiton(data, tracking_id):
+def create_registration(data, tracking_id):
     """ Helper method to create a registration request"""
     return RegDetails.create(data, tracking_id)
 
 
 # de_registration request creation
-def create_de_registraiton(data, tracking_id):
+def create_de_registration(data, tracking_id):
     """ Helper method to create a registration request"""
     return DeRegDetails.create(data, tracking_id)
 

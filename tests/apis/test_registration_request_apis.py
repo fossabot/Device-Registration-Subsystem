@@ -35,7 +35,7 @@ import uuid
 import copy
 
 from tests._fixtures import *  # pylint: disable=wildcard-import
-from tests._helpers import create_registraiton
+from tests._helpers import create_registration
 
 # pylint: disable=redefined-outer-name
 
@@ -230,7 +230,7 @@ def test_invalid_string_in_manufacturing_locations(flask_app, db):  # pylint: di
 def test_device_registration_get_method(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration get
         method is working properly and response is correct"""
-    request = create_registraiton(REQUEST_DATA, uuid.uuid4())
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
 
     api_url = '{api}/{id}'.format(api=DEVICE_REGISTRATION_REQ_API, id=request.id)
     rv = flask_app.get(api_url)
@@ -244,7 +244,7 @@ def test_device_registration_put_method_failure(flask_app, db):  # pylint: disab
     """ To verify that registration put
         method gets failed in case of new request response is correct"""
 
-    request = create_registraiton(REQUEST_DATA, uuid.uuid4())
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
     modified_data = {'m_location': 'overseas', 'reg_id': request.id, 'user_id': USER_ID}
     rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
