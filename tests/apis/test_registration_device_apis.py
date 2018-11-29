@@ -33,7 +33,6 @@ import json
 import uuid
 import copy
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
 from tests._helpers import create_registration
 from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
 
