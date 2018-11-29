@@ -1,15 +1,25 @@
 """
-DRS Status Model package.
+module for assigning custom fixture to pytest
+
 Copyright (c) 2018 Qualcomm Technologies, Inc.
+
  All rights reserved.
+
+
+
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
+
+
  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  disclaimer.
+
  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
  disclaimer in the documentation and/or other materials provided with the distribution.
+
  * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
  products derived from this software without specific prior written permission.
+
  NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
  THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
@@ -19,36 +29,4 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-from app import db
-from functools import lru_cache
-
-
-class Status(db.Model):
-    """Database model for status table."""
-    __tablename__ = 'status'
-
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(30), nullable=False)
-
-    @staticmethod
-    @lru_cache(maxsize=32)
-    def get_status_id(status_description):
-        """Return id of a status."""
-        status = Status.query.filter_by(description=status_description).first()
-        if status:
-            return status.id
-        return status
-
-    @staticmethod
-    @lru_cache(maxsize=32)
-    def get_status_type(status_id):
-        """Return type of status."""
-        status = Status.query.filter_by(id=status_id).first()
-        if status:
-            return status.description
-        return status
-
-    @staticmethod
-    def get_status_types():
-        """Return all status types."""
-        return Status.query.all()
+pytest_plugins = ['tests/_fixtures']

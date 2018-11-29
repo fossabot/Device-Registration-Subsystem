@@ -33,10 +33,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 import json
 import uuid
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
-from tests._helpers import create_registraiton
-
-# pylint: disable=redefined-outer-name
+from tests._helpers import create_registration
 
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 USER_NAME = 'test-abc'
@@ -75,7 +72,7 @@ def test_device_registration_post_method(flask_app, db):  # pylint: disable=unus
 def test_device_registration_get_method(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration get
         method is working properly and response is correct"""
-    request = create_registraiton(REQUEST_DATA, uuid.uuid4())
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
 
     api_url = '{api}/{id}'.format(api=DEVICE_REGISTRATION_REQ_API, id=request.id)
     rv = flask_app.get(api_url)
@@ -89,7 +86,7 @@ def test_device_registration_put_method_failure(flask_app, db):  # pylint: disab
     """ To verify that registration put
         method gets failed in case of new request response is correct"""
 
-    request = create_registraiton(REQUEST_DATA, uuid.uuid4())
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
     headers = {'Content-Type': 'multipart/form-data'}
     modified_data = {'m_location': 'overseas', 'reg_id': request.id, 'user_id': USER_ID}
     rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)

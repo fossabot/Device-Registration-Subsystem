@@ -31,9 +31,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
+from tests._helpers import create_assigned_dummy_request, create_dummy_request
 
-# pylint: disable=redefined-outer-name,unused-argument
 # api urls
 REVIEW_SECTION_API = 'api/v1/review/review-section'
 
@@ -187,7 +186,7 @@ def test_null_input_params(flask_app):
     assert json.loads(rv.data.decode('utf-8'))['error'] == ['reviewer_id is required']
 
 
-def test_request_not_exists(flask_app, db):
+def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api responds correctly when no request exists in system."""
     headers = {'Content-Type': 'application/json'}
 
@@ -204,6 +203,140 @@ def test_request_not_exists(flask_app, db):
                  'reviewer_id': 'rev1'}
     rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body_data), headers=headers)
     assert rv.status_code == 204
+
+
+def test_review_section_status_param(flask_app):
+    """Verify that the status param should be in 5,6,7 and api responds accordingly."""
+    headers = {'Content-Type': 'application/json'}
+    for status in [1, 2, 4, 10, 15, 9, 8]:
+        body_data = {'section': 'device_quota', 'status': status, 'request_type': 'registration_request',
+                     'request_id': 12312313234234231231313, 'comment': 'this is a test comment',
+                     'reviewer_name': 'rev1',
+                     'reviewer_id': 'rev1'}
+        rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body_data), headers=headers)
+        assert rv.status_code == 422
+        data = json.loads(rv.data.decode('utf-8'))
+        assert data['error'] == ['section_status must be Information Requested, Approved or Rejected']
+
+
+def test_review_section(flask_app, db):  # pylint: disable=unused-argument
+    """Verify that if a request is in review already than a section of it can be reviewed."""
+    headers = {'Content-Type': 'application/json'}
+
+    # registration request
+    reviewer_id = 'section-rev-1'
+    reviewer_name = 'section rev'
+    data = {
+        'device_count': 2,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010', '86834403015011']]",
+        'm_location': 'local',
+        'user_name': 'section rev user 1',
+        'user_id': 'section-rev-user-1'
+    }
+    request = create_assigned_dummy_request(data, 'Registration', reviewer_id, reviewer_name)
+    assert request
+    request_id = request.id
+
+    # making api call
+    body = {
+        'section': 'device_quota',
+        'request_type': 'registration_request',
+        'status': 6,
+        'request_id': request_id,
+        'comment': 'this is a test comment',
+        'reviewer_id': reviewer_id,
+        'reviewer_name': reviewer_name
+    }
+    rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body), headers=headers)
+    assert rv.status_code == 201
+    assert json.loads(rv.data.decode('utf-8'))['message'] == 'Comment on request added successfully'
+
+    # test with invalid reviewer_id
+    body['reviewer_id'] = 'abc-rev1'
+    rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body), headers=headers)
+    assert rv.status_code == 400
+    assert json.loads(rv.data.decode('utf-8'))['error'] == ['invalid reviewer abc-rev1']
+
+    # de-registration test
+    data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_assigned_dummy_request(data, 'De-Registration', reviewer_id, reviewer_name)
+    assert request
+    request_id = request.id
+
+    # make api call
+    body['request_type'] = 'de_registration_request'
+    body['request_id'] = request_id
+    body['reviewer_id'] = reviewer_id
+    rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body), headers=headers)
+    assert rv.status_code == 201
+    assert json.loads(rv.data.decode('utf-8'))['message'] == 'Comment on request added successfully'
+
+    # test with invalid reviewer
+    body['reviewer_id'] = 'test-abc'
+    rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body), headers=headers)
+    assert rv.status_code == 400
+    assert json.loads(rv.data.decode('utf-8'))['error'] == ['invalid reviewer test-abc']
+
+
+def test_pending_review_request(flask_app, db):  # pylint: disable=unused-argument
+    """Verify that a pending request sections can not be reviewed."""
+    headers = {'Content-Type': 'application/json'}
+
+    # registration request
+    reviewer_id = 'section-rev-1'
+    reviewer_name = 'section rev'
+    data = {
+        'device_count': 2,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010', '86834403015011']]",
+        'm_location': 'local',
+        'user_name': 'section rev user 1',
+        'user_id': 'section-rev-user-1'
+    }
+    request = create_dummy_request(data, 'Registration')
+    assert request
+    request_id = request.id
+
+    # make api call
+    body = {
+        'section': 'device_quota',
+        'request_type': 'registration_request',
+        'status': 6,
+        'request_id': request_id,
+        'comment': 'this is a test comment',
+        'reviewer_id': reviewer_id,
+        'reviewer_name': reviewer_name
+    }
+    rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body), headers=headers)
+    assert rv.status_code == 400
+    assert json.loads(rv.data.decode('utf-8'))['error'] == ['request {0} should be in-review'.format(request_id)]
+
+    # de-registration test
+    data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_dummy_request(data, 'De-Registration')
+    assert request
+    request_id = request.id
+
+    # make api call
+    body['request_type'] = 'de_registration_request'
+    body['request_id'] = request_id
+    body['reviewer_id'] = reviewer_id
+    rv = flask_app.put(REVIEW_SECTION_API, data=json.dumps(body), headers=headers)
+    assert rv.status_code == 400
+    assert json.loads(rv.data.decode('utf-8'))['error'] == ['request {0} should be in-review'.format(request_id)]
 
 
 def test_post_method_not_allowed(flask_app):

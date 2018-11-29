@@ -30,7 +30,7 @@ from itertools import chain
 import pydash
 import requests
 
-from app import GLOBAL_CONF, db, app
+from app import GLOBAL_CONF, db, app, CORE_BASE_URL
 from app.api.v1.helpers.fileprocessor import Processor
 from app.api.v1.models.approvedimeis import ApprovedImeis
 
@@ -165,6 +165,8 @@ class Utilities:
         complete_path = os.path.join(upload_path, '{0}.txt'.format(file_type))
 
         try:
+            if not os.path.exists(os.path.dirname(complete_path)):
+                os.makedirs(os.path.dirname(complete_path))
             with open(complete_path, 'w') as duplicate_imei_file:
                 for imei in imeis:
                     duplicate_imei_file.write('%s\n' % imei)
@@ -477,7 +479,7 @@ class Utilities:
 
         This method expect a SET of tacs.
         """
-        request_url = '{base_url}/tac'.format(base_url=Utilities.core_api_v2)
+        request_url = '{base_url}/tac'.format(base_url=app.config['CORE_BASE_URL'])
         if type(tacs) is not list:
             raise ValueError('Bad argument format for tacs')
         else:

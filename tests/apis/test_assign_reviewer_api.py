@@ -31,9 +31,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
+from tests._helpers import create_dummy_request
 
-# pylint: disable=redefined-outer-name
 # api urls
 ASSIGN_REVIEWER_API = 'api/v1/review/assign-reviewer'
 
@@ -91,6 +90,45 @@ def test_with_invalid_params(flask_app, db):  # pylint: disable=unused-argument
     assert data.get('reviewer_name') == ["Bad 'reviewer_name':'23234' argument format."]
 
 
+def test_null_params(flask_app):
+    """Verify that the api responds properly when null params are supplied."""
+    # no request_id param
+    headers = {'Content-Type': 'application/json'}
+    body_data = {
+        'request_type': 'registration_request',
+        'reviewer_id': 'string',
+        'reviewer_name': 'string'
+    }
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['request_id is required']
+
+    # no request_type param
+    body_data.update({'request_id': 5667})
+    del body_data['request_type']
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['request_type is required']
+
+    # no reviewer_id
+    body_data.update({'request_type': 'registration_request'})
+    del body_data['reviewer_id']
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['reviewer_id is required']
+
+    # no reviewer_name
+    body_data.update({'reviewer_id': 'dgggd'})
+    del body_data['reviewer_name']
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['reviewer_name is required']
+
+
 def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     """Verify that the api responds with correct message if the request for which
     id is given does not exists in the system.
@@ -110,6 +148,166 @@ def test_request_not_exists(flask_app, db):  # pylint: disable=unused-argument
     body_data['request_type'] = 'de_registration_request'
     rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(body_data), headers=headers)
     assert rv.status_code == 204
+
+
+def test_assign_reviewer(flask_app, db):  # pylint: disable=unused-argument
+    """Verify that the assign reviewer api assigns a reviewer to a
+    request in pending review status.
+    """
+    headers = {'Content-Type': 'application/json'}
+    data = {
+        'device_count': 1,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010']]",
+        'm_location': 'local',
+        'user_name': 'assign rev user 1',
+        'user_id': 'assign-rev-user-1'
+    }
+
+    # registration request test, creating dummy request
+    request = create_dummy_request(data, 'Registration')
+    assert request
+    request_id = request.id
+
+    # make api request
+    reviewer_id = 'assign-rev-1'
+    request_data = {
+        'request_id': request_id,
+        'reviewer_id': reviewer_id,
+        'reviewer_name': 'assign rev',
+        'request_type': 'registration_request'
+    }
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 201
+    rv_data = json.loads(rv.data.decode('utf-8'))
+    assert rv_data['message'] == 'reviewer {0} assigned to request {1}'.format(reviewer_id, request_id)
+
+    # de-registration request test, creating dummy request
+    data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_dummy_request(data, 'De-Registration')
+    request_id = request.id
+
+    # make api call
+    request_data['request_id'] = request_id
+    request_data['request_type'] = 'de_registration_request'
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 201
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['message'] == 'reviewer {0} assigned to request {1}'.format(reviewer_id, request_id)
+
+
+def test_incomplete_request(flask_app, db):  # pylint: disable=unused-argument
+    """Verify that the api do not assign an incomplete request and respond accordingly."""
+    # registration request
+    headers = {'Content-Type': 'application/json'}
+    data = {
+        'device_count': 1,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010']]",
+        'm_location': 'local',
+        'user_name': 'assign rev user 1',
+        'user_id': 'assign-rev-user-1'
+    }
+    request = create_dummy_request(data, 'Registration', 'In Review')
+    assert request
+    request_id = request.id
+
+    # make api call
+    reviewer_id = 'assign-rev-1'
+    request_data = {
+        'request_id': request_id,
+        'reviewer_id': reviewer_id,
+        'reviewer_name': 'assign rev',
+        'request_type': 'registration_request'
+    }
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 400
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['incomplete request {0} can not be assigned/reviewed'.format(request_id)]
+
+    # de registration test
+    data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_dummy_request(data, 'De-Registration', 'In Review')
+    request_id = request.id
+
+    # make api call
+    request_data['request_id'] = request_id
+    request_data['request_type'] = 'de_registration_request'
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 400
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['error'] == ['incomplete request {0} can not be assigned/reviewed'.format(request_id)]
+
+
+def test_already_assigned_request(flask_app, db):  # pylint: disable=unused-argument
+    """Verify that the api do not reassign an already assigned request and respond accordingly."""
+    # make dummy registration request, assign it and then try to reassign it
+    headers = {'Content-Type': 'application/json'}
+    data = {
+        'device_count': 1,
+        'imei_per_device': 1,
+        'imeis': "[['86834403015010']]",
+        'm_location': 'local',
+        'user_name': 'assign rev user 1',
+        'user_id': 'assign-rev-user-1'
+    }
+
+    # registration request test, creating dummy request
+    request = create_dummy_request(data, 'Registration')
+    assert request
+    request_id = request.id
+
+    # make api request
+    reviewer_id = 'assign-rev-1'
+    request_data = {
+        'request_id': request_id,
+        'reviewer_id': reviewer_id,
+        'reviewer_name': 'assign rev',
+        'request_type': 'registration_request'
+    }
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 201
+
+    # try to reassign
+    request_data['reviewer_id'] = 'reassign-rev-1'
+    request_data['reviewer_name'] = 'reassign rev'
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 400
+
+    # de-registration test
+    data = {
+        'file': 'de-reg-test-file',
+        'device_count': 1,
+        'user_id': 'assign-rev-user-1',
+        'user_name': 'assign rev user 1',
+        'reason': 'because we have to run tests successfully'
+    }
+    request = create_dummy_request(data, 'De-Registration')
+    request_id = request.id
+
+    # make api call
+    request_data['request_id'] = request_id
+    request_data['request_type'] = 'de_registration_request'
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 201
+
+    # try to reassign
+    request_data['reviewer_id'] = 'rev-2'
+    request_data['reviewer_name'] = 'rev2'
+    rv = flask_app.put(ASSIGN_REVIEWER_API, data=json.dumps(request_data), headers=headers)
+    assert rv.status_code == 400
 
 
 def test_get_method_not_allowed(flask_app):

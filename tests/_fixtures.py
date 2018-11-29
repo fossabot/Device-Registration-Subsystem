@@ -84,6 +84,7 @@ def app(mocked_config, tmpdir_factory):
     app_.config['SQLALCHEMY_DATABASE_URI'] = postgresql.url()
     app_.config['DRS_UPLOADS'] = str(temp_uploads)
     app_.config['DRS_LISTS'] = str(temp_lists)
+    app_.config['CORE_BASE_URL'] = mocked_config['global']['core_api_v2']
     yield app_
 
     # restore old configs after successful session
@@ -119,6 +120,7 @@ def db(app):
     db.engine.execute('DROP TABLE status CASCADE')
     db.engine.execute('DROP TABLE devicetype CASCADE')
     db.engine.execute('DROP TABLE documents CASCADE')
+    db.session.close()
     db.drop_all()
 
 
@@ -140,11 +142,11 @@ def session(db):
 
 
 @pytest.yield_fixture(scope='session')
-def dirbs_core_mock():
-    """Monkey patch DIRBS-Core calls made by DRS."""
+def dirbs_core(app):
+    """
+    Mock server fixture to simulate DIRBS Core API behaviours.
+    Monkey patch DIRBS-Core calls made by DRS."""
     httpretty.enable()
-    from app import GLOBAL_CONF
-
     single_tac_response = {
         "gsma": {
             "allocation_date": "string",
@@ -164,7 +166,7 @@ def dirbs_core_mock():
     }
 
     # mock dirbs core single tac apis
-    dirbs_core_api = GLOBAL_CONF.get('core_api_v2')
+    dirbs_core_api = app.config['CORE_BASE_URL']
     httpretty.register_uri(
         httpretty.GET,
         re.compile(r'{0}/tac/\d'.format(dirbs_core_api)),

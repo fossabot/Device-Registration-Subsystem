@@ -32,14 +32,12 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 import os
 import json
 
-from tests._fixtures import *  # pylint: disable=wildcard-import
 from app.api.v1.models.status import Status
 from app.api.v1.models.devicetype import DeviceType
 from app.api.v1.models.documents import Documents
 from app.api.v1.models.technologies import Technologies
 from app.api.v1.schema.common import ServerConfigs as ServerConfigsSchema
 
-# pylint: disable=redefined-outer-name
 # apis urls
 # all apis urls should be defined on a single point
 SERVER_CONFIGS = 'api/v1/config/server-config'
@@ -48,7 +46,7 @@ FILE_DOWNLOADS = 'api/v1/files/download'
 
 # db fixture needed here for db operations so disable pylint warning
 # flask_app fixture should be here so disable pylint warning
-def test_server_config_api(flask_app, db):  # pylint: disable=unused-argument,redefined-outer-name
+def test_server_config_api(flask_app, db):  # pylint: disable=unused-argument
     """To verify that the server config apis response is correct as
     per data in database.
     """
