@@ -29,3 +29,19 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+
+import json
+import uuid
+import copy
+
+from tests._helpers import create_registration
+
+# pylint: disable=redefined-outer-name
+
+DEVICE_REGISTRATION_DOC_API = 'api/v1/registration/documents'
+USER_NAME = 'test-abc'
+USER_ID = '17102'
+REQUEST_DATA = {
+    'user_id': USER_ID
+}
+

@@ -32,8 +32,11 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 
 import json
 import uuid
+import copy
 
 from tests._helpers import create_registration
+
+# pylint: disable=redefined-outer-name
 
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 USER_NAME = 'test-abc'
@@ -67,6 +70,159 @@ def test_device_registration_post_method(flask_app, db):  # pylint: disable=unus
     assert data['report_status_label'] == 'New Request'
     assert data['processing_status_label'] == 'New Request'
     assert data['imeis'] == [['86834403015010']]
+
+
+def test_missing_user_id(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that request fails incase of
+        missing user id"""
+
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['user_id'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_user_name(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['user_name'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_imeis(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['imeis'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_device_count(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = None
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_zero_device_count(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = 0
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_invalid_device_count(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = -1
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_large_invalid_device_count(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = 100000
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_alphabets_in_device_count(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = 'abcd'
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_imei_per_device(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['imei_per_device'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_zero_imei_per_device(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['imei_per_device'] = 0
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_alphabets_imei_per_device(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['imei_per_device'] = 'abcd'
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_large_invalid_imei_per_device(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['imei_per_device'] = 20000
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_manufacturing_locations(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['m_location'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_integer_value_in_manufacturing_locations(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['m_location'] = 0
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_invalid_string_in_manufacturing_locations(flask_app, db):  # pylint: disable=unused-argument
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['m_location'] = 'abcd'
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
 
 
 def test_device_registration_get_method(flask_app, db):  # pylint: disable=unused-argument
