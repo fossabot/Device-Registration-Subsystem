@@ -85,13 +85,13 @@ database:
   # Database name (an empty database on the first run)
   database: drs
   # Host the PostgreSQL server runs on
-  host: localhost
+  host: drs_db
   # PostgreSQL port if not running on standard port 5432
   port: 5432
   # Database role/user that DRS will connect to
-  user: admin
+  user: drs
   # Password used to connect to the database
-  password: admin
+  password: drs
   # SQLAlchemy connection pool size, the number of connections to keep open inside
   # the connection pool
   # (for more details: https://docs.sqlalchemy.org/en/latest/core/engines.html#sqlalchemy.create_engine
