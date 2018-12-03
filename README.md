@@ -18,7 +18,7 @@ NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS 
 Device Registration Sub-System is a part of the Device Identification, Registration and Blocking (DIRBS) System.
 It used to comply type approval of imported/exported devices.
 
-#### Directory structure
+### Directory structure
 This repository contains code for **DRS** part of the **DIRBS**. It contains
 * ``app/`` -- The DRS core server app, to be used as DRS Web Server including database models, apis and resources
 * ``etc/`` -- Config files etc to be reside here
@@ -26,7 +26,7 @@ This repository contains code for **DRS** part of the **DIRBS**. It contains
 * ``scripts/`` -- Database migration, list generation scripts etc
 * ``tests/`` -- Unit test scripts and Data
 
-#### Prerequisites
+### Prerequisites
 In order to run a development environment, [Python 3.0+](https://www.python.org/download/releases/3.0/) and 
 [Postgresql10](https://www.postgresql.org/about/news/1786/) we assume that these are installed.
 
@@ -36,89 +36,89 @@ all commands mentioned in this guide are run from root directory of the project 
 
 On Windows, we assume that a Bash like shell is available (i.e Bash under Cygwin), with GNU make installed.
 
-#### Starting a dev environment
+### Starting a dev environment
 The easiest and quickest way to get started is to use local-only environment (i.e everything runs locally, including
 Postgresql Server). To setup the local environment, follow the section below:
 
-##### Setting up local dev environment
+#### Setting up local dev environment
 For setting up a local dev environment we assume that the ```prerequisites``` are met already. To setup a local 
 environment:
 * Create database using Postgresql (Name and credentials should be same as in [config](mock/test-config.ini))
 * Create virtual environment using **virtualenv** and activate it:
-```bash
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-Make sure that virtual-env is made using Python3 and all the required dependencies are installed.
+    ```bash
+    virtualenv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
+    Make sure that virtual-env is made using Python3 and all the required dependencies are installed.
 * Run Database migrations using:
-```bash
-make install-db
-```
-This will automatically create and migrate database schemas and requirements.
+    ```bash
+    make install-db
+    ```
+    This will automatically create and migrate database schemas and requirements.
 
 * Start DRS development server using:
-```bash
-make start-dev
-```
-This will start a flask development environment for DRS.
+    ```bash
+    make start-dev
+    ```
+    This will start a flask development environment for DRS.
 
 * To run unit tests, run:
-```bash
-make test
-```
+    ```bash
+    make test
+    ```
 
 * To lint the code using pylint, simply run:
-```bash
-make lint
-```
+    ```bash
+    make lint
+    ```
 ---
 
-#### Starting Dockerized Dev Environment
-**Make sure you have installed [docker](https://docs.docker.com/install/) and 
-[docker-compose](https://docs.docker.com/compose/install/).**
+### Starting Dockerized Dev Environment
+_Make sure you have installed [docker](https://docs.docker.com/install/) and 
+[docker-compose](https://docs.docker.com/compose/install/)._
 
-1. Build Dev Server using:
-```bash
-make -f docker/dev/Makefile
-```
-2. Build Postgres Server using:
-```bash
-make -f docker/postgres/Makefile
-```
-3. After the build process for both images is successful launch dev environment using docker-compose:
-```bash
-docker-compose -f docker/compose/devenv-local-db.yml run --rm --service-ports dev-shell
-```
-It will launch container for development server and for postgres (drs_db) and login you to the shell
-of the development server.
+- Build Dev Server using:
+    ```bash
+    make -f docker/dev/Makefile
+    ```
+- Build Postgres Server using:
+    ```bash
+    make -f docker/postgres/Makefile
+    ```
+- After the build process for both images is successful launch dev environment using docker-compose:
+    ```bash
+    docker-compose -f docker/compose/devenv-local-db.yml run --rm --service-ports dev-shell
+    ```
+    It will launch container for development server and for postgres (drs_db) and login you to the shell
+    of the development server.
 
-4. Now open another terminal and login into the postgres shell:
-```bash
-docker exec -it drs_db bash
-```
+- Now open another terminal and login into the postgres shell:
+    ```bash
+    docker exec -it drs_db bash
+    ```
 
-5. Checkout into the postgres shell:
-```bash
-gosu postgres psql
-```
+- Checkout into the postgres shell:
+    ```bash
+    gosu postgres psql
+    ```
 
-6. On the postgres shell, create a role **drs** with login:
-```bash
-CREATE ROLE drs WITH login;
-```
+- On the postgres shell, create a role **drs** with login:
+    ```bash
+    CREATE ROLE drs WITH login;
+    ```
 
-7. On the postgres shell, create database named **drs**:
-```bash
-CREATE database drs OWNER drs;
-```
+- On the postgres shell, create database named **drs**:
+    ```bash
+    CREATE database drs OWNER drs;
+    ```
 
-8. Now switch to the server shell, and install database:
-```bash
-make install-db
-```
+- Now switch to the server shell, and install database:
+    ```bash
+    make install-db
+    ```
 
-After these steps are completed successfully, you can run test or start development server etc on the shell.
+    After these steps are completed successfully, you can run test or start development server etc on the shell.
 
 ---
 
