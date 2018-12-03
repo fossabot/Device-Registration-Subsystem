@@ -74,6 +74,55 @@ make lint
 ```
 ---
 
+#### Starting Dockerized Dev Environment
+**Make sure you have installed [docker](https://docs.docker.com/install/) and 
+[docker-compose](https://docs.docker.com/compose/install/).**
+
+1. Build Dev Server using:
+```bash
+make -f docker/dev/Makefile
+```
+2. Build Postgres Server using:
+```bash
+make -f docker/postgres/Makefile
+```
+3. After the build process for both images is successful launch dev environment using docker-compose:
+```bash
+docker-compose -f docker/compose/devenv-local-db.yml run --rm --service-ports dev-shell
+```
+It will launch container for development server and for postgres (drs_db) and login you to the shell
+of the development server.
+
+4. Now open another terminal and login into the postgres shell:
+```bash
+docker exec -it drs_db bash
+```
+
+5. Checkout into the postgres shell:
+```bash
+gosu postgres psql
+```
+
+6. On the postgres shell, create a role **drs** with login:
+```bash
+CREATE ROLE drs WITH login;
+```
+
+7. On the postgres shell, create database named **drs**:
+```bash
+CREATE database drs OWNER drs;
+```
+
+8. Now switch to the server shell, and install database:
+```bash
+make install-db
+```
+
+After these steps are completed successfully, you can run test or start development server etc on the shell.
+
+---
+
+
 #### Bumping version number
 We follow [Semantic Versioning](http://semver.org/) for DRS.
 To change the releases number simply edit ```app/metadata.py``` and pump the version number.
