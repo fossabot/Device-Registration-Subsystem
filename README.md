@@ -88,7 +88,7 @@ _Make sure you have installed [docker](https://docs.docker.com/install/) and
     ```
 - After the build process for both images is successful launch dev environment using docker-compose:
     ```bash
-    docker-compose -f docker/compose/devenv-local-db.yml run --rm --service-ports dev-shell
+    docker-compose -f docker/dev/devenv-with-local-db.yml run --rm --service-ports dev-shell
     ```
     It will launch container for development server and for postgres (drs_db) and login you to the shell
     of the development server.
