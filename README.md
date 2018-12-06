@@ -125,7 +125,7 @@ _Make sure you have installed [docker](https://docs.docker.com/install/) and
 
 #### Bumping version number
 We follow [Semantic Versioning](http://semver.org/) for DRS.
-To change the releases number simply edit ```app/metadata.py``` and pump the version number.
+To change the releases number simply edit ```app/metadata.py``` and bump the version number.
 
 ---
 
