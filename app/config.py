@@ -52,3 +52,40 @@ class ConfigParser:
         except IOError:
             self.logger.error('config file does not exists @ etc/config.yml')
             raise ParseException('config file does not exists @ etc/config.yml')
+
+
+class ConfigApp:
+    """Class to configure app object by loading yml configuration"""
+
+    def __init__(self, app, config):
+        """Constructor."""
+        self.app = app
+        self.config = config
+
+    def database_uri(self):
+        database_config = self.config.get('database')
+        return 'postgres://{0}:{1}@{2}:{3}/{4}'.format(
+            database_config.get('user', 'postgres'),
+            database_config.get('password', ''),
+            database_config.get('host', 'localhost'),
+            database_config.get('port', 5432),
+            database_config.get('database', 'postgres')
+        )
+
+    def load_config(self):
+        """Method to load all the config to app object."""
+        global_config = self.config.get('global')
+        lists_config = self.config.get('lists')
+        database_config = self.config.get('database')
+
+        self.app.config['DRS_UPLOADS'] = global_config.get('upload_directory')  # file upload dir
+        self.app.config['DRS_LISTS'] = lists_config.get('path')  # lists dir
+        self.app.config['CORE_BASE_URL'] = global_config.get('core_api_v2')
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = self.database_uri()
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        self.app.config['SQLALCHEMY_POOL_SIZE'] = database_config.get('pool_size')
+        self.app.config['SQLALCHEMY_POOL_RECYCLE'] = database_config.get('pool_recycle')
+        self.app.config['SQLALCHEMY_MAX_OVERFLOW'] = database_config.get('max_overflow')
+        self.app.config['SQLALCHEMY_POOL_TIMEOUT'] = database_config.get('pool_timeout')
+        # app.config['MAX_CONTENT_LENGTH'] = 28 * 3 * 1024 * 1024
+        return self.app

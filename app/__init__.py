@@ -27,7 +27,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-from app.config import ConfigParser, ParseException
+from app.config import ConfigParser, ParseException, ConfigApp
 
 # import _strptime to avoid weird issues as described at
 # http://bugs.python.org/msg221094
@@ -47,22 +47,7 @@ except ParseException as e:
 
 CORE_BASE_URL = config['dirbs_core']['base_url']  # core api base url
 GLOBAL_CONF = config['global']  # load & export global configs
-app.config['DRS_UPLOADS'] = config['global']['upload_directory']  # file upload dir
-app.config['DRS_LISTS'] = config['lists']['path']  # lists dir
-app.config['CORE_BASE_URL'] = config['global']['core_api_v2']
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://%s:%s@%s:%s/%s' % \
-                                        (config['database']['user'],
-                                         config['database']['password'],
-                                         config['database']['host'],
-                                         config['database']['port'],
-                                         config['database']['database'])
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_POOL_SIZE'] = config['database']['pool_size']
-app.config['SQLALCHEMY_POOL_RECYCLE'] = config['database']['pool_recycle']
-app.config['SQLALCHEMY_MAX_OVERFLOW'] = config['database']['max_overflow']
-app.config['SQLALCHEMY_POOL_TIMEOUT'] = config['database']['pool_timeout']
-# app.config['MAX_CONTENT_LENGTH'] = 28 * 3 * 1024 * 1024
-
+app = ConfigApp(app, config).load_config()  # load configurations to the app instance
 db = SQLAlchemy(session_options={'autocommit': False})
 db.init_app(app)
 
