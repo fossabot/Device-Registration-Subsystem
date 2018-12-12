@@ -102,3 +102,9 @@ database:
   pool_recycle: 10
   # number of max connections to overflow the pool size
   max_overflow: 275
+
+# Different server configuration to enable based on need
+server:
+  # To restrict https only, it will tell the client to convert all http requests to https
+  # it will help in preventing MITM attacks.
+  restrict_https: False
