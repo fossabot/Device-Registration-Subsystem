@@ -43,8 +43,7 @@ SEARCH_API = 'api/v1/search'
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 
 
-def test_valid_search_specs(flask_app, db, app):
-
+def test_valid_search_specs(flask_app, db):
     seed_database(db)
     create_views(db)
 
@@ -97,11 +96,10 @@ def test_valid_search_specs(flask_app, db, app):
 
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
     data = json.loads(rv.data.decode('utf-8'))
+    assert data['requests'] != 0
 
-    assert len(data['requests']) > 0
 
-
-def test_invalid_search_specs(flask_app, db):
+def test_invalid_search_specs(flask_app):
     headers = {'Content-type': 'application/json'}
     body_data = {
         "start": 1,
@@ -140,7 +138,6 @@ def test_invalid_search_specs(flask_app, db):
 
 
 def test_search_invalid_parameters(flask_app, db):
-
     seed_database(db)
     create_views(db)
 
@@ -220,7 +217,6 @@ def test_search_invalid_parameters(flask_app, db):
 
 
 def test_search_valid_parameters(flask_app, db):
-
     seed_database(db)
     create_views(db)
 
@@ -282,7 +278,6 @@ def test_search_valid_parameters(flask_app, db):
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
     assert rv.status_code == 200
-    print(result)
 
     body_data['search_args'] = {}
     body_data['search_args']['imeis'] = ['86834403380270']
@@ -309,7 +304,6 @@ def test_search_valid_parameters(flask_app, db):
 
 
 def test_technologies(flask_app, db):
-
     seed_database(db)
     create_views(db)
 
@@ -477,7 +471,6 @@ def test_device_count(flask_app, db):
 
 
 def test_request_status(flask_app, db):
-
     seed_database(db)
     create_views(db)
 
@@ -537,7 +530,6 @@ def test_request_status(flask_app, db):
 
 
 def test_valid_invalid_imei(flask_app, db):
-
     seed_database(db)
     create_views(db)
 
@@ -601,7 +593,6 @@ def test_valid_invalid_imei(flask_app, db):
 
 
 def test_valid_invalid_date(flask_app, db):
-
     seed_database(db)
     create_views(db)
 
@@ -646,15 +637,18 @@ def test_valid_invalid_date(flask_app, db):
     }
 
     # Valid Date Check
-    body_data['search_args']['created_at'] = request.created_at.strftime("%Y-%m-%d") + ',' + request.created_at.strftime("%Y-%m-%d")
+    body_data['search_args']['created_at'] = \
+        request.created_at.strftime("%Y-%m-%d") + ',' + request.created_at.strftime("%Y-%m-%d")
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
     result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
     assert result['requests'] != []
 
     body_data['search_args'] = {}
-    body_data['search_args']['created_at'] = request.created_at.strftime("%Y-%m-%d") + ',' + request.created_at.strftime("%Y-%m-%d")
-    body_data['search_args']['updated_at'] = request.updated_at.strftime("%Y-%m-%d") + ',' + request.updated_at.strftime("%Y-%m-%d")
+    body_data['search_args']['created_at'] = request.created_at.strftime(
+        "%Y-%m-%d") + ',' + request.created_at.strftime("%Y-%m-%d")
+    body_data['search_args']['updated_at'] = request.updated_at.strftime(
+        "%Y-%m-%d") + ',' + request.updated_at.strftime("%Y-%m-%d")
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
     result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
@@ -667,9 +661,3 @@ def test_valid_invalid_date(flask_app, db):
     result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
     assert result['requests'] == []
-
-
-
-
-
-
