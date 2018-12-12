@@ -77,14 +77,13 @@ class Search(Resource):
                     return response
 
             elif request_data['group'] == 'exporter':
-                if request_data['request_type']==2:
+                if request_data['request_type'] == 2:
                     return SearchDeregistration.get_result(request,request_data['group'])
                 else:
                     data['message'] = "Request type not found!"
                     response = Response(json.dumps(data), status=CODES.get("OK"),
                                         mimetype=MIME_TYPES.get('APPLICATION_JSON'))
                     return response
-
 
             elif request_data['group'] == 'individual':
                 if request_data['request_type'] == 1:
