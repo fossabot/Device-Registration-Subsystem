@@ -45,8 +45,6 @@ DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 
 def test_valid_search_specs(flask_app, db):
     """Validate search specs parameters and respond with valid status code."""
-    seed_database(db)
-    create_views(db)
 
     # Check empty result is return
     headers = {'Content-type': 'application/json'}
@@ -57,10 +55,11 @@ def test_valid_search_specs(flask_app, db):
             {
                 "group": "reviewer",
                 "request_type": 1,
-                "user_id": ""
+                "user_id": "90X1A-XXXX"
             },
         "search_args":
             {
+                "id": "100000"
             }
     }
 
@@ -73,9 +72,9 @@ def test_valid_search_specs(flask_app, db):
     data = {
         'device_count': 1,
         'imei_per_device': 1,
-        'imeis': "[['86834403380272']]",
+        'imeis': "[['86834403380296']]",
         'm_location': 'local',
-        'user_name': 'Test_User',
+        'user_name': 'Test_User_1',
         'user_id': '717'
     }
 
@@ -88,16 +87,18 @@ def test_valid_search_specs(flask_app, db):
         'model_name': 'Honor 8X',
         'model_num': '8X',
         'device_type': 'Smartphone',
-        'technologies': '2G,3G,4G',
+        'technologies': ['2G', '3G', '4G'],
         'reg_id': request.id
     }
 
     request = create_dummy_devices(device_data, 'Registration', request)
     assert request
 
+    body_data['search_args'] = {}
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
-    assert data['requests'] != 0
+    assert data['requests'] != []
 
 
 def test_invalid_search_specs(flask_app):
@@ -141,8 +142,6 @@ def test_invalid_search_specs(flask_app):
 
 def test_search_invalid_parameters(flask_app, db):
     """Validate invalid seach specification input parameters and respond with proper status code."""
-    seed_database(db)
-    create_views(db)
 
     #
     data = {
@@ -163,7 +162,7 @@ def test_search_invalid_parameters(flask_app, db):
         'model_name': 'Mi 8',
         'model_num': 'Mi 8',
         'device_type': 'Smartphone',
-        'technologies': '2G,3G,4G',
+        'technologies': ['2G', '3G', '4G'],
         'reg_id': request.id
     }
 
@@ -221,8 +220,6 @@ def test_search_invalid_parameters(flask_app, db):
 
 def test_search_valid_parameters(flask_app, db):
     """Validate/Verifies valid search parameters all valid search inputs and respond with proper status code."""
-    seed_database(db)
-    create_views(db)
 
     data = {
         'device_count': 1,
@@ -308,8 +305,6 @@ def test_search_valid_parameters(flask_app, db):
 
 def test_technologies(flask_app, db):
     """Validate technologies input search parameter and respond with positive result and status code."""
-    seed_database(db)
-    create_views(db)
 
     data = {
         'device_count': 1,
@@ -368,8 +363,6 @@ def test_technologies(flask_app, db):
 
 def test_id(flask_app, db):
     """Verifies valid id input search parameter and respond with positive result and status code."""
-    seed_database(db)
-    create_views(db)
 
     data = {
         'device_count': 1,
@@ -421,8 +414,6 @@ def test_id(flask_app, db):
 def test_device_count(flask_app, db):
     """Verifies valid device_count input search parameter
     and respond with positive or empty result and status code."""
-    seed_database(db)
-    create_views(db)
 
     data = {
         'device_count': 1,
@@ -467,20 +458,19 @@ def test_device_count(flask_app, db):
     body_data['search_args']['device_count'] = data['device_count']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
     result = json.loads(rv.data.decode('utf-8'))
-    assert result['requests'] != []
     assert rv.status_code == 200
+    assert result['requests'] != []
 
     body_data['search_args']['device_count'] = 10000
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
     result = json.loads(rv.data.decode('utf-8'))
-    assert result['requests'] == []
     assert rv.status_code == 200
+    assert result['requests'] == []
+
 
 
 def test_request_status(flask_app, db):
     """Verify/Validate and return all approved and pending request."""
-    seed_database(db)
-    create_views(db)
 
     data = {
         'device_count': 1,
@@ -539,8 +529,6 @@ def test_request_status(flask_app, db):
 
 def test_valid_invalid_imei(flask_app, db):
     """Verify/Validate imei's and return all & empty result."""
-    seed_database(db)
-    create_views(db)
 
     data = {
         'device_count': 1,
@@ -603,8 +591,6 @@ def test_valid_invalid_imei(flask_app, db):
 
 def test_valid_invalid_date(flask_app, db):
     """Search by date and return all result of current user and empty search result"""
-    seed_database(db)
-    create_views(db)
 
     data = {
         'device_count': 1,
