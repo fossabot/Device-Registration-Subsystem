@@ -64,8 +64,8 @@ def test_valid_search_specs(flask_app, db):
     }
 
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
     assert data['requests'] == []
 
     # Return all records
@@ -120,23 +120,23 @@ def test_invalid_search_specs(flask_app):
 
     # +ve response with empty result
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Request type not found!"
 
     # no data found
     body_data['search_specs']['group'] = ""
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 404
+    data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "No data found"
 
     # empty input parameters
     body_data['search_specs']['group'] = ""
     body_data['search_specs']['request_type'] = ""
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 404
+    data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "No data found"
 
 
@@ -196,24 +196,24 @@ def test_search_invalid_parameters(flask_app, db):
             }
     }
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 404
+    data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
 
     # Individual user invalid parameters
     body_data['search_specs']['group'] = "individual"
     body_data['search_specs']['user_id'] = '800'
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 404
+    data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
 
     # importer user parameters
     body_data['search_specs']['group'] = "importer"
     body_data['search_specs']['user_id'] = '800'
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 404
+    data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
     assert data['requests'] == []
 
@@ -275,32 +275,32 @@ def test_search_valid_parameters(flask_app, db):
     }
 
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
-    assert rv.status_code == 200
 
     body_data['search_args'] = {}
     body_data['search_args']['imeis'] = ['86834403380270']
     body_data['search_args']['device_count'] = request.device_count
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
-    assert rv.status_code == 200
 
     body_data['search_args'] = {}
     body_data['search_specs']['group'] = 'importer'
     body_data['search_specs']['user_id'] = data['user_id']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
-    assert rv.status_code == 200
 
     body_data['search_args'] = {}
     body_data['search_args']['status'] = "In Review"
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
-    assert rv.status_code == 200
 
 
 def test_technologies(flask_app, db):
@@ -349,16 +349,16 @@ def test_technologies(flask_app, db):
     body_data['search_args']['technologies'] = device_data['technologies']
     body_data['search_args']['device_count'] = data['device_count']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
-    assert rv.status_code == 200
 
     body_data['search_args'] = {}
     body_data['search_args']['technologies'] = "3G"
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
-    assert rv.status_code == 200
 
 
 def test_id(flask_app, db):
@@ -406,9 +406,9 @@ def test_id(flask_app, db):
 
     body_data['search_args']['id'] = request.id
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
-    assert rv.status_code == 200
 
 
 def test_device_count(flask_app, db):
@@ -457,14 +457,14 @@ def test_device_count(flask_app, db):
 
     body_data['search_args']['device_count'] = data['device_count']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
 
     body_data['search_args']['device_count'] = 10000
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] == []
 
 
@@ -522,8 +522,8 @@ def test_request_status(flask_app, db):
     body_data['search_args'] = {}
     body_data['search_args']['status'] = 'Pending Review'
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] == []
 
 
@@ -577,15 +577,15 @@ def test_valid_invalid_imei(flask_app, db):
     body_data['search_args'] = {}
     body_data['search_args']['imeis'] = ['86834403380270']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
 
     body_data['search_args'] = {}
     body_data['search_args']['imeis'] = ['8683440338027011']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] == []
 
 
@@ -636,8 +636,8 @@ def test_valid_invalid_date(flask_app, db):
     body_data['search_args']['created_at'] = \
         request.created_at.strftime("%Y-%m-%d") + ',' + request.created_at.strftime("%Y-%m-%d")
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
 
     body_data['search_args'] = {}
@@ -646,14 +646,14 @@ def test_valid_invalid_date(flask_app, db):
     body_data['search_args']['updated_at'] = request.updated_at.strftime(
         "%Y-%m-%d") + ',' + request.updated_at.strftime("%Y-%m-%d")
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
 
     # InValid Date Check
     body_data['search_args'] = {}
     body_data['search_args']['created_at'] = '2020-12-11' + ',' + '2018-12-11'
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    result = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] == []
