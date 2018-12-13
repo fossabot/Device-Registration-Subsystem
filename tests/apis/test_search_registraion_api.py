@@ -1,5 +1,5 @@
 """
-module for assign-reviewer api test
+module for search registration module api test
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -44,6 +44,7 @@ DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 
 
 def test_valid_search_specs(flask_app, db):
+    """Validate search specs parameters and respond with valid status code."""
     seed_database(db)
     create_views(db)
 
@@ -100,6 +101,7 @@ def test_valid_search_specs(flask_app, db):
 
 
 def test_invalid_search_specs(flask_app):
+    """Validate request if invalid parameters or values are provided and respond with proper status code."""
     headers = {'Content-type': 'application/json'}
     body_data = {
         "start": 1,
@@ -138,6 +140,7 @@ def test_invalid_search_specs(flask_app):
 
 
 def test_search_invalid_parameters(flask_app, db):
+    """Validate invalid seach specification input parameters and respond with proper status code."""
     seed_database(db)
     create_views(db)
 
@@ -217,10 +220,10 @@ def test_search_invalid_parameters(flask_app, db):
 
 
 def test_search_valid_parameters(flask_app, db):
+    """Validate/Verifies valid search parameters all valid search inputs and respond with proper status code."""
     seed_database(db)
     create_views(db)
 
-    #
     data = {
         'device_count': 1,
         'imei_per_device': 2,
@@ -304,6 +307,7 @@ def test_search_valid_parameters(flask_app, db):
 
 
 def test_technologies(flask_app, db):
+    """Validate technologies input search parameter and respond with positive result and status code."""
     seed_database(db)
     create_views(db)
 
@@ -363,6 +367,7 @@ def test_technologies(flask_app, db):
 
 
 def test_id(flask_app, db):
+    """Verifies valid id input search parameter and respond with positive result and status code."""
     seed_database(db)
     create_views(db)
 
@@ -414,6 +419,8 @@ def test_id(flask_app, db):
 
 
 def test_device_count(flask_app, db):
+    """Verifies valid device_count input search parameter
+    and respond with positive or empty result and status code."""
     seed_database(db)
     create_views(db)
 
@@ -471,6 +478,7 @@ def test_device_count(flask_app, db):
 
 
 def test_request_status(flask_app, db):
+    """Verify/Validate and return all approved and pending request."""
     seed_database(db)
     create_views(db)
 
@@ -530,6 +538,7 @@ def test_request_status(flask_app, db):
 
 
 def test_valid_invalid_imei(flask_app, db):
+    """Verify/Validate imei's and return all & empty result."""
     seed_database(db)
     create_views(db)
 
@@ -593,6 +602,7 @@ def test_valid_invalid_imei(flask_app, db):
 
 
 def test_valid_invalid_date(flask_app, db):
+    """Search by date and return all result of current user and empty search result"""
     seed_database(db)
     create_views(db)
 
