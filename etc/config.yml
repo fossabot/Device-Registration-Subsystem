@@ -107,4 +107,5 @@ database:
 server:
   # To restrict https only, it will tell the client to convert all http requests to https
   # it will help in preventing MITM attacks.
-  restrict_https: False
+  # value should be either "True" or "False"
+  restrict_https: True

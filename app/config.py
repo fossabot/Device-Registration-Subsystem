@@ -80,6 +80,7 @@ class ConfigApp:
 
         self.app.config['DRS_UPLOADS'] = global_config.get('upload_directory')  # file upload dir
         self.app.config['DRS_LISTS'] = lists_config.get('path')  # lists dir
+        self.app.config['STRICT_HTTPS'] = self.config.get('server')['restrict_https']
         self.app.config['CORE_BASE_URL'] = global_config.get('core_api_v2')
         self.app.config['SQLALCHEMY_DATABASE_URI'] = self.database_uri()
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

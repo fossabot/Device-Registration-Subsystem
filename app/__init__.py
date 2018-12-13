@@ -72,7 +72,7 @@ def add_security_headers(response):
     """Make sure to add security headers to each API response."""
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-Content-Type-Options'] = 'nosniff'
-    if config['server']['restrict_https']:
+    if app.config['STRICT_HTTPS']:
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
 
