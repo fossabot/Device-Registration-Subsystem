@@ -54,7 +54,7 @@ RUN set -x && \
 COPY requirements.txt /home/drs
 RUN set -x && \
     pip3 install -r /home/drs/requirements.txt && \
-    chown -R drs.drs /home/drs/drs-venv
+    chown -R drs.drs /home/drs/*
 
 # Expose port 5000 for dev API server
 EXPOSE 5000
