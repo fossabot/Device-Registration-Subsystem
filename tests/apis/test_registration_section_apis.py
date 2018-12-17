@@ -29,3 +29,141 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+
+import json
+import copy
+import uuid
+
+from tests._helpers import create_registration, create_dummy_devices, create_dummy_documents
+
+# pylint: disable=redefined-outer-name
+
+
+DEVICE_REGISTRATION_SECTION_API = 'api/v1/registration/sections'
+USER_NAME = 'test-abc'
+USER_ID = '17102'
+IMEIS = "[['86834403015010']]"
+REQUEST_DATA = {
+
+    'device_count': 1,
+    'imei_per_device': 1,
+    'imeis': IMEIS,
+    'm_location': 'local',
+    'user_name': USER_NAME,
+    'user_id': USER_ID
+
+}
+
+
+def test_device_registration_section_method_failed(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration section
+        method is working properly and response is correct"""
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.get('{0}/{1}'.format(DEVICE_REGISTRATION_SECTION_API, 'abc'), headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'message' in data
+    assert data['message'][0] == 'Registration Request not found.'
+
+
+def test_device_registration_section_method_request(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration section
+        method is working properly and response is correct"""
+
+    registration = create_registration(REQUEST_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.get('{0}/{1}'.format(DEVICE_REGISTRATION_SECTION_API, registration.id), headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+
+    assert rv.status_code == 200
+    assert 'reg_details' in data
+    assert len(data['reg_details']) > 0
+    assert 'status_label' in data['reg_details']
+    assert data['reg_details']['status_label'] == 'New Request'
+
+    assert 'reg_device' in data
+    assert len(data['reg_docs']) == 0
+    assert len(data['reg_docs']) == 0
+
+
+def test_device_registration_section_method_devices(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration section
+        method is working properly and response is correct"""
+
+    registration = create_registration(REQUEST_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    device_data = {
+        'brand': 'samsung',
+        'operating_system': 'android',
+        'model_name': 's9',
+        'model_num': '30jjd',
+        'device_type': 'Smartphone',
+        'technologies': '2G,3G,4G',
+        'reg_id': registration.id
+    }
+
+    registration = create_dummy_devices(device_data, 'Registration', registration)
+    rv = flask_app.get('{0}/{1}'.format(DEVICE_REGISTRATION_SECTION_API, registration.id), headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+
+    assert rv.status_code == 200
+    assert 'reg_details' in data
+    assert len(data['reg_details']) > 0
+    assert 'status_label' in data['reg_details']
+    assert data['reg_details']['status_label'] == 'New Request'
+
+    assert 'reg_device' in data
+    assert len(data['reg_device']) > 0
+    assert 'model_num' in data['reg_device']
+    assert 'technologies' in data['reg_device']
+
+    assert 'reg_docs' in data
+    assert len(data['reg_docs']) == 0
+
+
+def test_device_registration_section_method_documents(flask_app, db, app):  # pylint: disable=unused-argument
+    """ To verify that registration section
+        method is working properly and response is correct"""
+
+    registration = create_registration(REQUEST_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    device_data = {
+        'brand': 'samsung',
+        'operating_system': 'android',
+        'model_name': 's9',
+        'model_num': '30jjd',
+        'device_type': 'Smartphone',
+        'technologies': '2G,3G,4G',
+        'reg_id': registration.id
+    }
+
+    documents = [
+        {'label': 'shipment document', 'file_name': 'shipment.pdf'},
+        {'label': 'authorization document', 'file_name': 'authorize.pdf'},
+        {'label': 'certificate document', 'file_name': 'certf.pdf'},
+    ]
+
+    registration = create_dummy_devices(device_data, 'Registration', registration)
+    registration = create_dummy_documents(documents, 'Registration', registration, app)
+    rv = flask_app.get('{0}/{1}'.format(DEVICE_REGISTRATION_SECTION_API, registration.id), headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+
+    assert rv.status_code == 200
+    assert 'reg_details' in data
+    assert len(data['reg_details']) > 0
+    assert 'status_label' in data['reg_details']
+    assert data['reg_details']['status_label'] == 'New Request'
+
+    assert 'reg_device' in data
+    assert len(data['reg_device']) > 0
+    assert 'model_num' in data['reg_device']
+    assert 'technologies' in data['reg_device']
+
+    assert 'reg_docs' in data
+    assert len(data['reg_docs']) == 3
+

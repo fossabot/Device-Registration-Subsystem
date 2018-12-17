@@ -275,7 +275,7 @@ class Utilities:
     @classmethod
     def get_gsma_device(cls, tacs):
         """Method to get device details from CORE GSMA TAC API."""
-        tac_url = cls.core_api_v2 + '/tac'
+        tac_url = app.config['CORE_BASE_URL'] + '/tac'
         tacs = {"tacs": tacs}
         response = requests.post(url=tac_url, json=tacs)
         return response.json()
@@ -283,6 +283,7 @@ class Utilities:
     @classmethod
     def get_device_details_by_tac(cls, tac_imei_map):
         """Method to map device details with TACs."""
+
         tac_to_device_map = []
         gsma_response = cls.get_gsma_device(list(tac_imei_map.keys()))
         for response in gsma_response.get('results'):
@@ -394,7 +395,8 @@ class Utilities:
         try:
             upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
             Utilities.create_directory(tracking_id)
-            file_path = os.path.join(upload_path, file.filename)
+            file_name = file.filename if '/' not in file.filename else file.filename.split("/")[-1]
+            file_path = os.path.join(upload_path, file_name)
             file.save(file_path)
             if os.path.getsize(file_path) == 0:
                 errors['size'] = ['The file should not be Empty']

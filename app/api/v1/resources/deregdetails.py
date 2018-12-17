@@ -90,7 +90,7 @@ class DeRegistrationRoutes(Resource):
             if response:
                 return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-            response = Utilities.process_de_reg_file(file.filename, tracking_id, args)
+            response = Utilities.process_de_reg_file(file.filename.split("/")[-1], tracking_id, args)
             errored = 'device_count' in response or 'invalid_imeis' in response or \
                       'duplicate_imeis' in response or 'invalid_format' in response
             if not errored:

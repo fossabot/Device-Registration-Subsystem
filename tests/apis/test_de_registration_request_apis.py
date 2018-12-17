@@ -29,3 +29,142 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+import json
+import copy
+
+from tests._helpers import create_de_registration, create_dummy_request
+
+# pylint: disable=redefined-outer-name
+
+DEVICE_DE_REGISTRATION_REQ_API = 'api/v1/deregistration'
+USER_NAME = 'test-abc'
+USER_ID = '17102'
+REQUEST_DATA = {
+    'device_count': 1,
+    'user_name': USER_NAME,
+    'user_id': USER_ID,
+    'reason': 'exporting devices to another country'
+
+}
+
+
+def test_de_registration_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = 9
+
+    request_file = dict(request_data)
+    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+
+    with open(file_path, 'rb') as read_file:
+        request_file['file'] = read_file
+        rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
+        data = json.loads(rv.data.decode('utf-8'))
+
+        # code change required
+        assert rv.status_code == 500
+
+    rv = flask_app.get(DEVICE_DE_REGISTRATION_REQ_API)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert len(data) > 0
+
+
+def test_de_registration_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = 9
+
+    request_file = dict(request_data)
+    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+
+    with open(file_path, 'rb') as read_file:
+        request_file['file'] = read_file
+        rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
+        data = json.loads(rv.data.decode('utf-8'))
+
+        # code change required
+        assert rv.status_code == 500
+
+
+def test_de_registration_request_file_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = 9
+
+    rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'file' in data
+    assert data['file'][0] == 'file is a required field'
+
+
+def test_de_registration_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data.pop('reason')
+
+    request_file = dict(request_data)
+    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+
+    with open(file_path, 'rb') as read_file:
+        request_file['file'] = read_file
+        rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
+        data = json.loads(rv.data.decode('utf-8'))
+
+        assert rv.status_code == 422
+
+
+def test_de_registration_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data.pop('device_count')
+
+    request_file = dict(request_data)
+    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+
+    with open(file_path, 'rb') as read_file:
+        request_file['file'] = read_file
+        rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
+        data = json.loads(rv.data.decode('utf-8'))
+
+        assert rv.status_code == 422
+
+
+def test_de_registration_request_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['file'] = 'dummy-file.txt'
+    request = create_dummy_request(request_data, 'De-Registraiton', 'Pending Review')
+
+    data = {'reason': 'updating the request', 'dereg_id': request.id, 'user_id': USER_ID}
+    rv = flask_app.put(DEVICE_DE_REGISTRATION_REQ_API,
+                       data=data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+
+    assert rv.status_code == 200
+    assert 'user_id' in data
+    assert 'reason' in data
+    assert 'file' in data
+
+
+def test_de_registration_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['file'] = 'dummy-file.txt'
+    request = create_dummy_request(request_data, 'De-Registraiton', 'New Request')
+
+    data = {'reason': 'updating the request', 'dereg_id': request.id, 'user_id': USER_ID}
+    rv = flask_app.put(DEVICE_DE_REGISTRATION_REQ_API,
+                       data=data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert 'reason' in data
+    assert data['reason'][0] == 'The request status is New Request, which cannot be updated'
+

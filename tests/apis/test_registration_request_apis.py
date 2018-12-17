@@ -34,7 +34,7 @@ import json
 import uuid
 import copy
 
-from tests._helpers import create_registration
+from tests._helpers import create_registration, create_dummy_request
 
 # pylint: disable=redefined-outer-name
 
@@ -247,3 +247,245 @@ def test_device_registration_put_method_failure(flask_app, db):  # pylint: disab
     modified_data = {'m_location': 'overseas', 'reg_id': request.id, 'user_id': USER_ID}
     rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
     assert rv.status_code == 422
+
+
+def test_create_request_file_input_method(flask_app, app, db):  # pylint: disable=unused-argument
+    """ unittest for one missing document."""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['device_count'] = 2
+    request_data['imei_per_device'] = 3
+
+    request_file = dict()
+    file_path = '{0}/{1}'.format('tests/unittest_data', 'registration_mock_file.tsv')
+
+    with open(file_path, 'rb') as read_file:
+        request_file['file'] = read_file
+        request_file['device_count'] = 2
+        request_file['imei_per_device'] = 3
+        request_file['m_location'] = 'local'
+        request_file['user_name'] = 'test-user'
+        request_file['user_id'] = '123-test'
+        rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_file, headers=headers)
+        data = json.loads(rv.data.decode('utf-8'))
+
+        assert rv.status_code == 200
+
+
+def test_device_registration_put_method(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration post
+        method is working properly and response is correct"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_user_id_update(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that request fails incase of
+        missing user id"""
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['user_id'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_user_name_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['user_name'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_imeis_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['imeis'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_device_count_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['device_count'] = None
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_zero_device_count_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['device_count'] = 0
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_invalid_device_count_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['device_count'] = -1
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_large_invalid_device_count_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['device_count'] = 100000
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_alphabets_in_device_count_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['device_count'] = 'abcd'
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_imei_per_device_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['imei_per_device'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_zero_imei_per_device_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['imei_per_device'] = 0
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_alphabets_imei_per_device_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['imei_per_device'] = 'abcd'
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_large_invalid_imei_per_device_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['imei_per_device'] = 20000
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_missing_manufacturing_locations_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['m_location'] = ''
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_integer_value_in_manufacturing_locations_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['m_location'] = 0
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_invalid_string_in_manufacturing_locations_update(flask_app, db):  # pylint: disable=unused-argument
+    request = create_dummy_request(REQUEST_DATA, 'Registration', status='New Request')
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['reg_id'] = request.id
+    request_data['m_location'] = 'abcd'
+
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=request_data, headers=headers)
+    assert rv.status_code == 422
+
+
+def test_device_registration_get_method_update(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration get
+        method is working properly and response is correct"""
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
+
+    api_url = '{api}/{id}'.format(api=DEVICE_REGISTRATION_REQ_API, id=request.id)
+    rv = flask_app.get(api_url)
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data is not None
+    assert data['id'] == request.id
+
+
+def test_device_registration_put_method_failure_update(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration put
+        method gets failed in case of new request response is correct"""
+
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+    modified_data = {'m_location': 'overseas', 'reg_id': request.id, 'user_id': USER_ID}
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
+    assert rv.status_code == 422
+
