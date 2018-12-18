@@ -85,13 +85,13 @@ database:
   # Database name (an empty database on the first run)
   database: drs
   # Host the PostgreSQL server runs on
-  host: localhost
+  host: drs_db
   # PostgreSQL port if not running on standard port 5432
   port: 5432
   # Database role/user that DRS will connect to
-  user: admin
+  user: drs
   # Password used to connect to the database
-  password: admin
+  password: drs
   # SQLAlchemy connection pool size, the number of connections to keep open inside
   # the connection pool
   # (for more details: https://docs.sqlalchemy.org/en/latest/core/engines.html#sqlalchemy.create_engine
@@ -102,3 +102,10 @@ database:
   pool_recycle: 10
   # number of max connections to overflow the pool size
   max_overflow: 275
+
+# Different server configuration to enable based on need
+server:
+  # To restrict https only, it will tell the client to convert all http requests to https
+  # it will help in preventing MITM attacks.
+  # value should be either "True" or "False"
+  restrict_https: True
