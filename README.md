@@ -32,8 +32,13 @@ This repository contains code for **DRS** part of the **DIRBS**. It contains
 _Make sure you have installed [docker](https://docs.docker.com/install/) and 
 [docker-compose](https://docs.docker.com/compose/install/).
 To install dev environment without docker follow [here](doc/DEVENV_SETUP.md)._
-
-- Build Dev Server using:
+- Clone the repository
+- Create a `drs` user with UID `9001` and change the ownership of the repo:
+    ```bash
+    sudo useradd -u 9001 -m -d /home/drs -s /bin/bash drs
+    sudo chown -R 9001:9001 Device-Registration-Subsystem
+    ```
+- Now build Dev Server using:
     ```bash
     make -f docker/dev/Makefile
     ```
@@ -58,12 +63,12 @@ To install dev environment without docker follow [here](doc/DEVENV_SETUP.md)._
     gosu postgres psql
     ```
 
-- On the postgres shell, create a role **drs** with login:
+- On the postgres shell, create a role `drs` with login:
     ```bash
     CREATE ROLE drs WITH login;
     ```
 
-- On the postgres shell, create database named **drs**:
+- On the postgres shell, create database named `drs`:
     ```bash
     CREATE database drs OWNER drs;
     ```
