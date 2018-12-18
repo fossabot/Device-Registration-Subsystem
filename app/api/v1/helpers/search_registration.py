@@ -35,7 +35,6 @@ class SearchRegistraion:
 
     def __init__(self):
         """Constructor."""
-        pass
 
     @staticmethod
     def format_response(data):
@@ -106,18 +105,6 @@ class SearchRegistraion:
 
                     paginated_data['requests'] = SearchRegistraion.format_response(paginated_data['requests'])
                     response = Response(json.dumps(paginated_data, default=str), status=CODES.get("OK"),
-                                        mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                    return response
-                else:
-                    data = {
-                        "start": start,
-                        "previous": "",
-                        "next": "",
-                        "requests": requests,
-                        "count": 0,
-                        "limit": limit
-                    }
-                    response = Response(json.dumps(data, default=str), status=CODES.get("OK"),
                                         mimetype=MIME_TYPES.get('APPLICATION_JSON'))
                     return response
             else:
@@ -250,9 +237,7 @@ class SearchRegistraion:
                                         )
 
                         elif x == "technologies":
-
                             record_len = len(request_data.get(x))
-
                             if record_len == 1:
                                 sql = sql + " {col} ilike '%%{val}%%' AND".format(
 
@@ -294,7 +279,7 @@ class SearchRegistraion:
                                 val=request_data.get(x)
                             )
                 sql = sql + " order by updated_at desc"
-                data = db.engine.execute(sql)
+                data = db.session.execute(sql)
                 requests = []
                 for row in data:
                     requests.append(dict((col, val) for col, val in row.items()))

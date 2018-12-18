@@ -34,16 +34,37 @@ import json
 
 from tests._helpers import create_dummy_request, \
     create_dummy_devices, \
-    create_assigned_dummy_request, \
-    seed_database, \
-    create_views
+    create_assigned_dummy_request
 
 # api urls
 SEARCH_API = 'api/v1/search'
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 
 
-def test_valid_search_specs(flask_app, db):
+def test_method_not_allowed(flask_app):
+        """Verify that GET, PUT, PATCH DELETE method are not allowed """
+        rv = flask_app.get(SEARCH_API)
+        assert rv.status_code == 405
+        data = json.loads(rv.data.decode('utf-8'))
+        assert data.get('message') == 'method not allowed'
+
+        rv = flask_app.put(SEARCH_API)
+        assert rv.status_code == 405
+        data = json.loads(rv.data.decode('utf-8'))
+        assert data.get('message') == 'method not allowed'
+
+        rv = flask_app.delete(SEARCH_API)
+        assert rv.status_code == 405
+        data = json.loads(rv.data.decode('utf-8'))
+        assert data.get('message') == 'method not allowed'
+
+        rv = flask_app.patch(SEARCH_API)
+        assert rv.status_code == 405
+        data = json.loads(rv.data.decode('utf-8'))
+        assert data.get('message') == 'method not allowed'
+
+
+def test_valid_search_specs(flask_app):
     """Validate search specs parameters and respond with valid status code."""
 
     # Check empty result is return
@@ -131,7 +152,7 @@ def test_invalid_search_specs(flask_app):
     data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "No data found"
 
-    # empty input parameters
+    # empty search specs parameters
     body_data['search_specs']['group'] = ""
     body_data['search_specs']['request_type'] = ""
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
@@ -139,11 +160,26 @@ def test_invalid_search_specs(flask_app):
     data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "No data found"
 
+    # empty search specs importer parameters
+    body_data['search_specs']['group'] = "importer"
+    body_data['search_specs']['request_type'] = "1"
+    rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['requests'] == []
 
-def test_search_invalid_parameters(flask_app, db):
+    # empty search specs individual parameters
+    body_data['search_specs']['group'] = "individual"
+    body_data['search_specs']['request_type'] = "1"
+    rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['requests'] == []
+
+
+def test_search_invalid_parameters(flask_app):
     """Validate invalid seach specification input parameters and respond with proper status code."""
 
-    #
     data = {
         'device_count': 1,
         'imei_per_device': 2,
@@ -218,7 +254,7 @@ def test_search_invalid_parameters(flask_app, db):
     assert data['requests'] == []
 
 
-def test_search_valid_parameters(flask_app, db):
+def test_search_valid_parameters(flask_app):
     """Validate/Verifies valid search parameters all valid search inputs and respond with proper status code."""
 
     data = {
@@ -303,7 +339,7 @@ def test_search_valid_parameters(flask_app, db):
     assert result['requests'] != []
 
 
-def test_technologies(flask_app, db):
+def test_technologies(flask_app):
     """Validate technologies input search parameter and respond with positive result and status code."""
 
     data = {
@@ -324,7 +360,7 @@ def test_technologies(flask_app, db):
         'model_name': 'Mi 8',
         'model_num': 'Mi 8',
         'device_type': 'Smartphone',
-        'technologies': ['2G', '3G'],
+        'technologies': ['2G', '3G', '4G'],
         'reg_id': request.id
     }
 
@@ -346,6 +382,15 @@ def test_technologies(flask_app, db):
             }
     }
 
+    body_data['search_args']['brand'] = device_data['brand']
+    body_data['search_args']['model_name'] = device_data['model_name']
+    body_data['search_args']['technologies'] = ["3G"]
+    rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
+    assert rv.status_code == 200
+    result = json.loads(rv.data.decode('utf-8'))
+    assert result['requests'] != []
+
+    body_data['search_args'] = {}
     body_data['search_args']['technologies'] = device_data['technologies']
     body_data['search_args']['device_count'] = data['device_count']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
@@ -354,14 +399,15 @@ def test_technologies(flask_app, db):
     assert result['requests'] != []
 
     body_data['search_args'] = {}
-    body_data['search_args']['technologies'] = "3G"
+    body_data['search_args']['technologies'] = ["4G"]
+    body_data['search_args']['device_count'] = data['device_count']
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
     assert rv.status_code == 200
     result = json.loads(rv.data.decode('utf-8'))
     assert result['requests'] != []
 
 
-def test_id(flask_app, db):
+def test_id(flask_app):
     """Verifies valid id input search parameter and respond with positive result and status code."""
 
     data = {
@@ -411,7 +457,7 @@ def test_id(flask_app, db):
     assert result['requests'] != []
 
 
-def test_device_count(flask_app, db):
+def test_device_count(flask_app):
     """Verifies valid device_count input search parameter
     and respond with positive or empty result and status code."""
 
@@ -468,8 +514,7 @@ def test_device_count(flask_app, db):
     assert result['requests'] == []
 
 
-
-def test_request_status(flask_app, db):
+def test_request_status(flask_app):
     """Verify/Validate and return all approved and pending request."""
 
     data = {
@@ -527,7 +572,7 @@ def test_request_status(flask_app, db):
     assert result['requests'] == []
 
 
-def test_valid_invalid_imei(flask_app, db):
+def test_valid_invalid_imei(flask_app):
     """Verify/Validate imei's and return all & empty result."""
 
     data = {
@@ -589,7 +634,7 @@ def test_valid_invalid_imei(flask_app, db):
     assert result['requests'] == []
 
 
-def test_valid_invalid_date(flask_app, db):
+def test_valid_invalid_date(flask_app):
     """Search by date and return all result of current user and empty search result"""
 
     data = {

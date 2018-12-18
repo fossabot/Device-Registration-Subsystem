@@ -55,20 +55,12 @@ class Search(Resource):
                                     mimetype=MIME_TYPES.get('APPLICATION_JSON'))
 
                 return response
-        else:
-            data['message'] = 'Search specs not found!'
-            response = Response(json.dumps(data), status=CODES.get("NOT_FOUND"),
-                                mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-
-            return response
 
         try:
             if request_data['group'] == 'importer':
 
                 if request_data['request_type'] == 1:
                     return SearchRegistraion.get_result(request, request_data['group'])
-                elif request_data['request_type'] == 2:
-                    return SearchDeregistration.get_result(request, request_data['group'])
                 else:
                     data['message']="Request type not found!"
                     response = Response(json.dumps(data), status=CODES.get("OK"),
