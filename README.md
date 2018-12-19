@@ -1,3 +1,4 @@
+
 SPDX-License-Identifier: BSD-3-Clause-Clear
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
@@ -14,9 +15,19 @@ Neither the name of Qualcomm Technologies, Inc. nor the names of its contributor
 
 NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-## DRS-Device Registration Sub-System
+## DRS-Device Registration Subsystem
 Device Registration Sub-System is a part of the Device Identification, Registration and Blocking (DIRBS) System.
-It used to comply type approval of imported/exported devices.
+It is used to comply type approval of imported/exported devices.
+
+#### Documentation
+[DRS-API-Installation-Guide-1.0.0](https://github.com/dirbs/Documentation/blob/master/DRS-API-Installation-Guide-1.0.0.pdf)
+[DRS-SPA-Installation-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-SPA-Installation-Guide-1.0.0.pdf)
+[DRS-Importer-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-Importer-User-Guide-1.0.0.pdf)
+[DRS-Exporter-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-Exporter-User-Guide-1.0.0.pdf)
+[DRS-Authority-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-Authority-User-Guide-1.0.0.pdf)
+
+#### Frontend Application Repo
+https://github.com/dirbs/Device-Registration-Subsystem-Frontend
 
 #### Directory structure
 This repository contains code for **DRS** part of the **DIRBS**. It contains
@@ -76,7 +87,7 @@ make lint
 
 #### Bumping version number
 We follow [Semantic Versioning](http://semver.org/) for DRS.
-To change the releases number simply edit ```app/metadata.py``` and pump the version number.
+To change the releases number simply edit ```app/metadata.py``` and bump the version number.
 
 ---
 
