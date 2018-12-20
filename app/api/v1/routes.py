@@ -33,6 +33,7 @@ from app.api.v1.resources.deregdetails import DeRegistrationRoutes
 from app.api.v1.resources.deregdocuments import DeRegDocumentRoutes
 from app.api.v1.resources.regdevicedetails import DeviceDetailsRoutes
 from app.api.v1.resources.common import BaseRoutes, ServerConfigs, Files
+from app.api.v1.resources.health import HealthCheck
 from app.api.v1.resources.reviewer import AssignReviewer, ReviewSection, DeviceQuota, DeviceDescription, \
   IMEIRegistrationStatus, RequestDocuments, Sections, SubmitReview, IMEIClassification, UnAssignReviewer
 from app.common.apidoc import ApiDocs
@@ -41,6 +42,7 @@ from app.api.v1.resources.reports import DeRegistrationReportRoutes
 from app.api.v1.resources.regdetails import RegSectionRoutes
 from app.api.v1.resources.deregdetails import DeRegSectionRoutes
 from app.api.v1.resources.restart_process import RegistrationProcessRestart, DeRegistrationProcessRestart
+
 api = Api(app, prefix='/api/v1', errors=CustomErrors)
 apidoc = ApiDocs(app, 'v1')
 
@@ -91,6 +93,9 @@ api.add_resource(Notification, '/notification')
 # search
 api.add_resource(Search, '/search')
 
+# healthcheck
+api.add_resource(HealthCheck, '/healthcheck')
+
 docs = apidoc.init_doc()
 
 
@@ -98,5 +103,5 @@ def register_docs():
     """Method to register routes for docs."""
     for route in [AssignReviewer, DeviceQuota, ReviewSection, DeviceDescription, IMEIRegistrationStatus,
                   RequestDocuments, Files, Sections, SubmitReview, IMEIClassification, UnAssignReviewer,
-                  ServerConfigs, Notification]:
+                  ServerConfigs, Notification, HealthCheck]:
         docs.register(route)

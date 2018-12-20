@@ -82,6 +82,7 @@ class ConfigApp:
         self.app.config['DRS_LISTS'] = lists_config.get('path')  # lists dir
         self.app.config['STRICT_HTTPS'] = self.config.get('server')['restrict_https']
         self.app.config['CORE_BASE_URL'] = global_config.get('core_api_v2')
+        self.app.config['DVS_BASE_URL'] = global_config.get('dvs_api_v1')
         self.app.config['SQLALCHEMY_DATABASE_URI'] = self.database_uri()
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         self.app.config['SQLALCHEMY_POOL_SIZE'] = database_config.get('pool_size')
