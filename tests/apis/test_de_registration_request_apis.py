@@ -48,7 +48,7 @@ REQUEST_DATA = {
 }
 
 
-def test_de_registration_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -70,7 +70,7 @@ def test_de_registration_request_get(flask_app, app, db, dirbs_core):  # pylint:
     assert len(data) > 0
 
 
-def test_de_registration_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -88,7 +88,7 @@ def test_de_registration_request(flask_app, app, db, dirbs_core):  # pylint: dis
         assert rv.status_code == 500
 
 
-def test_de_registration_request_file_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_file_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -101,7 +101,7 @@ def test_de_registration_request_file_missing(flask_app, app, db, dirbs_core):  
     assert data['file'][0] == 'file is a required field'
 
 
-def test_de_registration_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -118,7 +118,7 @@ def test_de_registration_request_reason_missing(flask_app, app, db, dirbs_core):
         assert rv.status_code == 422
 
 
-def test_de_registration_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -135,7 +135,7 @@ def test_de_registration_request_device_count_missing(flask_app, app, db, dirbs_
         assert rv.status_code == 422
 
 
-def test_de_registration_request_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -153,7 +153,7 @@ def test_de_registration_request_update(flask_app, app, db, dirbs_core):  # pyli
     assert 'file' in data
 
 
-def test_de_registration_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)

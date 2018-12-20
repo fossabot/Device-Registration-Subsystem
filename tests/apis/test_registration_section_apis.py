@@ -55,7 +55,7 @@ REQUEST_DATA = {
 }
 
 
-def test_device_registration_section_method_failed(flask_app, db):  # pylint: disable=unused-argument
+def test_device_section_method_failed(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration section
         method is working properly and response is correct"""
 
@@ -68,7 +68,7 @@ def test_device_registration_section_method_failed(flask_app, db):  # pylint: di
     assert data['message'][0] == 'Registration Request not found.'
 
 
-def test_device_registration_section_method_request(flask_app, db):  # pylint: disable=unused-argument
+def test_device_section_method_request(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration section
         method is working properly and response is correct"""
 
@@ -89,7 +89,7 @@ def test_device_registration_section_method_request(flask_app, db):  # pylint: d
     assert len(data['reg_docs']) == 0
 
 
-def test_device_registration_section_method_devices(flask_app, db):  # pylint: disable=unused-argument
+def test_device_section_method_devices(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration section
         method is working properly and response is correct"""
 
@@ -125,7 +125,7 @@ def test_device_registration_section_method_devices(flask_app, db):  # pylint: d
     assert len(data['reg_docs']) == 0
 
 
-def test_device_registration_section_method_documents(flask_app, db, app):  # pylint: disable=unused-argument
+def test_device_section_method_documents(flask_app, db, app):  # pylint: disable=unused-argument
     """ To verify that registration section
         method is working properly and response is correct"""
 

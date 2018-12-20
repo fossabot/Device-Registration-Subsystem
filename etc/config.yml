@@ -65,8 +65,8 @@ global:
   dvs_api_v1: 'DVS_VERSION_ONE_API'
 
   #Directories
-  dereg_sample_file: '../mock/dereg_sample_file'
-  reg_sample_file: '../mock/reg_sample_file.tsv'
+  dereg_sample_file: './deregistration/dereg_sample_file'
+  reg_sample_file: './registration/reg_sample_file.tsv'
   upload_directory: 'UPLOAD_DIRECTORY'
 
 # DRS configurations for list generations
