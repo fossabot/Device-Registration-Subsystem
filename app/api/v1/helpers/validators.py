@@ -23,38 +23,10 @@ from marshmallow import ValidationError
 import re
 
 
-def validate_comment(val):
-    """Validate input field comment."""
-    match = re.match('[a-zA-Z0-9\s]{1,1000}$', val)
-    if match is None:
-        raise ValidationError("invalid characters not allowed")
-
-
-def validate_number(val):
-    """Validate number input field."""
-    match = re.match('^\+?[^\t](?:[0-9]){9,15}[0-9]$', val)
-    if match is None:
-        raise ValidationError("invalid format")
-
-
-def date_validation(val):
-    """Validate date input field."""
-    match = re.match('^((0?[13578]|10|12)(-|\/)(([1-9])|(0[1-9])|([12])([0-9]?)|(3[01]?))(-|\/)((19)([0-9])(\d{1})|(20)([01])(\d{1})|([8901])(\d{1}))|(0?[2469]|11)(-|\/)(([1-9])|(0[1-9])|([12])([0-9]?)|(3[0]?))(-|\/)((19)([2-9])(\d{1})|(20)([01])(\d{1})|([8901])(\d{1})))$', str(val))
-    if match is None:
-        raise ValidationError("invalid format")
-
-
 def validate_imei(val):
     """Validate IMEI input field."""
     if not val.isdigit():
         raise ValidationError("invalid imei")
-
-
-def validate_msisdn(val):
-    """Validate MSISDN input field."""
-    match = re.match('^\+?(?:[0-9]?){9,15}[0-9]$', val)
-    if match is None:
-        raise ValidationError("invalid msisdn")
 
 
 def validate_input(key, value):

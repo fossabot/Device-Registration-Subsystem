@@ -489,3 +489,16 @@ def test_device_registration_put_method_failure_update(flask_app, db):  # pylint
     rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
     assert rv.status_code == 422
 
+
+def test_device_registration_put_method_close_request(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration put
+        method gets failed in case of new request response is correct"""
+
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+    modified_data = {'close_request': True, 'reg_id': request.id, 'user_id': USER_ID}
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 200
+    assert data['status_label'] == 'Closed'
+

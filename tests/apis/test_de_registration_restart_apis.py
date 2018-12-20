@@ -29,3 +29,42 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+import json
+import uuid
+import copy
+
+from tests._helpers import create_dummy_request
+from tests.apis.test_de_registration_request_apis import REQUEST_DATA as DE_REG_REQ_DATA
+
+# pylint: disable=redefined-outer-name
+
+DEVICE_REGISTRATION_RESTART_API = '/api/v1/review/restart/deregistration'
+
+
+def test_restart_process_closed_request(flask_app, db):  # pylint: disable=unused-argument
+    """ unittest for registration documents."""
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(DE_REG_REQ_DATA)
+    request = create_dummy_request(request_data, "De-Registration", 'Closed')
+    url = "{0}/{1}".format(DEVICE_REGISTRATION_RESTART_API, request.id)
+    rv = flask_app.post(url, data=request_data)
+
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    print (data)
+    assert data['message'] == 'This request cannot be processed'
+
+
+def test_restart_process_invalid_request(flask_app, db):  # pylint: disable=unused-argument
+    """ unittest for registration documents."""
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    request_data = copy.deepcopy(DE_REG_REQ_DATA)
+    request = create_dummy_request(request_data, "De-Registration", 'New Request')
+    url = "{0}/{1}".format(DEVICE_REGISTRATION_RESTART_API, 'abcd')
+    rv = flask_app.post(url, data=request_data)
+
+    assert rv.status_code == 422
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data['message'][0] == 'De-Registration Request not found.'

@@ -29,3 +29,38 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+
+
+import json
+import uuid
+import copy
+
+from tests._helpers import create_dummy_request, create_de_registration
+from tests.apis.test_de_registration_request_apis import REQUEST_DATA as DE_REG_REQ_DATA
+
+# pylint: disable=redefined-outer-name
+
+DEVICE_DE_REGISTRATION_REPORT_API = 'api/v1/deregistration/report'
+
+
+def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
+    """ unittest for registration documents."""
+    request_data = copy.deepcopy(DE_REG_REQ_DATA)
+    request = create_de_registration(request_data, uuid.uuid4())
+    url = "{0}/{1}".format(DEVICE_DE_REGISTRATION_REPORT_API, 'abcd')
+    rv = flask_app.get(url)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert data['message'][0] == 'Registration Request not found.'
+
+
+def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
+    """ unittest for registration documents."""
+    request_data = copy.deepcopy(DE_REG_REQ_DATA)
+    request = create_de_registration(request_data, uuid.uuid4())
+
+    url = "{0}/{1}".format(DEVICE_DE_REGISTRATION_REPORT_API, request.id)
+    rv = flask_app.get(url)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 422
+    assert data['message'][0] == 'Report not found.'

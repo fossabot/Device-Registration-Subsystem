@@ -48,11 +48,10 @@ class RegistrationReportRoutes(Resource):
             if not req.report:
                 return Response(json.dumps(REPORT_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-            report = os.path.join(Utilities.upload_directoy, req.tracking_id, req.report)
+            report = os.path.join(app.config['DRS_UPLOADS'], req.tracking_id, req.report)
             return send_file(report)
         except Exception as e:
             app.logger.exception(e)
-
             data = {
                 "message": "Error retrieving results. Please check document_type or database connection."
             }
@@ -78,7 +77,7 @@ class DeRegistrationReportRoutes(Resource):
             if not req.report:
                 return Response(json.dumps(REPORT_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-            report = os.path.join(Utilities.upload_directoy, req.tracking_id, req.report)
+            report = os.path.join(app.config['DRS_UPLOADS'], req.tracking_id, req.report)
             return send_file(report)
         except Exception as e:
             app.logger.exception(e)

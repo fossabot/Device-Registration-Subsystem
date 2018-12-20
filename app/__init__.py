@@ -40,6 +40,7 @@ try:
     app.config['DRS_UPLOADS'] = config['global']['upload_directory']  # file upload dir
     app.config['DRS_LISTS'] = config['lists']['path']  # lists dir
     app.config['CORE_BASE_URL'] = config['global']['core_api_v2']
+    app.config['DVS_BASE_URL'] = config['global']['dvs_api_v1']
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://%s:%s@%s:%s/%s' % \
                                             (config['database']['user'],
                                              config['database']['password'],

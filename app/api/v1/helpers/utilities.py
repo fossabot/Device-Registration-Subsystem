@@ -52,17 +52,6 @@ class Utilities:
         return
 
     @classmethod
-    def check_imei_status(cls, response):
-        """Method to check if an IMEI is compliant."""
-        is_compliant = True
-        imei = response["imei_norm"]
-        conditions = response['classification_state']['blocking_conditions']
-        for condition in conditions:
-            if condition['condition_met']:
-                is_compliant = False
-        return is_compliant, imei
-
-    @classmethod
     def get_tacs_from_devices(cls, devices):
         """Method to extract unique tacs from devices in a request."""
         tacs = []
@@ -304,35 +293,6 @@ class Utilities:
                                'device_type': device_type, 'count': count, 'operating_system': operating_system}
                 tac_to_device_map.append(device_info)
         return tac_to_device_map
-
-    @classmethod
-    def get_bulk_compliant_imeis(cls, response):
-        """Method to filter out compliant and non-compliant IMEIS."""
-        compliant_imeis = []
-        non_compliant_imeis = []
-        response_list = response.json().get('results')
-        for response in response_list:
-            is_compliant, imei = cls.check_imei_status(response)
-            if is_compliant:
-                compliant_imeis.append(imei)
-            else:
-                non_compliant_imeis.append(imei)
-        return compliant_imeis, non_compliant_imeis
-
-    @classmethod
-    def bulk_compliant_status(cls, imeis):
-        """Method to get IMEIs status from CORE in bulk."""
-        non_compliant_list, compliant_list = [], []
-        imei_list = pydash.flatten_deep(imeis)
-        imei_chunks = pydash.chunk(imei_list, 1000)
-
-        url = cls.core_api_v2 + '/imei-batch'
-        for chunk in imei_chunks:
-            response = requests.post(url, json={'imeis': chunk})
-            compliant, non_compliant = Utilities.get_bulk_compliant_imeis(response)
-            non_compliant_list = pydash.interleave(non_compliant_list, non_compliant)
-            compliant_list = pydash.interleave(compliant_list, compliant)
-        return compliant_list, non_compliant_list
 
     @staticmethod
     def update_args_with_file(files, args):
