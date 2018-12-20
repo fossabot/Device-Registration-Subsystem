@@ -39,4 +39,16 @@ def test_healthcheck_failure(flask_app):
     rv = flask_app.get(HEALTH_CHECK_API)
     assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
+    print(data)
     assert data['status'] == 'failure'
+
+
+def test_healthcheck_success(flask_app, dirbs_core):
+    """Verify that the healthcheck passes when everything is available.
+    TODO: add dvs mock to complete
+    """
+    rv = flask_app.get(HEALTH_CHECK_API)
+    assert rv.status_code == 200
+    data = json.loads(rv.data.decode('utf-8'))
+    print(data)
+    # assert data['status'] == 'success'
