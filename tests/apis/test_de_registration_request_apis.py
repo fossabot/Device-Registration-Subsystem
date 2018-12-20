@@ -32,9 +32,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 import json
 import copy
 
-from tests._helpers import create_de_registration, create_dummy_request
+from tests._helpers import create_dummy_request
 
-# pylint: disable=redefined-outer-name
 
 DEVICE_DE_REGISTRATION_REQ_API = 'api/v1/deregistration'
 USER_NAME = 'test-abc'
@@ -60,14 +59,13 @@ def test_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
         rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
-        data = json.loads(rv.data.decode('utf-8'))
 
         # code change required
         assert rv.status_code == 500
 
     rv = flask_app.get(DEVICE_DE_REGISTRATION_REQ_API)
     data = json.loads(rv.data.decode('utf-8'))
-    assert len(data) > 0
+    assert data
 
 
 def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
@@ -82,7 +80,6 @@ def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argu
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
         rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
-        data = json.loads(rv.data.decode('utf-8'))
 
         # code change required
         assert rv.status_code == 500
@@ -116,6 +113,8 @@ def test_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disa
         data = json.loads(rv.data.decode('utf-8'))
 
         assert rv.status_code == 422
+        assert data
+        assert 'reason' in data
 
 
 def test_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
@@ -133,6 +132,8 @@ def test_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint
         data = json.loads(rv.data.decode('utf-8'))
 
         assert rv.status_code == 422
+        assert data
+        assert 'device_count' in data
 
 
 def test_request_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
@@ -167,4 +168,3 @@ def test_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disab
     assert rv.status_code == 422
     assert 'reason' in data
     assert data['reason'][0] == 'The request status is New Request, which cannot be updated'
-

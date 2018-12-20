@@ -36,8 +36,6 @@ import copy
 
 from tests._helpers import create_registration, create_dummy_request
 
-# pylint: disable=redefined-outer-name
-
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 USER_NAME = 'test-abc'
 USER_ID = '17102'
@@ -267,7 +265,6 @@ def test_create_request_file_input_method(flask_app, app, db):  # pylint: disabl
         request_file['user_name'] = 'test-user'
         request_file['user_id'] = '123-test'
         rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_file, headers=headers)
-        data = json.loads(rv.data.decode('utf-8'))
 
         assert rv.status_code == 200
 
@@ -488,4 +485,3 @@ def test_device_put_method_failure_update(flask_app, db):  # pylint: disable=unu
     modified_data = {'m_location': 'overseas', 'reg_id': request.id, 'user_id': USER_ID}
     rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
     assert rv.status_code == 422
-

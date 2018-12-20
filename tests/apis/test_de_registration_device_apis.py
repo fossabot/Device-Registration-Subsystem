@@ -35,8 +35,6 @@ import copy
 from tests._helpers import create_dummy_request, create_dummy_devices
 from tests.apis.test_de_registration_request_apis import REQUEST_DATA as DE_REG_REQ_DATA
 
-# pylint: disable=redefined-outer-name
-
 DE_REGISTRATION_DEVICE_API = 'api/v1/deregistration/devices'
 REQUEST_DATA = {
     'devices': [{
@@ -68,7 +66,7 @@ def test_device_post_method_de_reg_id_not_found(flask_app, db):  # pylint: disab
     assert data['message'][0] == 'De-Registration Request not found.'
 
 
-def test_devices_success(flask_app, app, db):  # pylint: disable=unused-argument
+def test_devices_success(flask_app, app, db):
     """ To verify that de_registration device
         method is working properly and response is correct"""
 
@@ -227,7 +225,7 @@ def test_device_put_method_de_reg_id_not_found(flask_app, db):  # pylint: disabl
     assert data['message'][0] == 'De-Registration Request not found.'
 
 
-def test_update_devices_success(flask_app, app, db):  # pylint: disable=unused-argument
+def test_update_devices_success(flask_app, app, db):
     """ To verify that registration device
         method is working properly and response is correct"""
 

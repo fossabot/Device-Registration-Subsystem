@@ -219,4 +219,3 @@ def create_dummy_documents(files, request_type, request, app=None):
                 f.seek(1073741824-1)
                 f.write(b"\0")
     return request
-

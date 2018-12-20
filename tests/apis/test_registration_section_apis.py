@@ -31,12 +31,9 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 
 import json
-import copy
 import uuid
 
 from tests._helpers import create_registration, create_dummy_devices, create_dummy_documents
-
-# pylint: disable=redefined-outer-name
 
 
 DEVICE_REGISTRATION_SECTION_API = 'api/v1/registration/sections'
@@ -80,13 +77,13 @@ def test_device_section_method_request(flask_app, db):  # pylint: disable=unused
 
     assert rv.status_code == 200
     assert 'reg_details' in data
-    assert len(data['reg_details']) > 0
+    assert data
     assert 'status_label' in data['reg_details']
     assert data['reg_details']['status_label'] == 'New Request'
 
     assert 'reg_device' in data
-    assert len(data['reg_docs']) == 0
-    assert len(data['reg_docs']) == 0
+    assert not data['reg_docs']
+    assert not data['reg_docs']
 
 
 def test_device_section_method_devices(flask_app, db):  # pylint: disable=unused-argument
@@ -112,17 +109,17 @@ def test_device_section_method_devices(flask_app, db):  # pylint: disable=unused
 
     assert rv.status_code == 200
     assert 'reg_details' in data
-    assert len(data['reg_details']) > 0
+    assert data['reg_details']
     assert 'status_label' in data['reg_details']
     assert data['reg_details']['status_label'] == 'New Request'
 
     assert 'reg_device' in data
-    assert len(data['reg_device']) > 0
+    assert data['reg_device']
     assert 'model_num' in data['reg_device']
     assert 'technologies' in data['reg_device']
 
     assert 'reg_docs' in data
-    assert len(data['reg_docs']) == 0
+    assert not data['reg_docs']
 
 
 def test_device_section_method_documents(flask_app, db, app):  # pylint: disable=unused-argument
@@ -155,15 +152,14 @@ def test_device_section_method_documents(flask_app, db, app):  # pylint: disable
 
     assert rv.status_code == 200
     assert 'reg_details' in data
-    assert len(data['reg_details']) > 0
+    assert data['reg_details']
     assert 'status_label' in data['reg_details']
     assert data['reg_details']['status_label'] == 'New Request'
 
     assert 'reg_device' in data
-    assert len(data['reg_device']) > 0
+    assert data['reg_device']
     assert 'model_num' in data['reg_device']
     assert 'technologies' in data['reg_device']
 
     assert 'reg_docs' in data
     assert len(data['reg_docs']) == 3
-

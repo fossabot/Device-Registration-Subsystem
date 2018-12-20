@@ -34,10 +34,9 @@ import json
 import uuid
 import copy
 
-from tests._helpers import create_registration, create_dummy_documents, create_dummy_request
+from tests._helpers import create_registration, create_dummy_request
 from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
 
-# pylint: disable=redefined-outer-name
 
 DEVICE_REGISTRATION_DOC_API = 'api/v1/registration/documents'
 USER_NAME = 'test-abc'
@@ -269,21 +268,22 @@ def test_de_required_documents_update_invalid_extension(flask_app, app, db):  # 
 
 def test_documents_get_invalid_request(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents."""
-    headers = {'Content-Type': 'multipart/form-data'}
-    registration = create_registration(REG_REQ_DATA, uuid.uuid4())
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_REGISTRATION_DOC_API, '123'))
     data = json.loads(rv.data.decode('utf-8'))
 
     assert rv.status_code == 422
+    assert data
+    assert 'message' in data
 
 
-def test_documents_get_all(flask_app, db):  # pylint: disable=unused-argument
+def test_documents_get_empty_list(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents."""
-    headers = {'Content-Type': 'multipart/form-data'}
+
     registration = create_registration(REG_REQ_DATA, uuid.uuid4())
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_REGISTRATION_DOC_API, registration.id))
     data = json.loads(rv.data.decode('utf-8'))
 
     assert rv.status_code == 200
+    assert not data

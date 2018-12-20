@@ -34,10 +34,9 @@ import json
 import uuid
 import copy
 
-from tests._helpers import create_de_registration, create_dummy_documents, create_dummy_request
+from tests._helpers import create_de_registration, create_dummy_request
 from tests.apis.test_de_registration_request_apis import REQUEST_DATA as DE_REG_REQ_DATA
 
-# pylint: disable=redefined-outer-name
 
 DEVICE_REGISTRATION_DOC_API = 'api/v1/deregistration/documents'
 USER_NAME = 'test-abc'
@@ -174,13 +173,11 @@ def test_documents_get_empty_list(flask_app, db):  # pylint: disable=unused-argu
     rv = flask_app.get("{0}/{1}".format(DEVICE_REGISTRATION_DOC_API, request.id))
     data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
-    assert len(data) == 0
+    assert not data
 
 
 def test_documents_get_invalid_request(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents all missing"""
-    headers = {'Content-Type': 'multipart/form-data'}
-    request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_REGISTRATION_DOC_API, '123'))
     data = json.loads(rv.data.decode('utf-8'))
