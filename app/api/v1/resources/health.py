@@ -50,6 +50,6 @@ class HealthCheck(MethodResource):
         check_status = [check.get('passed') for check in data]
         return {
             'host_name': socket.gethostname(),
-            'status': 'success' if any(check_status) else 'failure',
+            'status': 'success' if all(check_status) else 'failure',
             'time_stamp': datetime.datetime.now()
         }
