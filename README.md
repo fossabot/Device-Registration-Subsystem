@@ -20,15 +20,15 @@ Device Registration Sub-System is a part of the Device Identification, Registrat
 It is used to comply type approval of imported/exported devices.
 
 #### Documentation
-[DRS-API-Installation-Guide-1.0.0](https://github.com/dirbs/Documentation/blob/master/DRS-API-Installation-Guide-1.0.0.pdf)
+[DRS-API-Installation-Guide-1.0.0](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-API-Installation-Guide-1.0.0.pdf)
 
-[DRS-SPA-Installation-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-SPA-Installation-Guide-1.0.0.pdf)
+[DRS-SPA-Installation-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-SPA-Installation-Guide-1.0.0.pdf)
 
-[DRS-Importer-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-Importer-User-Guide-1.0.0.pdf)
+[DRS-Importer-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-Importer-User-Guide-1.0.0.pdf)
 
-[DRS-Exporter-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-Exporter-User-Guide-1.0.0.pdf)
+[DRS-Exporter-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-Exporter-User-Guide-1.0.0.pdf)
 
-[DRS-Authority-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/DRS-Authority-User-Guide-1.0.0.pdf)
+[DRS-Authority-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-Authority-User-Guide-1.0.0.pdf)
 
 #### Frontend Application Repo
 https://github.com/dirbs/Device-Registration-Subsystem-Frontend
