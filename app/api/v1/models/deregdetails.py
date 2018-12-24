@@ -98,7 +98,8 @@ class DeRegDetails(db.Model):
         try:
             db.session.add(self)
             db.session.flush()
-        except Exception:
+        except Exception as e:
+            app.logger.exception(e)
             db.session.rollback()
             raise Exception
 
@@ -113,12 +114,16 @@ class DeRegDetails(db.Model):
 
     @classmethod
     def create(cls, args, tracking_id):
-        """Add new request data to the table."""
-        reg_request = cls(args, tracking_id)
-        status_id = Status.get_status_id('New Request')
-        reg_request.status = status_id
-        reg_request.save()
-        return reg_request
+        try:
+            """Add new request data to the table."""
+            reg_request = cls(args, tracking_id)
+            status_id = Status.get_status_id('New Request')
+            reg_request.status = status_id
+            reg_request.save()
+            return reg_request
+        except Exception as e:
+            app.logger.exception(e)
+            db.session.rollback()
 
     @staticmethod
     def exists(request_id):
@@ -182,7 +187,7 @@ class DeRegDetails(db.Model):
         args = request.form.to_dict()
         file = request.files.get('file')
         if file:
-            args.update({'file': file.filename})
+            args.update({'file': file.filename.split("/")[-1]})
         return args
 
     @classmethod

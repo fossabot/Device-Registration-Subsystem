@@ -322,7 +322,7 @@ class RegDetails(db.Model):
         args = request.form.to_dict()
         file = request.files.get('file')
         if file:
-            args.update({'file': file.filename})
+            args.update({'file': file.filename.split("/")[-1]})
         return args
 
     @staticmethod

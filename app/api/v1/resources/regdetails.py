@@ -82,11 +82,12 @@ class RegistrationRoutes(Resource):
                 return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             if file:
+                file_name = file.filename.split("/")[-1]
                 response = Utilities.store_file(file, tracking_id)
                 if response:
                     return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-                response = Utilities.process_reg_file(file.filename, tracking_id, args)
+                response = Utilities.process_reg_file(file_name, tracking_id, args)
                 if isinstance(response, list):
                     response = RegDetails.create(args, tracking_id)
                 else:
@@ -102,6 +103,7 @@ class RegistrationRoutes(Resource):
 
         except Exception as e:
             db.session.rollback()
+            app.logger.exception(e)
             Utilities.remove_directory(tracking_id)
             app.logger.exception(e)
 

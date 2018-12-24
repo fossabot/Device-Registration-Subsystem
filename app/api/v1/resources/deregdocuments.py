@@ -51,13 +51,6 @@ class DeRegDocumentRoutes(Resource):
             schema = DeRegDocumentsSchema()
             documents = DeRegDocuments.get_by_reg_id(dereg_id)
             documents = schema.dump(documents, many=True).data
-            '''if doc_id:
-                if not doc_id.isdigit():
-                    documents = DOC_NOT_FOUND_MSG
-                else:
-                    documents = list(filter(lambda doc: int(doc['id']) == int(doc_id), documents))
-                    documents = documents[0] if documents else DOC_NOT_FOUND_MSG
-            '''
             return Response(json.dumps(documents), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
