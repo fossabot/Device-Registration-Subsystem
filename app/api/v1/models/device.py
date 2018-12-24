@@ -46,13 +46,6 @@ class Device(db.Model):
         self.reg_device_id = reg_device_id
 
     @classmethod
-    def create_index(cls, engine):
-        """ Create Indexes for Registration device table. """
-
-        # reg_tac = db.Index('reg_tac_index', cls.tac)
-        # reg_tac.create(bind=engine)
-
-    @classmethod
     def async_bulk_create(cls, reg_details, reg_device_id, app):
         """Create devices async."""
         with app.app_context():
@@ -96,7 +89,7 @@ class Device(db.Model):
             except Exception as e:
                 app.logger.exception(e)
                 db.session.rollback()
-                app.logger.info('task with task_id: {0} failed'.format(task_id))
+                # app.logger.info('task with task_id: {0} failed'.format(task_id))
                 reg_details.update_report_status('Failed')
                 reg_details.update_processing_status('Failed')
                 db.session.commit()

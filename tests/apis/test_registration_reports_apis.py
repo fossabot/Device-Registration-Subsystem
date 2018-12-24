@@ -45,7 +45,6 @@ DEVICE_REGISTRATION_REPORT_API = 'api/v1/registration/report'
 def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents."""
     request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_registration(request_data, uuid.uuid4())
     url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, 'abcd')
     rv = flask_app.get(url)
     data = json.loads(rv.data.decode('utf-8'))
