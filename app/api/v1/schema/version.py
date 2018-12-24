@@ -1,5 +1,5 @@
 """
-DRS healthcheck resource module.
+DRS healthcheck api schema module.
 Copyright (c) 2018 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
@@ -19,38 +19,10 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-import json
-import socket
-import datetime
-
-from flask import Response
-from flask_apispec import marshal_with, doc, MethodResource
-
-from app.api.v1.schema.health import HealthCheckSchema
-from app.common.health_checks import database_check, dirbs_core_check, dirbs_dvs_check
+from marshmallow import Schema, fields
 
 
-class HealthCheck(MethodResource):
-    """Resource class for handling healthcheck api resources."""
-
-    @doc(description='Get health information about the system', tags=['Health'])
-    @marshal_with(HealthCheckSchema, code=200, description='On success')
-    def get(self):
-        """GET method handler."""
-        data = []
-        for check in [database_check, dirbs_core_check, dirbs_dvs_check]:
-            check_result = check()
-            data.append(check_result)
-        response = {'results': data}
-        response.update(self.calc_status(data))
-        return Response(json.dumps(HealthCheckSchema().dump(dict(response)).data),
-                        status=200, mimetype='application/json')
-
-    def calc_status(self, data):
-        """Method to calculate overall status, hostname and current timestamp."""
-        check_status = [check.get('passed') for check in data]
-        return {
-            'host_name': socket.gethostname(),
-            'status': 'success' if all(check_status) else 'failure',
-            'time_stamp': datetime.datetime.now()
-        }
+class VersionSchema(Schema):
+    """Class for version api schema."""
+    version = fields.String(description='Current version number of the system')
+    db_schema_version = fields.String(description='Current database schema version')

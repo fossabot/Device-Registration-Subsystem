@@ -20,37 +20,23 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 import json
-import socket
-import datetime
 
 from flask import Response
 from flask_apispec import marshal_with, doc, MethodResource
 
-from app.api.v1.schema.health import HealthCheckSchema
-from app.common.health_checks import database_check, dirbs_core_check, dirbs_dvs_check
+from app.metadata import version, db_schema_version
+from app.api.v1.schema.version import VersionSchema
 
 
-class HealthCheck(MethodResource):
-    """Resource class for handling healthcheck api resources."""
+class Version(MethodResource):
+    """Class for handling version api resources."""
 
-    @doc(description='Get health information about the system', tags=['Health'])
-    @marshal_with(HealthCheckSchema, code=200, description='On success')
+    @doc(description='Get system and database schema version information', tags=['Version'])
+    @marshal_with(VersionSchema, code=200, description='On success')
     def get(self):
         """GET method handler."""
-        data = []
-        for check in [database_check, dirbs_core_check, dirbs_dvs_check]:
-            check_result = check()
-            data.append(check_result)
-        response = {'results': data}
-        response.update(self.calc_status(data))
-        return Response(json.dumps(HealthCheckSchema().dump(dict(response)).data),
-                        status=200, mimetype='application/json')
-
-    def calc_status(self, data):
-        """Method to calculate overall status, hostname and current timestamp."""
-        check_status = [check.get('passed') for check in data]
-        return {
-            'host_name': socket.gethostname(),
-            'status': 'success' if all(check_status) else 'failure',
-            'time_stamp': datetime.datetime.now()
-        }
+        return Response(json.dumps(
+            VersionSchema().dump(dict(
+                version=version,
+                db_schema_version=db_schema_version
+            )).data))
