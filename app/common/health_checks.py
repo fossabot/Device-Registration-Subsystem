@@ -21,9 +21,9 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import datetime
 import requests
+from requests.exceptions import RequestException
 
 from sqlalchemy.exc import SQLAlchemyError
-from requests.exceptions import RequestException
 
 from app import app, db
 

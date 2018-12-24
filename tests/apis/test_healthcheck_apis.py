@@ -42,7 +42,7 @@ def test_healthcheck_failure(flask_app):
     assert data['status'] == 'failure'
 
 
-def test_healthcheck_success(flask_app, dirbs_core):
+def test_healthcheck_success(flask_app, dirbs_core):  # pylint: disable=unused-argument
     """Verify that the healthcheck passes when everything is available.
     TODO: add dvs mock to complete
     """
@@ -51,3 +51,27 @@ def test_healthcheck_success(flask_app, dirbs_core):
     data = json.loads(rv.data.decode('utf-8'))
     assert data
     # assert data['status'] == 'success'
+
+
+def test_post_method_not_allowed(flask_app):
+    """Verify that POST method is not allowed."""
+    rv = flask_app.post(HEALTH_CHECK_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
+
+
+def test_delete_method_not_allowed(flask_app):
+    """Verify that DELETE method is not allowed."""
+    rv = flask_app.delete(HEALTH_CHECK_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
+
+
+def test_put_method_not_allowed(flask_app):
+    """Verify that the PUT method is not allowed."""
+    rv = flask_app.put(HEALTH_CHECK_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
