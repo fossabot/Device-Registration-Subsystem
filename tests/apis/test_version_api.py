@@ -1,5 +1,5 @@
 """
-module for healthcheck api tests
+module for version api tests
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -31,23 +31,39 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
-HEALTH_CHECK_API = 'api/v1/healthcheck'
+from app.metadata import version, db_schema_version
+
+VERSION_API = 'api/v1/version'
 
 
-def test_healthcheck_failure(flask_app):
-    """Verify that when database, core and dvs not available the healthcheck fails."""
-    rv = flask_app.get(HEALTH_CHECK_API)
+def test_version_api(flask_app):
+    """Verify that the version api returns correct version numbers."""
+    rv = flask_app.get(VERSION_API)
     assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
-    assert data['status'] == 'failure'
+    assert data['version'] == version
+    assert data['db_schema_version'] == db_schema_version
 
 
-def test_healthcheck_success(flask_app, dirbs_core):
-    """Verify that the healthcheck passes when everything is available.
-    TODO: add dvs mock to complete
-    """
-    rv = flask_app.get(HEALTH_CHECK_API)
-    assert rv.status_code == 200
+def test_post_method_not_allowed(flask_app):
+    """Verify that POST method is not allowed."""
+    rv = flask_app.post(VERSION_API)
+    assert rv.status_code == 405
     data = json.loads(rv.data.decode('utf-8'))
-    assert data
-    # assert data['status'] == 'success'
+    assert data.get('message') == 'method not allowed'
+
+
+def test_delete_method_not_allowed(flask_app):
+    """Verify that DELETE method is not allowed."""
+    rv = flask_app.delete(VERSION_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
+
+
+def test_put_method_not_allowed(flask_app):
+    """Verify that the PUT method is not allowed."""
+    rv = flask_app.put(VERSION_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
