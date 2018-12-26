@@ -91,8 +91,8 @@ def app(mocked_config, tmpdir_factory):
     app_.url_map = old_url_map
     app_.view_functions = old_view_functions
     app_.config = old_config
-    shutil.rmtree(temp_lists)
-    shutil.rmtree(temp_uploads)
+    shutil.rmtree(str(temp_lists))
+    shutil.rmtree(str(temp_uploads))
     postgresql.stop()
 
 
