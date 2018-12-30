@@ -173,6 +173,7 @@ def create_dummy_devices(data, request_type, request, db=None, file_path=None, f
         with open(file_path, 'w') as f:
             for content in file_content:
                 f.write(content)
+                f.write('\n')
 
         data = DeRegDevice.curate_args(data, request)
         imei_tac_map = Utilities.extract_imeis_tac_map(data, request)
@@ -219,4 +220,3 @@ def create_dummy_documents(files, request_type, request, app=None):
                 f.seek(1073741824-1)
                 f.write(b"\0")
     return request
-

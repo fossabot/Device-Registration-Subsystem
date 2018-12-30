@@ -31,7 +31,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 
 from app.api.v1.models.device import Device
-from tests._helpers import create_dummy_request, create_dummy_devices
+from tests._helpers import create_dummy_request
 from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
 
 

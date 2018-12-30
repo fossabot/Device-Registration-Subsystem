@@ -182,6 +182,20 @@ def dirbs_core(app):
         body=json.dumps({"results": [single_tac_response]}),
         content_type='application/json')
 
+    # mock version api
+    version_response = {
+        'source_code_version': 'string',
+        'code_db_schema_version': 0,
+        'db_schema_version': 0,
+        'report_schema_version': 0
+    }
+    httpretty.register_uri(
+        httpretty.GET,
+        '{0}version'.format(dirbs_core_api),
+        body=json.dumps(version_response),
+        content_type='application/json'
+    )
+
     yield
 
     # disable afterwards when not in use to avoid issues with the sockets

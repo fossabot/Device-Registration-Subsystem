@@ -48,7 +48,7 @@ IMEI_TAC_MAP = {
 }
 
 
-def test_remove_directory(app, session):
+def test_remove_directory(app, session):  # pylint: disable=unused-argument
     """Verify that the remove function works correctly."""
     tracking_id = uuid.uuid4()
     complete_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
@@ -58,7 +58,7 @@ def test_remove_directory(app, session):
     assert os.path.isdir(complete_path) is False
 
 
-def test_remove_file(app, session):
+def test_remove_file(app, session):  # pylint: disable=unused-argument
     """Verify that the remove function works correctly."""
     tracking_id = uuid.uuid4()
     complete_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
@@ -147,21 +147,21 @@ def test_single_get_devices_description(app, session, dirbs_core):  # pylint: di
     assert response['tac'] == 'string'
 
 
-def test_index_exist_idx(app, db):
+def test_index_exist_idx(app, db):  # pylint: disable=unused-argument
     """Verify that the index exits function works correctly."""
 
     response = Utilities.exist_idx('test-index')
     assert response is False
 
 
-def test_split_chunks(app):
+def test_split_chunks(app):  # pylint: disable=unused-argument
     """Verify that the split chunks function works correctly."""
 
     response = Utilities.split_chunks(IMEIS, 2)
     assert response
 
 
-def test_split_imeis(app):
+def test_split_imeis(app):  # pylint: disable=unused-argument
     """Verify that the split imeis function works correctly."""
 
     imeis = "12345678976543, 34567897654321"
@@ -170,7 +170,7 @@ def test_split_imeis(app):
     assert len(response) == 2
 
 
-def test_convert_to_mbs(app):
+def test_convert_to_mbs(app):  # pylint: disable=unused-argument
     """Verify that the convert to mbs function works correctly."""
 
     filesize = 1024 * 1024

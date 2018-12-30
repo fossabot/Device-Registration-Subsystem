@@ -36,8 +36,6 @@ import copy
 
 from tests._helpers import create_registration, create_dummy_request
 
-# pylint: disable=redefined-outer-name
-
 DEVICE_REGISTRATION_REQ_API = 'api/v1/registration'
 USER_NAME = 'test-abc'
 USER_ID = '17102'
@@ -54,7 +52,7 @@ REQUEST_DATA = {
 }
 
 
-def test_device_registration_post_method(flask_app, db):  # pylint: disable=unused-argument
+def test_device_post_method(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration post
         method is working properly and response is correct"""
     headers = {'Content-Type': 'multipart/form-data'}
@@ -225,7 +223,7 @@ def test_invalid_string_in_manufacturing_locations(flask_app, db):  # pylint: di
     assert rv.status_code == 422
 
 
-def test_device_registration_get_method(flask_app, db):  # pylint: disable=unused-argument
+def test_device_get_method(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration get
         method is working properly and response is correct"""
     request = create_registration(REQUEST_DATA, uuid.uuid4())
@@ -238,7 +236,7 @@ def test_device_registration_get_method(flask_app, db):  # pylint: disable=unuse
     assert data['id'] == request.id
 
 
-def test_device_registration_put_method_failure(flask_app, db):  # pylint: disable=unused-argument
+def test_device_put_method_failure(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration put
         method gets failed in case of new request response is correct"""
 
@@ -267,12 +265,11 @@ def test_create_request_file_input_method(flask_app, app, db):  # pylint: disabl
         request_file['user_name'] = 'test-user'
         request_file['user_id'] = '123-test'
         rv = flask_app.post(DEVICE_REGISTRATION_REQ_API, data=request_file, headers=headers)
-        data = json.loads(rv.data.decode('utf-8'))
 
         assert rv.status_code == 200
 
 
-def test_device_registration_put_method(flask_app, db):  # pylint: disable=unused-argument
+def test_device_put_method(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration post
         method is working properly and response is correct"""
     headers = {'Content-Type': 'multipart/form-data'}
@@ -466,7 +463,7 @@ def test_invalid_string_in_manufacturing_locations_update(flask_app, db):  # pyl
     assert rv.status_code == 422
 
 
-def test_device_registration_get_method_update(flask_app, db):  # pylint: disable=unused-argument
+def test_device_get_method_update(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration get
         method is working properly and response is correct"""
     request = create_registration(REQUEST_DATA, uuid.uuid4())
@@ -479,7 +476,7 @@ def test_device_registration_get_method_update(flask_app, db):  # pylint: disabl
     assert data['id'] == request.id
 
 
-def test_device_registration_put_method_failure_update(flask_app, db):  # pylint: disable=unused-argument
+def test_device_put_method_failure_update(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration put
         method gets failed in case of new request response is correct"""
 
@@ -501,4 +498,3 @@ def test_device_registration_put_method_close_request(flask_app, db):  # pylint:
     data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
     assert data['status_label'] == 'Closed'
-

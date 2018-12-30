@@ -32,9 +32,8 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 import json
 import copy
 
-from tests._helpers import create_de_registration, create_dummy_request
+from tests._helpers import create_dummy_request
 
-# pylint: disable=redefined-outer-name
 
 DEVICE_DE_REGISTRATION_REQ_API = 'api/v1/deregistration'
 USER_NAME = 'test-abc'
@@ -48,7 +47,7 @@ REQUEST_DATA = {
 }
 
 
-def test_de_registration_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -60,19 +59,17 @@ def test_de_registration_request_get(flask_app, app, db, dirbs_core):  # pylint:
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
         rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
-        data = json.loads(rv.data.decode('utf-8'))
 
         # code change required
         assert rv.status_code == 500
 
     rv = flask_app.get(DEVICE_DE_REGISTRATION_REQ_API)
     data = json.loads(rv.data.decode('utf-8'))
-    assert len(data) > 0
+    assert data
 
 
-def test_de_registration_request_get_single(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_get_single(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
-    headers = {'Content-Type': 'multipart/form-data'}
     request = create_dummy_request(REQUEST_DATA, 'De-Registration', status='Awaiting Documents')
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_DE_REGISTRATION_REQ_API, request.id))
@@ -82,7 +79,6 @@ def test_de_registration_request_get_single(flask_app, app, db, dirbs_core):  # 
 
 def test_invalid_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
-    headers = {'Content-Type': 'multipart/form-data'}
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_DE_REGISTRATION_REQ_API, 'abcd'))
     data = json.loads(rv.data.decode('utf-8'))
@@ -90,7 +86,7 @@ def test_invalid_request_get(flask_app, app, db, dirbs_core):  # pylint: disable
     assert data['message'][0] == 'De-Registration Request not found.'
 
 
-def test_de_registration_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -102,13 +98,12 @@ def test_de_registration_request(flask_app, app, db, dirbs_core):  # pylint: dis
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
         rv = flask_app.post(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
-        data = json.loads(rv.data.decode('utf-8'))
 
         # code change required
         assert rv.status_code == 500
 
 
-def test_de_registration_request_file_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_file_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -121,7 +116,7 @@ def test_de_registration_request_file_missing(flask_app, app, db, dirbs_core):  
     assert data['file'][0] == 'file is a required field'
 
 
-def test_de_registration_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -136,9 +131,11 @@ def test_de_registration_request_reason_missing(flask_app, app, db, dirbs_core):
         data = json.loads(rv.data.decode('utf-8'))
 
         assert rv.status_code == 422
+        assert data
+        assert 'reason' in data
 
 
-def test_de_registration_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -153,9 +150,11 @@ def test_de_registration_request_device_count_missing(flask_app, app, db, dirbs_
         data = json.loads(rv.data.decode('utf-8'))
 
         assert rv.status_code == 422
+        assert data
+        assert 'device_count' in data
 
 
-def test_de_registration_request_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -173,7 +172,7 @@ def test_de_registration_request_update(flask_app, app, db, dirbs_core):  # pyli
     assert 'file' in data
 
 
-def test_de_registration_request_file_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_file_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -189,13 +188,12 @@ def test_de_registration_request_file_update(flask_app, app, db, dirbs_core):  #
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
         rv = flask_app.put(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
-        data = json.loads(rv.data.decode('utf-8'))
 
         # code change required
         assert rv.status_code == 500
 
 
-def test_de_registration_request_file_update_invalid_device(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_file_update_invalid_device(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -216,7 +214,7 @@ def test_de_registration_request_file_update_invalid_device(flask_app, app, db, 
         assert data['status'][0] == 'The request status is New Request, which cannot be updated'
 
 
-def test_de_registration_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -232,7 +230,7 @@ def test_de_registration_request_update_failed(flask_app, app, db, dirbs_core): 
     assert data['reason'][0] == 'The request status is New Request, which cannot be updated'
 
 
-def test_de_registration_request_closed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+def test_request_closed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
     request_data = copy.deepcopy(REQUEST_DATA)

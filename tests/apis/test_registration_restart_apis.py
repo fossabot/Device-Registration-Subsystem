@@ -32,20 +32,17 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 
 
 import json
-import uuid
 import copy
 
-from tests._helpers import create_de_registration, create_dummy_documents, create_dummy_request
+from tests._helpers import create_dummy_request
 from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
 
-# pylint: disable=redefined-outer-name
 
 DEVICE_REGISTRATION_RESTART_API = '/api/v1/review/restart/registration'
 
 
 def test_restart_process_closed_request(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents."""
-    headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REG_REQ_DATA)
     request = create_dummy_request(request_data, "Registration", 'Closed')
@@ -59,10 +56,9 @@ def test_restart_process_closed_request(flask_app, db):  # pylint: disable=unuse
 
 def test_restart_process_invalid_request(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents."""
-    headers = {'Content-Type': 'multipart/form-data'}
 
     request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_dummy_request(request_data, "Registration", 'New Request')
+    create_dummy_request(request_data, "Registration", 'New Request')
     url = "{0}/{1}".format(DEVICE_REGISTRATION_RESTART_API, 'abcd')
     rv = flask_app.post(url, data=request_data)
 

@@ -1,25 +1,15 @@
 """
-module for common apis test
-
+DRS healthcheck resource module.
 Copyright (c) 2018 Qualcomm Technologies, Inc.
-
  All rights reserved.
-
-
-
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
-
-
  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  disclaimer.
-
  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
  disclaimer in the documentation and/or other materials provided with the distribution.
-
  * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
  products derived from this software without specific prior written permission.
-
  NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
  THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
@@ -29,34 +19,38 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-
 import json
-import uuid
-import copy
+import socket
+import datetime
 
-from tests._helpers import  create_registration
-from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
+from flask import Response
+from flask_apispec import marshal_with, doc, MethodResource
 
-
-DEVICE_REGISTRATION_REPORT_API = 'api/v1/registration/report'
-
-
-def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, 'abcd')
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Registration Request not found.'
+from app.api.v1.schema.health import HealthCheckSchema
+from app.common.health_checks import database_check, dirbs_core_check, dirbs_dvs_check
 
 
-def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_registration(request_data, uuid.uuid4())
+class HealthCheck(MethodResource):
+    """Resource class for handling healthcheck api resources."""
 
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, request.id)
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Report not found.'
+    @doc(description='Get health information about the system', tags=['Health'])
+    @marshal_with(HealthCheckSchema, code=200, description='On success')
+    def get(self):
+        """GET method handler."""
+        data = []
+        for check in [database_check, dirbs_core_check, dirbs_dvs_check]:
+            check_result = check()
+            data.append(check_result)
+        response = {'results': data}
+        response.update(self.calc_status(data))
+        return Response(json.dumps(HealthCheckSchema().dump(dict(response)).data),
+                        status=200, mimetype='application/json')
+
+    def calc_status(self, data):
+        """Method to calculate overall status, hostname and current timestamp."""
+        check_status = [check.get('passed') for check in data]
+        return {
+            'host_name': socket.gethostname(),
+            'status': 'success' if all(check_status) else 'failure',
+            'time_stamp': datetime.datetime.now()
+        }

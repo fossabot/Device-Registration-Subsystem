@@ -35,7 +35,6 @@ class SearchRegistraion:
 
     def __init__(self):
         """Constructor."""
-        pass
 
     @staticmethod
     def format_response(data):
@@ -91,40 +90,12 @@ class SearchRegistraion:
                 if group:
                     if group == 'reviewer':
                         data = db.engine.execute(
-                            sql + "where status<>'New Request' and status<>'Awaiting Documents' and status<>'Closed' "
+                            sql + " where status<>'New Request' and status<>'Awaiting Documents' and status<>'Closed' "
                                   "order by updated_at desc")
                     elif (group == 'individual' or group == 'importer') and bool(search_specs['user_id']):
                         data = db.engine.execute(
                             sql + " where user_id = '{val}' order by updated_at desc".format(
                                 val=search_specs['user_id']))
-                    else:
-                        data = {
-                            "start": start,
-                            "previous": "",
-                            "next": "",
-                            "requests": [],
-                            "count": 0,
-                            "limit": limit,
-                            "message": "User or Group not found!"
-                        }
-                        response = Response(json.dumps(data), status=CODES.get("OK"),
-                                            mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                        return response
-
-                else:
-                    data = {
-                        "start": start,
-                        "previous": "",
-                        "next": "",
-                        "requests": [],
-                        "count": 0,
-                        "limit": limit,
-                        "message": "Group not found!"
-                    }
-                    response = Response(json.dumps(data), status=CODES.get("OK"),
-                                        mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                    return response
-
                 requests = []
                 for row in data:
                     requests.append(dict((col, val) for col, val in row.items()))
@@ -136,18 +107,6 @@ class SearchRegistraion:
                     response = Response(json.dumps(paginated_data, default=str), status=CODES.get("OK"),
                                         mimetype=MIME_TYPES.get('APPLICATION_JSON'))
                     return response
-                else:
-                    data = {
-                        "start": start,
-                        "previous": "",
-                        "next": "",
-                        "requests": requests,
-                        "count": 0,
-                        "limit": limit
-                    }
-                    response = Response(json.dumps(data, default=str), status=CODES.get("OK"),
-                                        mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                    return response
             else:
 
                 if group:
@@ -155,33 +114,6 @@ class SearchRegistraion:
                         sql = sql + " where status <> 'New Request' and status <> 'Awaiting Documents' and status <> 'Closed' AND"
                     elif (group == 'individual' or group == 'importer') and bool(search_specs['user_id']):
                         sql = sql + " where user_id = '{val}' AND".format(val=search_specs['user_id'])
-                    else:
-                        data = {
-                            "start": start,
-                            "previous": "",
-                            "next": "",
-                            "requests": [],
-                            "count": 0,
-                            "limit": limit,
-                            "message": "User or Group not found!"
-                        }
-                        response = Response(json.dumps(data), status=CODES.get("OK"),
-                                            mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                        return response
-                else:
-                    data = {
-                        "start": start,
-                        "previous": "",
-                        "next": "",
-                        "requests": [],
-                        "count": 0,
-                        "limit": limit,
-                        "message": "Group not found!"
-                    }
-                    response = Response(json.dumps(data), status=CODES.get("OK"),
-                                        mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                    return response
-
                 for x in request_data:
                     count = count - 1
                     if count == 0:
@@ -305,9 +237,7 @@ class SearchRegistraion:
                                         )
 
                         elif x == "technologies":
-
                             record_len = len(request_data.get(x))
-
                             if record_len == 1:
                                 sql = sql + " {col} ilike '%%{val}%%' AND".format(
 
@@ -349,7 +279,7 @@ class SearchRegistraion:
                                 val=request_data.get(x)
                             )
                 sql = sql + " order by updated_at desc"
-                data = db.engine.execute(sql)
+                data = db.session.execute(sql)
                 requests = []
                 for row in data:
                     requests.append(dict((col, val) for col, val in row.items()))
@@ -382,8 +312,8 @@ class SearchRegistraion:
                 "requests": [],
                 "count": 0,
                 "limit": limit,
-                "message": "service unavailable"
+                "message": "Not Found"
             }
-            response = Response(json.dumps(data), status=CODES.get("OK"),
+            response = Response(json.dumps(data), status=CODES.get("NOT_FOUND"),
                                 mimetype=MIME_TYPES.get('APPLICATION_JSON'))
             return response

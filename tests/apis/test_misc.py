@@ -1,5 +1,5 @@
 """
-module for common apis test
+module for miscellaneous tests related to apis
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -30,33 +30,31 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 
-import json
-import uuid
-import copy
 
-from tests._helpers import  create_registration
-from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
-
-
-DEVICE_REGISTRATION_REPORT_API = 'api/v1/registration/report'
+def test_security_headers_on_apis(flask_app):
+    """Verify that the security headers are present on API responses."""
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert headers.get('X-Frame-Options') == 'DENY'
+    assert headers.get('X-Content-Type-Options') == 'nosniff'
 
 
-def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, 'abcd')
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Registration Request not found.'
+def test_cache_control_headers_on_apis(flask_app):
+    """Verify that the cache control headers are present on API responses."""
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert headers.get('Cache-Control') == 'no-cache, no-store, must-revalidate, max-age=0'
+    assert headers.get('Pragma') == 'no-cache'
 
 
-def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_registration(request_data, uuid.uuid4())
+def test_strict_https_header(flask_app, app):
+    """Verify that the server include strict https header in api responses when enable."""
+    app.config['STRICT_HTTPS'] = True  # enable strict https
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert headers.get('Strict-Transport-Security') == 'max-age=31536000; includeSubDomains'
 
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, request.id)
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Report not found.'
+    app.config['STRICT_HTTPS'] = False  # disable
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert not headers.get('Strict-Transport-Security')

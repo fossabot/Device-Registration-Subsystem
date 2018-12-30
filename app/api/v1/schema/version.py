@@ -1,5 +1,5 @@
 """
-DRS Validators package.
+DRS healthcheck api schema module.
 Copyright (c) 2018 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
@@ -19,5 +19,10 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+from marshmallow import Schema, fields
 
-UserIds = ['12367468', '526663677', '9039883', '6637252', '3983376']
+
+class VersionSchema(Schema):
+    """Class for version api schema."""
+    version = fields.String(description='Current version number of the system')
+    db_schema_version = fields.String(description='Current database schema version')

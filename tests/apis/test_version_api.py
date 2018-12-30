@@ -1,5 +1,5 @@
 """
-module for common apis test
+module for version api tests
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -29,34 +29,41 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-
 import json
-import uuid
-import copy
 
-from tests._helpers import  create_registration
-from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
+from app.metadata import version, db_schema_version
 
-
-DEVICE_REGISTRATION_REPORT_API = 'api/v1/registration/report'
+VERSION_API = 'api/v1/version'
 
 
-def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, 'abcd')
-    rv = flask_app.get(url)
+def test_version_api(flask_app):
+    """Verify that the version api returns correct version numbers."""
+    rv = flask_app.get(VERSION_API)
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Registration Request not found.'
+    assert data['version'] == version
+    assert data['db_schema_version'] == db_schema_version
 
 
-def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_registration(request_data, uuid.uuid4())
-
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, request.id)
-    rv = flask_app.get(url)
+def test_post_method_not_allowed(flask_app):
+    """Verify that POST method is not allowed."""
+    rv = flask_app.post(VERSION_API)
+    assert rv.status_code == 405
     data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Report not found.'
+    assert data.get('message') == 'method not allowed'
+
+
+def test_delete_method_not_allowed(flask_app):
+    """Verify that DELETE method is not allowed."""
+    rv = flask_app.delete(VERSION_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
+
+
+def test_put_method_not_allowed(flask_app):
+    """Verify that the PUT method is not allowed."""
+    rv = flask_app.put(VERSION_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'

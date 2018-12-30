@@ -1,25 +1,15 @@
 """
-module for common apis test
-
+DRS healthcheck api schema module.
 Copyright (c) 2018 Qualcomm Technologies, Inc.
-
  All rights reserved.
-
-
-
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
-
-
  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  disclaimer.
-
  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
  disclaimer in the documentation and/or other materials provided with the distribution.
-
  * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
  products derived from this software without specific prior written permission.
-
  NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
  THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
@@ -29,34 +19,19 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-
-import json
-import uuid
-import copy
-
-from tests._helpers import  create_registration
-from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
+from marshmallow import Schema, fields
 
 
-DEVICE_REGISTRATION_REPORT_API = 'api/v1/registration/report'
+class HealthCheckResults(Schema):
+    check = fields.String(required=True, description='Identification of the health check')
+    output = fields.String(required=True, description='Output message of the health check')
+    passed = fields.Boolean(required=True, description='Shows weather the check is passed or not')
+    time_stamp = fields.DateTime(required=True, description='Current time')
 
 
-def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, 'abcd')
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Registration Request not found.'
-
-
-def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_registration(request_data, uuid.uuid4())
-
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, request.id)
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Report not found.'
+class HealthCheckSchema(Schema):
+    """Class for healthcheck api schema."""
+    host_name = fields.String(required=True, description='Hostname of the system')
+    status = fields.String(required=True, description='Current status of the health check')
+    time_stamp = fields.DateTime(required=True, description='Time on which check is performed')
+    results = fields.List(fields.Nested(HealthCheckResults, required=True))

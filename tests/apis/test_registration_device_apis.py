@@ -36,7 +36,6 @@ import copy
 from tests._helpers import create_registration
 from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
 
-# pylint: disable=redefined-outer-name
 
 DEVICE_REGISTRATION_API = 'api/v1/registration/device'
 USER_ID = '17102'

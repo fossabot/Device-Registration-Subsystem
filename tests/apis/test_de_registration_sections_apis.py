@@ -29,45 +29,11 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-"""
-module for common apis test
 
-Copyright (c) 2018 Qualcomm Technologies, Inc.
-
- All rights reserved.
-
-
-
- Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
- limitations in the disclaimer below) provided that the following conditions are met:
-
-
- * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
- disclaimer.
-
- * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- disclaimer in the documentation and/or other materials provided with the distribution.
-
- * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
- products derived from this software without specific prior written permission.
-
- NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
- THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
- TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- POSSIBILITY OF SUCH DAMAGE.
-"""
 import json
 import copy
-import uuid
 
-from tests._helpers import create_registration, create_dummy_devices, \
-    create_dummy_documents, create_dummy_request
-
-# pylint: disable=redefined-outer-name
+from tests._helpers import create_dummy_devices, create_dummy_documents, create_dummy_request
 
 
 DEVICE_DE_REGISTRATION_SECTION_API = 'api/v1/deregistration/sections'
@@ -78,11 +44,10 @@ REQUEST_DATA = {
     'user_name': USER_NAME,
     'user_id': USER_ID,
     'reason': 'exporting devices to another country'
-
 }
 
 
-def test_device_de_registration_section_method_failed(flask_app, db):  # pylint: disable=unused-argument
+def test_device_section_method_failed(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration section
         method is working properly and response is correct"""
 
@@ -96,7 +61,7 @@ def test_device_de_registration_section_method_failed(flask_app, db):  # pylint:
     assert data['message'][0] == 'De-Registration Request not found.'
 
 
-def test_device_de_registration_section_method_request(flask_app, db):  # pylint: disable=unused-argument
+def test_device_section_method_request(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration section
         method is working properly and response is correct"""
     request_data = copy.deepcopy(REQUEST_DATA)
@@ -109,17 +74,16 @@ def test_device_de_registration_section_method_request(flask_app, db):  # pylint
 
     assert rv.status_code == 200
     assert 'dereg_details' in data
-    assert len(data['dereg_details']) > 0
+    assert data['dereg_details']
     assert 'status_label' in data['dereg_details']
     assert data['dereg_details']['status_label'] == 'New Request'
-
     assert 'dereg_device' in data
-    assert len(data['dereg_device']) == 0
+    assert not data['dereg_device']
     assert 'dereg_docs' in data
-    assert len(data['dereg_docs']) == 0
+    assert not data['dereg_docs']
 
 
-def test_device_de_registration_section_method_devices(flask_app, db):  # pylint: disable=unused-argument
+def test_device_section_method_devices(flask_app, db):  # pylint: disable=unused-argument
     """ To verify that registration section
         method is working properly and response is correct"""
 
@@ -134,15 +98,16 @@ def test_device_de_registration_section_method_devices(flask_app, db):  # pylint
 
     assert rv.status_code == 200
     assert 'dereg_details' in data
-    assert len(data['dereg_details']) > 0
+    assert data['dereg_details']
+
     assert 'status_label' in data['dereg_details']
     assert data['dereg_details']['status_label'] == 'Awaiting Documents'
 
     assert 'dereg_docs' in data
-    assert len(data['dereg_docs']) == 0
+    assert not data['dereg_docs']
 
 
-def test_device_registration_section_method_documents(flask_app, db, app):  # pylint: disable=unused-argument
+def test_device_section_method_documents(flask_app, db, app):
     """ To verify that registration section
         method is working properly and response is correct"""
 
@@ -184,12 +149,14 @@ def test_device_registration_section_method_documents(flask_app, db, app):  # py
 
     assert rv.status_code == 200
     assert 'dereg_details' in data
-    assert len(data['dereg_details']) > 0
+    assert data['dereg_details']
+
     assert 'status_label' in data['dereg_details']
     assert data['dereg_details']['status_label'] == 'Awaiting Documents'
 
     assert 'dereg_device' in data
-    assert len(data['dereg_device']) > 0
+    assert data['dereg_device']
+
     assert 'tac' in data['dereg_device'][0]
     assert 'model_name' in data['dereg_device'][0]
     assert 'brand_name' in data['dereg_device'][0]
@@ -199,4 +166,4 @@ def test_device_registration_section_method_documents(flask_app, db, app):  # py
     assert 'operating_system' in data['dereg_device'][0]
 
     assert 'dereg_docs' in data
-    assert len(data['dereg_docs']) == 3
+    assert data['dereg_docs']

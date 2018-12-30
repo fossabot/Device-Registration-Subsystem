@@ -34,10 +34,9 @@ import json
 import uuid
 import copy
 
-from tests._helpers import create_de_registration, create_dummy_documents, create_dummy_request
+from tests._helpers import create_de_registration, create_dummy_request
 from tests.apis.test_de_registration_request_apis import REQUEST_DATA as DE_REG_REQ_DATA
 
-# pylint: disable=redefined-outer-name
 
 DEVICE_REGISTRATION_DOC_API = 'api/v1/deregistration/documents'
 USER_NAME = 'test-abc'
@@ -48,7 +47,7 @@ REQUEST_DATA = {
 DOC_NAMES = ['authorization document', 'certificate document', 'shipment document']
 
 
-def test_de_registration_documents_invalid_status(flask_app, db):  # pylint: disable=unused-argument
+def test_documents_invalid_status(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents."""
     headers = {'Content-Type': 'multipart/form-data'}
     request = create_de_registration(DE_REG_REQ_DATA, uuid.uuid4())
@@ -64,7 +63,7 @@ def test_de_registration_documents_invalid_status(flask_app, db):  # pylint: dis
     assert data['status'][0] == 'This step can only be performed for request with Awaiting Document status'
 
 
-def test_de_registration_required_documents_all_missing(flask_app, db):  # pylint: disable=unused-argument
+def test_required_documents_all_missing(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents all missing"""
     headers = {'Content-Type': 'multipart/form-data'}
     request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
@@ -84,7 +83,7 @@ def test_de_registration_required_documents_all_missing(flask_app, db):  # pylin
     assert data['shipment document'][0] == 'This is a required Document'
 
 
-def test_de_registration_required_documents_missing_docs(flask_app, app, db):  # pylint: disable=unused-argument
+def test_required_documents_missing_docs(flask_app, app, db):  # pylint: disable=unused-argument
     """ unittest for one missing document."""
     headers = {'Content-Type': 'multipart/form-data'}
     request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
@@ -107,7 +106,7 @@ def test_de_registration_required_documents_missing_docs(flask_app, app, db):  #
         assert data['certificate document'][0] == 'This is a required Document'
 
 
-def test_de_registration_required_documents_invalid_extension(flask_app, app, db):  # pylint: disable=unused-argument
+def test_required_documents_invalid_extension(flask_app, app, db):  # pylint: disable=unused-argument
     """ unittest for one missing document."""
     headers = {'Content-Type': 'multipart/form-data'}
     request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
@@ -127,34 +126,7 @@ def test_de_registration_required_documents_invalid_extension(flask_app, app, db
         assert data['document_format'][0] == 'File format tsv is not allowed'
 
 
-def test_de_registration_documents_update_status(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    headers = {'Content-Type': 'multipart/form-data'}
-    request = create_de_registration(DE_REG_REQ_DATA, uuid.uuid4())
-
-    request_data = copy.deepcopy(REQUEST_DATA)
-    request_data['dereg_id'] = request.id
-
-    rv = flask_app.put(DEVICE_REGISTRATION_DOC_API, data=request_data, headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
-
-    assert rv.status_code == 200
-
-
-def test_de_registration_required_documents_update_empty(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents all missing"""
-    headers = {'Content-Type': 'multipart/form-data'}
-    request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
-
-    request_data = copy.deepcopy(REQUEST_DATA)
-    request_data['dereg_id'] = request.id
-
-    rv = flask_app.put(DEVICE_REGISTRATION_DOC_API, data=request_data, headers=headers)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 200
-
-
-def test_de_registration_required_documents_update_missing_docs(flask_app, app, db):  # pylint: disable=unused-argument
+def test_required_documents_update_missing_user(flask_app, app, db):  # pylint: disable=unused-argument
     """ unittest for one missing document."""
     headers = {'Content-Type': 'multipart/form-data'}
     request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
@@ -169,12 +141,12 @@ def test_de_registration_required_documents_update_missing_docs(flask_app, app, 
         document_obj['dereg_id'] = request.id
         rv = flask_app.put(DEVICE_REGISTRATION_DOC_API, data=document_obj, headers=headers)
         data = json.loads(rv.data.decode('utf-8'))
-
         assert rv.status_code == 422
         assert 'user_id' in data
+        assert data['user_id'][0] == 'User Id is required'
 
 
-def test_de_registration_required_documents_update_invalid_extension(flask_app, app, db):  # pylint: disable=unused-argument
+def test_required_documents_update_invalid_extension(flask_app, app, db):  # pylint: disable=unused-argument
     """ unittest for one missing document."""
     headers = {'Content-Type': 'multipart/form-data'}
     request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
@@ -194,20 +166,21 @@ def test_de_registration_required_documents_update_invalid_extension(flask_app, 
         assert data['document_format'][0] == 'File format tsv is not allowed'
 
 
-def test_de_registration_documents_get(flask_app, db):  # pylint: disable=unused-argument
+def test_documents_get_empty_list(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents all missing"""
     request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_REGISTRATION_DOC_API, request.id))
     data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 200
+    assert not data
 
 
-def test_de_registration_documents_get_invalid_request(flask_app, db):  # pylint: disable=unused-argument
+def test_documents_get_invalid_request(flask_app, db):  # pylint: disable=unused-argument
     """ unittest for registration documents all missing"""
-    headers = {'Content-Type': 'multipart/form-data'}
-    request = create_dummy_request(DE_REG_REQ_DATA, 'De-Registration', status='Awaiting Documents')
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_REGISTRATION_DOC_API, '123'))
     data = json.loads(rv.data.decode('utf-8'))
     assert rv.status_code == 422
+    assert 'message' in data
+    assert data['message'][0] == "De-Registration Request not found."

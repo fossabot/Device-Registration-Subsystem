@@ -1,5 +1,5 @@
 """
-module for common apis test
+module for healthcheck api tests
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -29,34 +29,49 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
-
 import json
-import uuid
-import copy
 
-from tests._helpers import  create_registration
-from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
+HEALTH_CHECK_API = 'api/v1/healthcheck'
 
 
-DEVICE_REGISTRATION_REPORT_API = 'api/v1/registration/report'
-
-
-def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, 'abcd')
-    rv = flask_app.get(url)
+def test_healthcheck_failure(flask_app):
+    """Verify that when database, core and dvs not available the healthcheck fails."""
+    rv = flask_app.get(HEALTH_CHECK_API)
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Registration Request not found.'
+    assert data['status'] == 'failure'
 
 
-def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
-    request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_registration(request_data, uuid.uuid4())
-
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, request.id)
-    rv = flask_app.get(url)
+def test_healthcheck_success(flask_app, dirbs_core):  # pylint: disable=unused-argument
+    """Verify that the healthcheck passes when everything is available.
+    TODO: add dvs mock to complete
+    """
+    rv = flask_app.get(HEALTH_CHECK_API)
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Report not found.'
+    assert data
+    # assert data['status'] == 'success'
+
+
+def test_post_method_not_allowed(flask_app):
+    """Verify that POST method is not allowed."""
+    rv = flask_app.post(HEALTH_CHECK_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
+
+
+def test_delete_method_not_allowed(flask_app):
+    """Verify that DELETE method is not allowed."""
+    rv = flask_app.delete(HEALTH_CHECK_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
+
+
+def test_put_method_not_allowed(flask_app):
+    """Verify that the PUT method is not allowed."""
+    rv = flask_app.put(HEALTH_CHECK_API)
+    assert rv.status_code == 405
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data.get('message') == 'method not allowed'
