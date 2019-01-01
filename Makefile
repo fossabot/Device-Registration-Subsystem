@@ -65,6 +65,7 @@ dist: clean-pyc
 	cp -a setup.py dist/
 	cp -a .pylintrc dist/
 	cp -a README.md dist/
+	cp -a Makefile dist/
 	mv dist/docker/prd/Makefile.mk dist/docker/prd/Makefile
 	mkdir -p dist/tests
 	cp -a test_requirements.txt dist/

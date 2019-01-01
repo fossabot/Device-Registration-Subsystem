@@ -32,6 +32,14 @@
 
 FROM drs-base
 
+# install postgresql client
+RUN set -x && \
+    echo 'deb http://apt.postgresql.org/pub/repos/apt/ cosmic-pgdg main' > /etc/apt/sources.list.d/pgdg.list && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get -q update --fix-missing && \
+    apt-get -q install -y --no-install-recommends postgresql rsync wget unzip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 # create directories
 RUN set -x && \
     mkdir -p /home/drs/app && \
@@ -44,7 +52,7 @@ COPY requirements.txt setup.py README.md docker/prd/api/uwsgi.ini /home/drs/
 COPY app /home/drs/app/
 COPY tests /home/drs/tests/
 COPY test_requirements.txt pytest.ini /home/drs/
-COPY manage.py .pylintrc /home/drs/
+COPY manage.py .pylintrc Makefile /home/drs/
 COPY etc /home/drs/etc/
 COPY scripts /home/drs/scripts
 

@@ -39,8 +39,16 @@ Make sure you have installed [docker](https://docs.docker.com/install/) and
     ```bash
     CREATE database drs OWNER drs;
     ```
+- Now open another terminal and login into the api shell:
+    ```bash
+    docker exec -it drs_api bash
+    ```
 
-- Now switch to the server shell, and install database:
+- Checkout into the postgres shell:
+    ```bash
+    gosu drs bash
+
+- Now install database:
     ```bash
     make install-db
     ```
