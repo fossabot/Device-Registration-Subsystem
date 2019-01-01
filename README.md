@@ -46,7 +46,8 @@ This repository contains code for **DRS** part of the **DIRBS**. It contains
 ### Starting Dev Environment
 _Make sure you have installed [docker](https://docs.docker.com/install/) and 
 [docker-compose](https://docs.docker.com/compose/install/).
-To install dev environment without docker follow [here](doc/DEVENV_SETUP.md)._
+To install dev environment without docker follow [here](doc/DEVENV_SETUP.md).
+To install production environment container follow [here](doc/PRDENV_SETUP.md)._
 - Clone the repository
 - Create a `drs` user with UID `9001` and change the ownership of the repo:
     ```bash
