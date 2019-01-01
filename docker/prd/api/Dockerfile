@@ -1,14 +1,25 @@
-# DRS makefile.
+#
+# Dockerfile to build Docker API image for DIRBS-DRS
+#
 # Copyright (c) 2018 Qualcomm Technologies, Inc.
+#
 # All rights reserved.
+#
+#
+#
 # Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
 # limitations in the disclaimer below) provided that the following conditions are met:
+#
+#
 # * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
 # disclaimer.
+#
 # * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
 # disclaimer in the documentation and/or other materials provided with the distribution.
+#
 # * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
 # products derived from this software without specific prior written permission.
+#
 # NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
 # THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 # THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
@@ -17,72 +28,46 @@
 # OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-#
-# Device Registration System Makefile
 #
 
-.PHONY: clean-pyc dist install-db start-dev, genlist-delta, genlist-full, test, lint
-.EXPORT_ALL_VARIABLES:
-FLASK_ENV = development
-FLASK_DEBUG = True
+FROM drs-base
 
-clean: clean-pyc
-	rm	-rf dist .cache migrations drs.egg-info
+# create directories
+RUN set -x && \
+    mkdir -p /home/drs/app && \
+    mkdir -p /home/drs/tests && \
+    mkdir -p /home/drs/etc && \
+    mkdir -p /home/drs/scripts
 
-clean-pyc:
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name *pyc | grep __pycache__ | xargs rm -rf
+# Copy all the necessary file
+COPY requirements.txt setup.py README.md docker/prd/api/uwsgi.ini /home/drs/
+COPY app /home/drs/app/
+COPY tests /home/drs/tests/
+COPY test_requirements.txt pytest.ini /home/drs/
+COPY manage.py .pylintrc /home/drs/
+COPY etc /home/drs/etc/
+COPY scripts /home/drs/scripts
 
-start-dev:
-	pip3 install -r requirements.txt
-	flask run -h 0.0.0.0 -p 5000
+# install dependencies
+RUN set -x && \
+    pip3 install -r /home/drs/requirements.txt && \
+    pip3 install uwsgi==2.0.15 && \
+    pip3 install uwsgitop==0.10 && \
+    pip3 uninstall -y simplejson && \
+    chown -R drs.drs /home/drs/drs-venv && \
+    chmod 755 /home/drs/drs-venv/bin/uwsgitop
 
-install-db:
-	python3 manage.py db init
-	python3 manage.py db migrate
-	python3 manage.py db upgrade
-	python3 manage.py seed-db
-	python3 manage.py install-db
+# copy other file
+COPY docker/prd/api/entrypoint.sh /entrypoint.sh
 
-upgrade-db:
-	python3 manage.py db migrate
-	python3 manage.py db upgrade
-	python3 manage.py install-db
+# make sure permissions are right on entrypoint
+RUN set -x && chmod a+x /entrypoint.sh
 
-dist: clean-pyc
-	rm -rf dist
-	mkdir -p dist/etc
-	cp -r etc/* dist/etc
-	cp -a app dist/
-	mkdir -p dist/docker
-	cp -a docker/base docker/prd docker/postgres dist/docker/
-	cp -a requirements.txt dist/
-	cp -a scripts dist/
-	cp -a manage.py dist/
-	cp -a setup.py dist/
-	cp -a .pylintrc dist/
-	cp -a README.md dist/
-	mv dist/docker/prd/Makefile.mk dist/docker/prd/Makefile
-	mkdir -p dist/tests
-	cp -a test_requirements.txt dist/
-	cp -a pytest.ini dist/
-	rsync -aq --exclude='.*' --exclude='__pycache__' --exclude='*.xml' tests/ dist/tests
+# Expose port 5000 for API server
+EXPOSE 5000
 
+# set entry point
+ENTRYPOINT ["/entrypoint.sh"]
 
-genlist-delta:
-	python3 manage.py genlist
-
-genlist-full:
-	python3 manage.py genlist --list full
-
-test:
-	pip3 install -r test_requirements.txt
-	python3 setup.py develop
-	py.test --verbose
-
-lint:
-	pip3 install pylint
-	pylint --verbose app/* scripts/* tests/* manage.py setup.py
+# set command
+CMD ["gosu", "drs", "uwsgi", "--ini", "/home/drs/uwsgi.ini"]
