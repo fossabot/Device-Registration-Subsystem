@@ -1,6 +1,4 @@
 #
-# DRS Makefile for dev Docker images
-#
 # Copyright (c) 2018 Qualcomm Technologies, Inc.
 #
 # All rights reserved.
@@ -29,10 +27,40 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+version: "2.1"
 
-.PHONY: build-docker
+services:
+  drs-api:
+    image: drs-api:latest
+    container_name: drs_api
+    ports:
+      - "127.0.0.1:5000:5000"
+    links:
+      - postgres
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FLASK_DEBUG=1
+      - FLASK_APP=app
+      - DRS_DB_HOST=drs_db
+      - DRS_DB_USER=drs
+      - DRS_DB_DATABASE=drs
+      - DRS_ENV=devenv-${USER}
+    tmpfs: /tmp
+    sysctls:
+      - net.core.somaxconn=4096
 
-BASE_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-
-build-docker:
-	docker build -t drs-postgres:latest -f $(BASE_DIR)Dockerfile $(BASE_DIR)../..
+  postgres:
+    image: drs-postgres:latest
+    container_name: drs_db
+    read_only: true
+    environment:
+      - DB_ROOT_USER=drs
+    ports:
+      - 127.0.0.1:5432:5432
+    tmpfs:
+      - /tmp
+      - /run
+    volumes:
+      - ~/local_postgres:/data
+      - ./../postgres/pg_hba.conf:/data/config/pg_hba.conf
+      - ./../postgres/postgresql.conf:/data/config/postgresql.conf
