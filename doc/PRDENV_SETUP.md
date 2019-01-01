@@ -2,11 +2,6 @@
 Make sure you have installed [docker](https://docs.docker.com/install/) and 
 [docker-compose](https://docs.docker.com/compose/install/). To start DRS in production follow the steps below:
 - Clone the repository
-- Create a `drs` user with UID `9001` and change the ownership of the repo:
-    ```bash
-    sudo useradd -u 9001 -m -d /home/drs -s /bin/bash drs
-    sudo chown -R 9001:9001 Device-Registration-Subsystem
-    ```
 - Produce distribution files using:
     ```bash
     make dist
