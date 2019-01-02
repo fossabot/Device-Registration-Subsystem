@@ -76,7 +76,6 @@ class Device(db.Model):
                             db.session.add(imei_object)
                 db.session.commit()
                 reg_details.update_processing_status('Processed')
-                # reg_details.update_report_status('Processing')
                 db.session.commit()
                 task_id = Utilities.generate_summary(imeis, reg_details.tracking_id)
                 app.logger.info('task with task_id: {0} initiated'.format(task_id))
@@ -89,7 +88,6 @@ class Device(db.Model):
             except Exception as e:
                 app.logger.exception(e)
                 db.session.rollback()
-                # app.logger.info('task with task_id: {0} failed'.format(task_id))
                 reg_details.update_report_status('Failed')
                 reg_details.update_processing_status('Failed')
                 db.session.commit()

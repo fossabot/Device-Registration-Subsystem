@@ -255,7 +255,7 @@ def test_create_request_file_input_method(flask_app, app, db):  # pylint: disabl
     request_data['imei_per_device'] = 3
 
     request_file = dict()
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'registration_mock_file.tsv')
+    file_path = '{0}/{1}'.format('tests/unittest_data/registration', 'request_file.tsv')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file

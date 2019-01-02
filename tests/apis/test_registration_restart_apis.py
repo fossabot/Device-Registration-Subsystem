@@ -42,7 +42,7 @@ DEVICE_REGISTRATION_RESTART_API = '/api/v1/review/restart/registration'
 
 
 def test_restart_process_closed_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
+    """ unittest for registration restart process."""
 
     request_data = copy.deepcopy(REG_REQ_DATA)
     request = create_dummy_request(request_data, "Registration", 'Closed')
@@ -55,7 +55,7 @@ def test_restart_process_closed_request(flask_app, db):  # pylint: disable=unuse
 
 
 def test_restart_process_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
+    """ unittest for registration restart process."""
 
     request_data = copy.deepcopy(REG_REQ_DATA)
     create_dummy_request(request_data, "Registration", 'New Request')

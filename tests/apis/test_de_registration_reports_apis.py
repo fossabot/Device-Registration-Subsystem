@@ -43,7 +43,7 @@ DEVICE_DE_REGISTRATION_REPORT_API = 'api/v1/deregistration/report'
 
 
 def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
+    """ unittest for de-registration report invalid request."""
     url = "{0}/{1}".format(DEVICE_DE_REGISTRATION_REPORT_API, 'abcd')
     rv = flask_app.get(url)
     data = json.loads(rv.data.decode('utf-8'))
@@ -52,7 +52,7 @@ def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-a
 
 
 def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for registration documents."""
+    """ unittest for de-registration report request not found."""
     request_data = copy.deepcopy(DE_REG_REQ_DATA)
     request = create_de_registration(request_data, uuid.uuid4())
 

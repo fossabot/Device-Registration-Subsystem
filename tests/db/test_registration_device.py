@@ -1,5 +1,5 @@
 """
-Status Model Unittests
+Device Model Unittests
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -30,16 +30,3 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 
-from app.api.v1.models.device import Device
-from tests._helpers import create_dummy_request
-from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
-
-
-def test_sync_create(flask_app, app, db):  # pylint: disable=unused-argument
-    """ unittest for device creation async method"""
-
-    request = create_dummy_request(REG_REQ_DATA, 'Registration', status='Awaiting Documents')
-    response = Device.sync_bulk_create(request, 1, app)
-
-    # This method commits to db and returns nothing, need code change.
-    assert not response

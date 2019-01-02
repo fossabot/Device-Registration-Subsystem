@@ -54,7 +54,7 @@ def test_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-
     request_data['device_count'] = 9
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -75,6 +75,9 @@ def test_request_get_single(flask_app, app, db, dirbs_core):  # pylint: disable=
     rv = flask_app.get("{0}/{1}".format(DEVICE_DE_REGISTRATION_REQ_API, request.id))
     data = json.loads(rv.data.decode('utf-8'))
     assert data
+    assert 'report' in data
+    assert 'reason' in data
+    assert data['status_label'] == 'Awaiting Documents'
 
 
 def test_invalid_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
@@ -93,7 +96,7 @@ def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argu
     request_data['device_count'] = 9
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -123,7 +126,7 @@ def test_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disa
     request_data.pop('reason')
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -142,7 +145,7 @@ def test_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint
     request_data.pop('device_count')
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -183,7 +186,7 @@ def test_request_file_update(flask_app, app, db, dirbs_core):  # pylint: disable
     request_data['dereg_id'] = request.id
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -204,7 +207,7 @@ def test_request_file_update_invalid_device(flask_app, app, db, dirbs_core):  # 
     request_data['dereg_id'] = request.id
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file

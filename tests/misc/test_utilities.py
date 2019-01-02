@@ -1,5 +1,5 @@
 """
-DRS Package for DB unit tests
+Utilities unit tests
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -64,7 +64,8 @@ def test_remove_file(app, session):  # pylint: disable=unused-argument
     complete_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
     Utilities.create_directory(tracking_id)
     assert os.path.isdir(complete_path)
-    Utilities.remove_file('file.txt', tracking_id)
+    response = Utilities.remove_file('file.txt', tracking_id)
+    assert response == 'file is missing'
 
 
 def test_extract_imeis(app, session):  # pylint: disable=unused-argument
@@ -86,23 +87,12 @@ def test_generate_summary(app, session, dirbs_dvs):  # pylint: disable=unused-ar
     Utilities.create_directory(tracking_id)
     assert request.tracking_id == tracking_id
     response = Utilities.generate_summary(IMEIS, tracking_id)
-    assert request.tracking_id == tracking_id
-
-
-def test_summary_status(app, session, dirbs_dvs):  # pylint: disable=unused-argument
-    """Verify that the generate function works correctly."""
-
-    tracking_id = uuid.uuid4()
-    request = create_registration(REG_REQ_DATA, tracking_id)
-    Utilities.create_directory(tracking_id)
-    assert request.tracking_id == tracking_id
-    # response = Utilities.check_summary_status('mock-task-id', request, app)
-    # assert request.tracking_id == tracking_id
-    # assert response is None
+    # Async process
+    assert not response
 
 
 def test_pool_summary_request(app, session, dirbs_dvs):  # pylint: disable=unused-argument
-    """Verify that the generate function works correctly."""
+    """Verify that the poll_summary function works correctly."""
 
     tracking_id = uuid.uuid4()
     request = create_registration(REG_REQ_DATA, tracking_id)

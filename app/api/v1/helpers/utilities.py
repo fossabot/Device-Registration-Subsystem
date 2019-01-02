@@ -377,6 +377,8 @@ class Utilities:
                 file_path = os.path.join(upload_path, file_name)
                 if os.path.isfile(file_path):
                     os.remove(file_path)
+                else:
+                    return 'file is missing'
         except Exception as e:
             pass
 
