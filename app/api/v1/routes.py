@@ -48,7 +48,7 @@ api = Api(app, prefix='/api/v1', errors=CustomErrors)
 apidoc = ApiDocs(app, 'v1')
 
 # registration routes
-api.add_resource(BaseRoutes, '/sample/<type>')
+api.add_resource(BaseRoutes, '/sample/<request_type>')
 api.add_resource(RegistrationRoutes, '/registration', '/registration/<reg_id>')
 api.add_resource(DeviceDetailsRoutes, '/registration/device/<reg_id>', '/registration/device')
 api.add_resource(RegDocumentRoutes, '/registration/documents/<reg_id>', '/registration/documents')
