@@ -1,5 +1,5 @@
 """
-module for common apis test
+module for miscellaneous tests related to apis
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -29,3 +29,32 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 """
+
+
+def test_security_headers_on_apis(flask_app):
+    """Verify that the security headers are present on API responses."""
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert headers.get('X-Frame-Options') == 'DENY'
+    assert headers.get('X-Content-Type-Options') == 'nosniff'
+
+
+def test_cache_control_headers_on_apis(flask_app):
+    """Verify that the cache control headers are present on API responses."""
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert headers.get('Cache-Control') == 'no-cache, no-store, must-revalidate, max-age=0'
+    assert headers.get('Pragma') == 'no-cache'
+
+
+def test_strict_https_header(flask_app, app):
+    """Verify that the server include strict https header in api responses when enable."""
+    app.config['STRICT_HTTPS'] = True  # enable strict https
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert headers.get('Strict-Transport-Security') == 'max-age=31536000; includeSubDomains'
+
+    app.config['STRICT_HTTPS'] = False  # disable
+    rv = flask_app.get('api/v1/')
+    headers = rv.headers
+    assert not headers.get('Strict-Transport-Security')

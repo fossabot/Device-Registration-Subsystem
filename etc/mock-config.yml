@@ -1,0 +1,140 @@
+# configuration file
+
+# (C) 2016 Qualcomm Technologies, Inc.  All rights reserved.
+
+# This file based on the example from the PyPA sample project, whose copyright is
+# included below:
+
+# Copyright (c) 2016 The Python Packaging Authority (PyPA)
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#
+# DRS v1.0.0 Global configs
+#
+
+# DIRBS Core configurations
+dirbs_core:
+  base_url: 'DIRBS_CORE_BASE_API'
+
+
+# DRS global configurations
+global:
+  # minimum govt identification number length to be used
+  gin_length: 8
+
+  # user phone number minimum length
+  num_length: 8
+
+  # minimum and maximum global imei lengths
+  min_imei_length: 14
+  max_imei_length: 16
+
+  importer: 1000000
+  exporter: 1000000
+
+  # minimum and maximum global msisdn lengths
+  min_msisdn_length: 13
+  max_msisdn_length: 15
+
+  # maximum no imei per file in case of Registration/De-registration
+  max_imei_per_file: 1000000
+
+  #maximum on imei per device
+  max_imei_per_device: 5
+
+  #URLS
+  core_api_v1: 'CORE_VERSION_ONE_API'
+  core_api_v2: 'CORE_VERSION_TWO_API'
+
+
+  #Directories
+  dereg_sample_file: './deregistration/dereg_sample_file'
+  reg_sample_file: './registration/reg_sample_file.tsv'
+  upload_directory: 'UPLOAD_DIRECTORY'
+
+  #languages support
+  supported_languages:
+    - es
+    - en
+    - id
+  default_language: en
+
+# DRS configurations for list generations
+# Configurations should be defined when deploying the software.
+lists:
+  # directory path to generate the list,
+  # only absolute paths to the directories are acceptable
+  path: ''
+
+  # maximum number of workers used for the list generation
+  # typically it should be 2 x num_of_cpus in the system
+  max_workers: 10
+
+# Postgresql settings used to build SqlAlchemy connection string and configs
+database:
+  # Database name (an empty database on the first run)
+  database: drs
+  # Host the PostgreSQL server runs on
+  host: localhost
+  # PostgreSQL port if not running on standard port 5432
+  port: 5432
+  # Database role/user that DRS will connect to
+  user: admin
+  # Password used to connect to the database
+  password: admin
+  # SQLAlchemy connection pool size, the number of connections to keep open inside
+  # the connection pool
+  # (for more details: https://docs.sqlalchemy.org/en/latest/core/engines.html#sqlalchemy.create_engine
+  pool_size: 100
+  # number of seconds to wait before giving up on getting a connection from the pool
+  pool_timeout: 20
+  # number of seconds for pool to recycle the connections after the given number of seconds has passed
+  pool_recycle: 10
+  # number of max connections to overflow the pool size
+  max_overflow: 275
+
+# Different server configuration to enable based on need
+server:
+  # To restrict https only, it will tell the client to convert all http requests to https
+  # it will help in preventing MITM attacks.
+  # value should be either "True" or "False"
+  restrict_https: True
+
+# celery configurations
+celery:
+
+  RabbitmqUrl: 'pyamqp://'
+  RabbitmqBackend: 'amqp://'
+
+  RedisUrl: 'redis://'
+  RedisBackend: 'redis://'
+
+  RpcUrl: 'rpc://'
+  RpcBackend: 'rpc://'
+
+  CeleryTasks: ['app.api.v1.reports_generator']
+
+conditions:
+
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'
+
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'

@@ -21,6 +21,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import pandas as pd
 from marshmallow import ValidationError
+from flask_babel import lazy_gettext as _
 
 
 class Processor:
@@ -155,19 +156,19 @@ class Processor:
         invalid_format = self.check_imei_format()
         # If user needs the list of imeis on the frontend we can show it.
         if not self.validate_imei_per_device():
-            errors['imei_per_device'] = ["IMEIs per device count in file is not same as input."]
+            errors['imei_per_device'] = [_("IMEIs per device count in file is not same as input.")]
         if not self.validate_device_count():
-            errors['device_count'] = ["Device count in file is not same as input"]
+            errors['device_count'] = [_("Device count in file is not same as input")]
         if len(invalid_imeis) > 0:
-            errors['invalid_imeis'] = ["Invalid IMEIs in the input file"]
+            errors['invalid_imeis'] = [_("Invalid IMEIs in the input file")]
         if len(duplicate_imeis['IMEIs']) > 0:
-            errors['duplicate_imeis'] = ["Duplicate IMEIs in the input file"]
+            errors['duplicate_imeis'] = [_("Duplicate IMEIs in the input file")]
         if missing_imeis:
-            errors['missing_imeis'] = ["Some IMEIs are missing in the columns"]
+            errors['missing_imeis'] = [_("Some IMEIs are missing in the columns")]
         if not rows_limit:
-            errors['limit'] = ['Rows limit is 10000000 for single request']
+            errors['limit'] = [_("Rows limit is 10000000 for single request")]
         if len(invalid_format) > 0:
-            errors['invalid_format'] = ["Invalid IMEIs Format in input file"]
+            errors['invalid_format'] = [_("Invalid IMEIs Format in input file")]
         return errors
 
     def validate_de_registration(self):
@@ -177,13 +178,13 @@ class Processor:
         duplicate_imeis = self.get_duplicate_imeis()
         invalid_format = self.check_imei_format()
         if not self.validate_device_count():
-            errors['device_count'] = ["Device count in file is not same as input"]
+            errors['device_count'] = [_("Device count in file is not same as input")]
         if len(invalid_imeis) > 0:
-            errors['invalid_imeis'] = ["Invalid IMEIs in the input file"]
+            errors['invalid_imeis'] = [_("Invalid IMEIs in the input file")]
         if len(duplicate_imeis['IMEIs']) > 0:
-            errors['duplicate_imeis'] = ["Duplicate IMEIs in the input file"]
+            errors['duplicate_imeis'] = [_("Duplicate IMEIs in the input file")]
         if len(invalid_format) > 0:
-            errors['invalid_format'] = ["Invalid IMEIs Format in input file"]
+            errors['invalid_format'] = [_("Invalid IMEIs Format in input file")]
         return errors
 
     def process(self, request_type):

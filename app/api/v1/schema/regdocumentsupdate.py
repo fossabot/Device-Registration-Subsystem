@@ -28,6 +28,7 @@ from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.models.status import Status
 from app.api.v1.helpers.error_handlers import ALLOWED_FORMATS
 from app import app, GLOBAL_CONF
+from flask_babel import lazy_gettext as _
 
 
 class RegistrationDocumentsUpdateSchema(Schema):
@@ -72,7 +73,7 @@ class RegistrationDocumentsUpdateSchema(Schema):
         """Check if update operation is allowed."""
         status = Status.get_status_type(data['status'])
         if status in self.update_restricted:
-            raise ValidationError('The request status is {0}, which cannot be updated'.format(status),
+            raise ValidationError(_('The request status is %(status)s, which cannot be updated', status=_(status)),
                                   field_names=['status'])
 
     @pre_load()
@@ -82,7 +83,7 @@ class RegistrationDocumentsUpdateSchema(Schema):
             filename = data['files'][filename]
             doc_format = filename.rsplit('.', 1)[1]
             if doc_format not in ALLOWED_FORMATS:
-                raise ValidationError('File format {0} is not allowed'.format(doc_format),
+                raise ValidationError(_('File format %(format)s is not allowed', format=doc_format),
                                       field_names=['document_format'])
 
     @pre_load()
@@ -93,7 +94,7 @@ class RegistrationDocumentsUpdateSchema(Schema):
             if data['files'].get(filename) not in filenames:
                 filenames.append(data['files'].get(filename))
             else:
-                raise ValidationError('File names should be unique',
+                raise ValidationError(_('File names should be unique'),
                                       field_names=['filename'])
 
 

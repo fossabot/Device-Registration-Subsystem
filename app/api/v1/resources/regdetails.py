@@ -25,6 +25,7 @@ import uuid
 from flask import Response, request
 from flask_restful import Resource
 from marshmallow import ValidationError
+from flask_babel import lazy_gettext as _
 
 from app import app, db
 from app.api.v1.helpers.error_handlers import REG_NOT_FOUND_MSG
@@ -37,6 +38,7 @@ from app.api.v1.schema.devicedetails import DeviceDetailsSchema
 from app.api.v1.schema.regdetails import RegistrationDetailsSchema
 from app.api.v1.schema.regdetailsupdate import RegistrationDetailsUpdateSchema
 from app.api.v1.schema.regdocuments import RegistrationDocumentsSchema
+from app.api.v1.models.notification import Notification
 
 
 class RegistrationRoutes(Resource):
@@ -49,7 +51,8 @@ class RegistrationRoutes(Resource):
             schema = RegistrationDetailsSchema()
             if reg_id:
                 if not reg_id.isdigit() or not RegDetails.exists(reg_id):
-                    return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                    return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG),
+                                    status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
                 response = RegDetails.get_by_id(reg_id)
@@ -59,12 +62,12 @@ class RegistrationRoutes(Resource):
                 response = schema.dump(response, many=True).data
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             error = {
-                'message': ['Failed to retrieve response, please try later']
+                'message': [_('Failed to retrieve response, please try later')]
             }
-            return Response(json.dumps(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -79,7 +82,7 @@ class RegistrationRoutes(Resource):
             file = request.files.get('file')
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             if file:
                 file_name = file.filename.split("/")[-1]
@@ -91,7 +94,7 @@ class RegistrationRoutes(Resource):
                 if isinstance(response, list):
                     response = RegDetails.create(args, tracking_id)
                 else:
-                    return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                    return Response(app.json_encoder.encode(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             else:
                 Utilities.create_directory(tracking_id)
@@ -101,17 +104,17 @@ class RegistrationRoutes(Resource):
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
             Utilities.remove_directory(tracking_id)
             app.logger.exception(e)
 
             data = {
-                'message': ['Registration request failed, check upload path or database connection']
+                'message': [_('Registration request failed, check upload path or database connection')]
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -121,7 +124,7 @@ class RegistrationRoutes(Resource):
         """PUT method handler, updates registration requests."""
         reg_id = request.form.to_dict().get('reg_id', None)
         if not reg_id or not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         args = RegDetails.curate_args(request)
@@ -138,12 +141,12 @@ class RegistrationRoutes(Resource):
                              })
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             if args.get('close_request', None) == 'True':
                 response = RegDetails.close(reg_details)
                 if isinstance(response, dict):
-                    return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                    return Response(app.json_encoder.encode(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
                 else:
                     response = schema.dump(response, many=False).data
@@ -159,7 +162,7 @@ class RegistrationRoutes(Resource):
                 if isinstance(response, list):
                     response = RegDetails.update(args, reg_details, True)
                 else:
-                    return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                    return Response(app.json_encoder.encode(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             else:
                 response = RegDetails.update(args, reg_details, False)
@@ -168,15 +171,15 @@ class RegistrationRoutes(Resource):
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': ['Registration update request failed, check upload path or database connection']
+                'message': [_('Registration update request failed, check upload path or database connection')]
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -189,7 +192,7 @@ class RegSectionRoutes(Resource):
     def get(reg_id):
         """GET method handler, return registration sections."""
         if not reg_id or not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             reg_details = RegDetails.get_by_id(reg_id)
@@ -212,14 +215,14 @@ class RegSectionRoutes(Resource):
 
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
 
             data = {
-                'message': ['Registration request failed, check upload path or database connection']
+                'message': [_('Registration request failed, check upload path or database connection')]
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()

@@ -22,6 +22,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 from marshmallow import Schema, fields, validates, ValidationError, pre_load, pre_dump
 from app.api.v1.models.deregdetails import DeRegDetails
 from app.api.v1.models.status import Status
+from flask_babel import lazy_gettext as _
 
 
 class DeRegDeviceSchema(Schema):
@@ -62,7 +63,7 @@ class DeRegRequestSchema(Schema):
         else:
             status = Status.get_status_type(dereg_details.status)
             if status != 'New Request':
-                raise ValidationError('This step can only be performed for New Request', field_names=['status'])
+                raise ValidationError(_('This step can only be performed for New Request'), field_names=['status'])
 
 
 class DeRegRequestUpdateSchema(Schema):

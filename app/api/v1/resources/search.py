@@ -22,6 +22,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 from app import app
 import json
 from flask import request, Response
+from flask_babel import lazy_gettext as _
 from flask_restful import Resource
 from app.api.v1.helpers.search_registration import SearchRegistraion
 from app.api.v1.helpers.search_deregistration import SearchDeregistration
@@ -55,20 +56,12 @@ class Search(Resource):
                                     mimetype=MIME_TYPES.get('APPLICATION_JSON'))
 
                 return response
-        else:
-            data['message'] = 'Search specs not found!'
-            response = Response(json.dumps(data), status=CODES.get("NOT_FOUND"),
-                                mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-
-            return response
 
         try:
             if request_data['group'] == 'importer':
 
                 if request_data['request_type'] == 1:
                     return SearchRegistraion.get_result(request, request_data['group'])
-                elif request_data['request_type'] == 2:
-                    return SearchDeregistration.get_result(request, request_data['group'])
                 else:
                     data['message']="Request type not found!"
                     response = Response(json.dumps(data), status=CODES.get("OK"),
@@ -77,14 +70,13 @@ class Search(Resource):
                     return response
 
             elif request_data['group'] == 'exporter':
-                if request_data['request_type']==2:
+                if request_data['request_type'] == 2:
                     return SearchDeregistration.get_result(request,request_data['group'])
                 else:
                     data['message'] = "Request type not found!"
                     response = Response(json.dumps(data), status=CODES.get("OK"),
                                         mimetype=MIME_TYPES.get('APPLICATION_JSON'))
                     return response
-
 
             elif request_data['group'] == 'individual':
                 if request_data['request_type'] == 1:

@@ -21,6 +21,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 from marshmallow import ValidationError
 import re
+from flask_babel import lazy_gettext as _
 
 
 def validate_comment(val):
@@ -47,7 +48,7 @@ def date_validation(val):
 def validate_imei(val):
     """Validate IMEI input field."""
     if not val.isdigit():
-        raise ValidationError("invalid imei")
+        raise ValidationError(_("invalid imei"))
 
 
 def validate_msisdn(val):
@@ -60,10 +61,10 @@ def validate_msisdn(val):
 def validate_input(key, value):
     """Validate different input fields."""
     if len(value) == 0 or len(value) > 1000:
-        raise ValidationError('{0} value should be between 1 and 1000'.format(key), field_names=[key])
+        raise ValidationError(_('%(key)s value should be between 1 and 1000', key=key), field_names=[key])
     if value.startswith(' ') or value.endswith(' '):
-        raise ValidationError('{0} cannot start or ends with spaces'.format(key), field_names=[key])
+        raise ValidationError(_('%(key)s cannot start or ends with spaces', key=key), field_names=[key])
     elif value.startswith('\t') or value.endswith('\t'):
-        raise ValidationError('{0} cannot start or ends with tabs'.format(key), field_names=[key])
+        raise ValidationError(_('%(key)s cannot start or ends with tabs', key=key), field_names=[key])
     elif value.startswith('\n') or value.endswith('\n'):
-        raise ValidationError('{0} cannot end with line breaks'.format(key), field_names=[key])
+        raise ValidationError(_('%(key)s cannot end with line breaks', key=key), field_names=[key])

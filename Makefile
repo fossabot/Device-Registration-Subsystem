@@ -59,7 +59,6 @@ dist: clean-pyc
 	cp -a requirements.txt dist/
 	cp -a scripts dist/
 	cp -a manage.py dist/
-	cp -a run.py dist/
 
 genlist-delta:
 	python3 manage.py genlist

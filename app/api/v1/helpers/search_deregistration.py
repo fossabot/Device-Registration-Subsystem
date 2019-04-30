@@ -1,6 +1,6 @@
 """
 DRS De-Registration search package.
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
@@ -26,13 +26,13 @@ from flask import request, Response
 from app.api.v1.helpers.response import MIME_TYPES, CODES
 from app.api.v1.helpers.pagination import Pagination
 from datetime import datetime, timedelta
+from marshmallow.utils import isoformat
 
 
 class SearchDeregistration:
     """Class for De-Registration Searching."""
     def __init__(self):
         """Constructor."""
-        pass
 
     @staticmethod
     def format_response(data):
@@ -47,8 +47,8 @@ class SearchDeregistration:
                 "report_status_label": d.get('processing_status'),
                 "processing_status_label": d.get('report_status'),
                 "request_type": d.get('request_type'),
-                "created_at": d.get('created_at').strftime("%Y-%m-%d %H:%M:%S") if d.get('created_at') else 'N/A',
-                "updated_at": d.get('updated_at').strftime("%Y-%m-%d %H:%M:%S") if d.get('updated_at') else 'N/A',
+                "created_at": isoformat(d.get('created_at')) if d.get('created_at') else 'N/A',
+                "updated_at": isoformat(d.get('updated_at')) if d.get('updated_at') else 'N/A',
                 "creator": {
                     "user_id": d.get('user_id'),
                     "user_name": d.get('user_name')
@@ -80,51 +80,23 @@ class SearchDeregistration:
         request_data = args.get("search_args")
         count = len(request_data)
         search_specs = args.get("search_specs")
-        start = 1 if args.get('start')<1 else args.get('start',1)
-        limit = 10 if args.get('limit')<1 else args.get('limit',10)
+        start = 1 if args.get('start') < 1 else args.get('start', 1)
+        limit = 10 if args.get('limit') < 1 else args.get('limit', 10)
 
         sql = "select distinct on (id) * from search_deregistration"
 
         try:
             if count == 0:
-                if bool(group):
+                if group:
                     if group == 'reviewer':
                         data = db.engine.execute(sql +" where status<>'New Request' and status<>'Awaiting Documents' and status<>'Closed' order by id desc, updated_at desc")
-                    elif (group == 'exporter') and bool(search_specs['user_id']):
+                    elif (group == 'exporter') and search_specs['user_id']:
                         data = db.engine.execute(
                             sql + " where user_id = '{val}' order by id desc, updated_at desc".format(val=search_specs['user_id']))
-                    else:
-                        data = {
-                            "start": start,
-                            "previous": "",
-                            "next": "",
-                            "requests": [],
-                            "count": 0,
-                            "limit": limit,
-                            "message": "User or Group not found!"
-                        }
-                        response = Response(json.dumps(data), status=CODES.get("OK"),
-                                            mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                        return response
-                else:
-                    data = {
-                        "start": start,
-                        "previous": "",
-                        "next": "",
-                        "requests": [],
-                        "count": 0,
-                        "limit": limit,
-                        "message": "Group not found!"
-                    }
-                    response = Response(json.dumps(data), status=CODES.get("OK"),
-                                        mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                    return response
-
                 requests = []
-
                 for row in data:
                     requests.append(dict((col, val) for col, val in row.items()))
-                if bool(requests):
+                if requests:
                     paginated_data = Pagination.get_paginated_list(requests, '/search', start=start,
                                                                    limit=limit)
                     paginated_data['requests'] = SearchDeregistration.format_response(paginated_data['requests'])
@@ -149,32 +121,6 @@ class SearchDeregistration:
                         sql = sql + " where status <> 'New Request' and status <> 'Awaiting Documents' and status <> 'Closed' AND"
                     elif (group == 'exporter') and search_specs['user_id']:
                         sql = sql + " where user_id = '{val}' AND".format(val=search_specs['user_id'])
-                    else:
-                        data = {
-                            "start": start,
-                            "previous": "",
-                            "next": "",
-                            "requests": [],
-                            "count": 0,
-                            "limit": limit,
-                            "message": "User or Group not found!"
-                        }
-                        response = Response(json.dumps(data), status=CODES.get("OK"),
-                                            mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                        return response
-                else:
-                    data = {
-                        "start": start,
-                        "previous": "",
-                        "next": "",
-                        "requests": [],
-                        "count": 0,
-                        "limit": limit,
-                        "message": "Group not found!"
-                    }
-                    response = Response(json.dumps(data), status=CODES.get("OK"),
-                                        mimetype=MIME_TYPES.get('APPLICATION_JSON'))
-                    return response
 
                 for x in request_data:
                     count = count - 1
@@ -186,11 +132,11 @@ class SearchDeregistration:
                                 min=date[0],
                                 max=datetime.strptime(date[1], "%Y-%m-%d") + timedelta(hours=23, minutes=59, seconds=59)
                             )
-                        elif x=='id':
+                        elif x == 'id':
                             data = request_data.get(x)
                             sql = sql + " {col}={val} ".format(col=x,val=data)
 
-                        elif x=='device_count':
+                        elif x == 'device_count':
                             data = request_data.get(x)
                             sql = sql + " {col}='{val}'".format(col=x,val=data)
 
@@ -303,13 +249,13 @@ class SearchDeregistration:
                                         )
 
                         else:
-                            sql = sql + " {col} ilike '%%{val}%%' AND".format(
+                            sql = sql + " {col} like '%%{val}%%' AND".format(
                                 col=x,
                                 val=request_data.get(x)
                             )
 
                 sql = sql + " order by id desc, updated_at desc"
-                data = db.engine.execute(sql)
+                data = db.session.execute(sql)
                 requests = []
                 for row in data:
                     requests.append(dict((col, val) for col, val in row.items()))
@@ -342,7 +288,7 @@ class SearchDeregistration:
                 "requests": [],
                 "count": 0,
                 "limit": limit,
-                "message": "service unavailable"
+                "message": "Not Found"
             }
             response = Response(json.dumps(data), status=CODES.get("OK"),
                                 mimetype=MIME_TYPES.get('APPLICATION_JSON'))

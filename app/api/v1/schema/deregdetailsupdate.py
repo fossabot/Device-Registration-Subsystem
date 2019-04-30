@@ -25,6 +25,7 @@ from app.api.v1.helpers.validators import *
 from app.api.v1.models.status import Status
 from app.api.v1.models.devicequota import DeviceQuota
 from app.api.v1.models.deregdetails import DeRegDetails
+from flask_babel import _
 
 
 class DeRegDetailsUpdateSchema(Schema):
@@ -75,22 +76,22 @@ class DeRegDetailsUpdateSchema(Schema):
 
         if 'close_request' in data:
             if status == 'Closed':
-                raise ValidationError('The request status is already Closed'.format(status),
+                raise ValidationError(_('The request status is already Closed').format(_(status)),
                                       field_names=['message'])
             elif status in self.closed_restricted:
-                raise ValidationError('The request status is {0}, which cannot be Closed'.format(status),
+                raise ValidationError(_('The request status is %(status)s, which cannot be Closed', status=_(status)),
                                       field_names=['message'])
         elif processing_status == 'Processing' or report_status == 'Processing':
-            raise ValidationError('The request is in Progress, which cannot be updated',
+            raise ValidationError(_('The request is in Progress, which cannot be updated'),
                                   field_names=['status'])
         elif status in self.update_restricted:
-            raise ValidationError('The request status is {0}, which cannot be updated'.format(status),
+            raise ValidationError(_('The request status is %(status)s, which cannot be updated', status=_(status)),
                                   field_names=['status'])
         elif status == 'New Request' and 'file' in data:
-            raise ValidationError('The request status is {0}, which cannot be updated'.format(status),
+            raise ValidationError(_('The request status is %(status)s, which cannot be updated', status=_(status)),
                                   field_names=['status'])
         elif status == 'New Request' and 'reason' in data:
-            raise ValidationError('The request status is {0}, which cannot be updated'.format(status),
+            raise ValidationError(_('The request status is %(status)s, which cannot be updated', status=_(status)),
                                   field_names=['reason'])
 
     @pre_dump()

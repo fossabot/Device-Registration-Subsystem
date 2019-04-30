@@ -60,14 +60,21 @@ global:
   max_imei_per_device: 5
 
   #URLS
-  core_api_v1: 'CORE_VERSION_ONE_API'
-  core_api_v2: 'CORE_VERSION_TWO_API'
-  dvs_api_v1: 'DVS_VERSION_ONE_API'
+  core_api_v1: 'http://192.168.100.72:5000/api/v1'
+  core_api_v2: 'http://192.168.100.72:5000/api/v2'
+
 
   #Directories
   dereg_sample_file: './deregistration/dereg_sample_file'
   reg_sample_file: './registration/reg_sample_file.tsv'
-  upload_directory: 'UPLOAD_DIRECTORY'
+  upload_directory: '/Users/rameez/Documents/GitHub/dirbs_intl_drs_api/uploads'
+
+  #languages support
+  supported_languages:
+    - es
+    - en
+    - id
+  default_language: en
 
 # DRS configurations for list generations
 # Configurations should be defined when deploying the software.
@@ -89,7 +96,7 @@ database:
   # PostgreSQL port if not running on standard port 5432
   port: 5432
   # Database role/user that DRS will connect to
-  user: admin
+  user: rameez
   # Password used to connect to the database
   password: admin
   # SQLAlchemy connection pool size, the number of connections to keep open inside
@@ -102,3 +109,32 @@ database:
   pool_recycle: 10
   # number of max connections to overflow the pool size
   max_overflow: 275
+
+# Different server configuration to enable based on need
+server:
+  # To restrict https only, it will tell the client to convert all http requests to https
+  # it will help in preventing MITM attacks.
+  # value should be either "True" or "False"
+  restrict_https: True
+
+# celery configurations
+celery:
+
+  RabbitmqUrl: 'pyamqp://'
+  RabbitmqBackend: 'amqp://'
+
+  RedisUrl: 'redis://'
+  RedisBackend: 'redis://'
+
+  RpcUrl: 'rpc://'
+  RpcBackend: 'rpc://'
+
+  CeleryTasks: ['app.api.v1.reports_generator']
+
+conditions:
+
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'
+
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'

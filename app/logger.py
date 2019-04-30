@@ -31,7 +31,7 @@ class DRSLogger:
         self.logger_name = logger_name
         self.logging_level = logging_level
         if logging_format:
-            self.logging_format = logging_format
+            self.logging_format = logging_format  # pragma: no cover
         else:
             self.logging_format = logging.BASIC_FORMAT
 

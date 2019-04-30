@@ -1,6 +1,6 @@
 """
 DRS Utilities package.
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
@@ -29,10 +29,12 @@ from itertools import chain
 
 import pydash
 import requests
+from flask_babel import lazy_gettext as _
 
 from app import GLOBAL_CONF, db, app, CORE_BASE_URL
 from app.api.v1.helpers.fileprocessor import Processor
 from app.api.v1.models.approvedimeis import ApprovedImeis
+from app.api.v1.helpers.reports_generator import BulkCommonResources
 
 
 class Utilities:
@@ -41,7 +43,6 @@ class Utilities:
     dereg_sample_file = GLOBAL_CONF['dereg_sample_file']
     core_api_v1 = GLOBAL_CONF['core_api_v1']
     core_api_v2 = GLOBAL_CONF['core_api_v2']
-    dvs_api_v1 = GLOBAL_CONF['dvs_api_v1']
 
     @staticmethod
     def remove_directory(tracking_id):
@@ -102,17 +103,10 @@ class Utilities:
 
     @classmethod
     def generate_summary(cls, imeis, tracking_id):
-        """Method to send IMEIs to DVS to get compliance summary and report."""
+        """Method to get compliance summary and report."""
         try:
-            upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(tracking_id))
-            complete_path = os.path.join(upload_path, 'dvs_input_file.txt')
-            task_url = cls.dvs_api_v1 + '/drs_bulk'
-            with open(complete_path, 'w') as file:
-                for item in imeis:
-                    file.write('%s\n' % item)
-            response = requests.post(url=task_url, files={'file': open(complete_path, 'r')})
-            # cls.remove_file(complete_path)
-            return response.json().get('task_id')
+            response = BulkCommonResources.get_summary.apply_async((imeis, tracking_id))
+            return response.id
         except Exception as e:
             app.logger.exception(e)
             return None
@@ -177,8 +171,8 @@ class Utilities:
             return False
 
     @classmethod
-    def pool_summary_request(cls, task_id, req, app):
-        """Method for pooling DVS about summary request until get response back."""
+    def pool_summary_request(cls, task_id, req, app):  # pragma: no cover
+        """Method for pooling about summary request until get response back."""
         try:
             if task_id:
                 req.update_report_status('Processing')
@@ -196,51 +190,29 @@ class Utilities:
             db.session.commit()
 
     @classmethod
-    def check_summary_status(cls, task_id, req, app):
+    def check_summary_status(cls, task_id, req, app):  # pragma: no cover
         """Method to pool and check if the summary is available."""
         with app.app_context():
             from app import db
             try:
-                status_url = cls.dvs_api_v1 + '/bulkstatus/' + task_id
-                response = requests.post(url=status_url)
-                state = response.json().get('state')
-                while state == 'PENDING':
-                    time.sleep(60)
-                    response = requests.post(url=status_url)
-                    state = response.json().get('state')
+                task = BulkCommonResources.get_summary.AsyncResult(task_id)
+                while task.state == 'PENDING':
+                    task = BulkCommonResources.get_summary.AsyncResult(task_id)
                     app.logger.info('task_id:{0}-request_id:{1}-status:{2}'.
-                                    format(task_id, req.id, state))
-                time.sleep(20)
-                response = requests.post(url=status_url)
-                result = response.json().get('result')
+                                    format(task_id, req.id, task.state))
+                task = BulkCommonResources.get_summary.AsyncResult(task_id)
+                result = task.get()
                 req.summary = json.dumps({'summary': result})
                 req.report = result.get('compliant_report_name')
                 req.update_report_status('Processed')
                 req.save()
                 db.session.commit()
                 app.logger.info('task_id:{0}-request_id:{1}-status:COMPLETED'.
-                                format(task_id, req.id, state))
-                cls.copy_report(req)
+                                format(task_id, req.id, task.state))
             except Exception as e:
-                app.logger.exception({"error": e, 'task_id': task_id, 'response': response.json() or None})
                 db.session.rollback()
                 req.update_report_status('Failed')
                 db.session.commit()
-
-    @classmethod
-    def copy_report(cls, req):
-        """Method to download summary report from DVS."""
-        try:
-            if req.report:
-                report_url = cls.dvs_api_v1 + '/download/' + req.report
-                upload_path = os.path.join(app.config['DRS_UPLOADS'], '{0}'.format(req.tracking_id))
-                response = requests.post(url=report_url)
-                file = open(os.path.join(upload_path, req.report), "w+")
-                file.write(response.text)
-                file.close()
-        except Exception as e:
-            app.logger.exception(e)
-            raise e
 
     @classmethod
     def bulk_normalize(cls, imeis):
@@ -362,7 +334,7 @@ class Utilities:
                 file_path = os.path.join(upload_path, '{0}_{1}'.format(time, file.filename))
                 file.save(file_path)
                 if int(Utilities.convert_to_mb(os.path.getsize(file_path))) > 26:
-                    errors[file.filename] = ['size of file is greator than 26 MB which is not allowed']
+                    errors[file.filename] = [_('size of file is greator than 26 MB which is not allowed')]
                     os.remove(file_path)
                     break
             return errors

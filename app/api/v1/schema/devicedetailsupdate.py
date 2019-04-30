@@ -28,12 +28,14 @@ from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.models.devicetechnology import DeviceTechnology
 from app.api.v1.models.technologies import Technologies
 from app.api.v1.models.devicetype import DeviceType
+from flask_babel import lazy_gettext as _
 
 
 class DeviceDetailsUpdateSchema(Schema):
     """Schema for Device Update routes."""
 
-    update_restricted = ['In Review', 'Approved', 'Rejected', 'Closed', 'New Request', 'Awaiting Documents']
+    update_restricted = [_('In Review'), _('Approved'), _('Rejected'), _('Closed'),
+                         _('New Request'), _('Awaiting Documents')]
 
     reg_details_id = fields.Int(required=True, error_messages={'required': 'Request id is required'})
     brand = fields.Str()
@@ -59,7 +61,7 @@ class DeviceDetailsUpdateSchema(Schema):
         """Check if update id alowed."""
         status = Status.get_status_type(data['status'])
         if status in self.update_restricted:
-            raise ValidationError('The request status is {0}, which cannot be updated'.format(status),
+            raise ValidationError(_('The request status is %(status)s, which cannot be updated', status=status),
                                   field_names=['status'])
 
     @validates('technologies')

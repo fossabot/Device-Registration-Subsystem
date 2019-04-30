@@ -24,6 +24,7 @@ import json
 from flask import Response, request
 from flask_restful import Resource
 from marshmallow import ValidationError
+from flask_babel import lazy_gettext as _
 
 from app import app, db
 from app.api.v1.helpers.error_handlers import REG_NOT_FOUND_MSG
@@ -44,7 +45,7 @@ class DeviceDetailsRoutes(Resource):
     def get(reg_id):
         """GET method handler, returns device details."""
         if not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         schema = DeviceDetailsSchema()
@@ -53,12 +54,12 @@ class DeviceDetailsRoutes(Resource):
             response = schema.dump(reg_device).data if reg_device else {}
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             error = {
-                'message': ['Failed to retrieve response, please try later']
+                'message': [_('Failed to retrieve response, please try later')]
             }
-            return Response(json.dumps(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -68,7 +69,7 @@ class DeviceDetailsRoutes(Resource):
         """POST method handler, creates a new device."""
         reg_id = request.form.to_dict().get('reg_id', None)
         if not reg_id or not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         try:
@@ -82,9 +83,8 @@ class DeviceDetailsRoutes(Resource):
 
             validation_errors = schema.validate(args)
             if validation_errors:
-                response = Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-                return response
             reg_device = RegDevice.create(args)
             reg_device.technologies = DeviceTechnology.create(reg_device.id, args.get('technologies'))
             response = schema.dump(reg_device, many=False).data
@@ -95,15 +95,15 @@ class DeviceDetailsRoutes(Resource):
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'request device addition failed'
+                'message': _('request device addition failed')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -113,7 +113,7 @@ class DeviceDetailsRoutes(Resource):
         """PUT method handler, updates a device."""
         reg_id = request.form.to_dict().get('reg_id', None)
         if not reg_id or not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         try:
@@ -128,7 +128,7 @@ class DeviceDetailsRoutes(Resource):
                 args.update({'reg_details_id': ''})
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
             # day_passed = (datetime.now() - reg_details.updated_at) > timedelta(1)
@@ -147,15 +147,15 @@ class DeviceDetailsRoutes(Resource):
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'request device addition failed'
+                'message': _('request device addition failed')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
 
         finally:

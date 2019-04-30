@@ -82,7 +82,7 @@ CODES = {
 
 MESSAGES = {
         "RESOURCE_NOT_FOUND": "resource not found",
-        "METHOD_NOT_ALLOWED": "method is not allowed",
+        "METHOD_NOT_ALLOWED": "method not allowed",
         "INVALID_USER": "invalid user",
         "INVALID_PARAM": "invalid parameter",
         "UNDEFINED_ID": "id was not defined",
@@ -93,4 +93,15 @@ MIME_TYPES = {
     "APPLICATION_JSON": "application/json",
     "TEXT_PLAIN": "text/plain",
     "APPLICATION_ALL": "application/*"
+}
+
+RESPONSES = {
+    'NOT_FOUND': 404,
+    'BAD_REQUEST': 400,
+    'OK': 200,
+    'NO_CONTENT': 204,
+    'INTERNAL_SERVER_ERROR': 500,
+    'SERVICE_UNAVAILABLE': 503,
+    'TIMEOUT': 504,
+    'METHOD_NOT_ALLOWED': 405
 }
