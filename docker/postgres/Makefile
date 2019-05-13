@@ -1,5 +1,5 @@
 #
-# DIRBS Makefile for dev Docker images
+# DRS Makefile for dev Docker images
 #
 # Copyright (c) 2018 Qualcomm Technologies, Inc.
 #
