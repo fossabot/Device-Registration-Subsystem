@@ -255,7 +255,7 @@ def test_create_request_file_input_method(flask_app, app, db):  # pylint: disabl
     request_data['imei_per_device'] = 3
 
     request_file = dict()
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'registration_mock_file.tsv')
+    file_path = '{0}/{1}'.format('tests/unittest_data/registration', 'request_file.tsv')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -485,3 +485,16 @@ def test_device_put_method_failure_update(flask_app, db):  # pylint: disable=unu
     modified_data = {'m_location': 'overseas', 'reg_id': request.id, 'user_id': USER_ID}
     rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
     assert rv.status_code == 422
+
+
+def test_device_registration_put_method_close_request(flask_app, db):  # pylint: disable=unused-argument
+    """ To verify that registration put
+        method gets failed in case of new request response is correct"""
+
+    request = create_registration(REQUEST_DATA, uuid.uuid4())
+    headers = {'Content-Type': 'multipart/form-data'}
+    modified_data = {'close_request': True, 'reg_id': request.id, 'user_id': USER_ID}
+    rv = flask_app.put(DEVICE_REGISTRATION_REQ_API, data=modified_data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 200
+    assert data['status_label'] == 'Closed'

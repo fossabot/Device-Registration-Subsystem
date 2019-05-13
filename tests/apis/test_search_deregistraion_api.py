@@ -66,6 +66,7 @@ def test_method_not_allowed(flask_app):
     data = json.loads(rv.data.decode('utf-8'))
     assert data.get('message') == 'method not allowed'
 
+
 def test_valid_search_specs(flask_app, db):
     seed_database(db)
     create_views(db)

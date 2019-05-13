@@ -54,7 +54,7 @@ def test_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-
     request_data['device_count'] = 9
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -68,6 +68,27 @@ def test_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-
     assert data
 
 
+def test_request_get_single(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    request = create_dummy_request(REQUEST_DATA, 'De-Registration', status='Awaiting Documents')
+
+    rv = flask_app.get("{0}/{1}".format(DEVICE_DE_REGISTRATION_REQ_API, request.id))
+    data = json.loads(rv.data.decode('utf-8'))
+    assert data
+    assert 'report' in data
+    assert 'reason' in data
+    assert data['status_label'] == 'Awaiting Documents'
+
+
+def test_invalid_request_get(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+
+    rv = flask_app.get("{0}/{1}".format(DEVICE_DE_REGISTRATION_REQ_API, 'abcd'))
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 200
+    assert data['message'][0] == 'De-Registration Request not found.'
+
+
 def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
@@ -75,7 +96,7 @@ def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argu
     request_data['device_count'] = 9
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -105,7 +126,7 @@ def test_request_reason_missing(flask_app, app, db, dirbs_core):  # pylint: disa
     request_data.pop('reason')
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -124,7 +145,7 @@ def test_request_device_count_missing(flask_app, app, db, dirbs_core):  # pylint
     request_data.pop('device_count')
 
     request_file = dict(request_data)
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'de-registration_mock_file.txt')
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
 
     with open(file_path, 'rb') as read_file:
         request_file['file'] = read_file
@@ -154,6 +175,48 @@ def test_request_update(flask_app, app, db, dirbs_core):  # pylint: disable=unus
     assert 'file' in data
 
 
+def test_request_file_update(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['file'] = 'dummy-file.txt'
+    request = create_dummy_request(request_data, 'De-Registraiton', 'Pending Review')
+
+    request_data['device_count'] = 9
+    request_data['dereg_id'] = request.id
+
+    request_file = dict(request_data)
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
+
+    with open(file_path, 'rb') as read_file:
+        request_file['file'] = read_file
+        rv = flask_app.put(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
+
+        # code change required
+        assert rv.status_code == 500
+
+
+def test_request_file_update_invalid_device(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['file'] = 'dummy-file.txt'
+    request = create_dummy_request(request_data, 'De-Registraiton', 'New Request')
+
+    request_data['device_count'] = 90
+    request_data['dereg_id'] = request.id
+
+    request_file = dict(request_data)
+    file_path = '{0}/{1}'.format('tests/unittest_data/de-registration', 'request_file.txt')
+
+    with open(file_path, 'rb') as read_file:
+        request_file['file'] = read_file
+        rv = flask_app.put(DEVICE_DE_REGISTRATION_REQ_API, data=request_file, headers=headers)
+        data = json.loads(rv.data.decode('utf-8'))
+        assert rv.status_code == 422
+        assert data['status'][0] == 'The request status is New Request, which cannot be updated'
+
+
 def test_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
     """ unittest for de-registration request"""
     headers = {'Content-Type': 'multipart/form-data'}
@@ -168,3 +231,18 @@ def test_request_update_failed(flask_app, app, db, dirbs_core):  # pylint: disab
     assert rv.status_code == 422
     assert 'reason' in data
     assert data['reason'][0] == 'The request status is New Request, which cannot be updated'
+
+
+def test_request_closed(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
+    """ unittest for de-registration request"""
+    headers = {'Content-Type': 'multipart/form-data'}
+    request_data = copy.deepcopy(REQUEST_DATA)
+    request_data['file'] = 'dummy-file.txt'
+    request = create_dummy_request(request_data, 'De-Registraiton', 'New Request')
+
+    data = {'close_request': True, 'dereg_id': request.id, 'user_id': USER_ID}
+    rv = flask_app.put(DEVICE_DE_REGISTRATION_REQ_API,
+                       data=data, headers=headers)
+    data = json.loads(rv.data.decode('utf-8'))
+    assert rv.status_code == 200
+    assert data['status_label'] == 'Closed'

@@ -114,7 +114,7 @@ def test_required_documents_invalid_extension(flask_app, app, db):  # pylint: di
     request_data = copy.deepcopy(REQUEST_DATA)
     request_data['dereg_id'] = request.id
 
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'registration_mock_file.tsv')
+    file_path = '{0}/{1}'.format('tests/unittest_data/registration', 'request_file.tsv')
 
     with open(file_path, 'rb') as read_file:
         document_obj['shipment document'] = read_file
@@ -154,7 +154,7 @@ def test_required_documents_update_invalid_extension(flask_app, app, db):  # pyl
     request_data = copy.deepcopy(REQUEST_DATA)
     request_data['dereg_id'] = request.id
 
-    file_path = '{0}/{1}'.format('tests/unittest_data', 'registration_mock_file.tsv')
+    file_path = '{0}/{1}'.format('tests/unittest_data/registration', 'request_file.tsv')
 
     with open(file_path, 'rb') as read_file:
         document_obj['shipment document'] = read_file

@@ -1,5 +1,5 @@
 """
-module for common apis test
+Device Model Unittests
 
 Copyright (c) 2018 Qualcomm Technologies, Inc.
 
@@ -30,33 +30,3 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 
-import json
-import uuid
-import copy
-
-from tests._helpers import  create_registration
-from tests.apis.test_registration_request_apis import REQUEST_DATA as REG_REQ_DATA
-
-
-DEVICE_REGISTRATION_REPORT_API = 'api/v1/registration/report'
-
-
-def test_report_file_invalid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for report invalid request id."""
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, 'abcd')
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Registration Request not found.'
-
-
-def test_report_file_valid_request(flask_app, db):  # pylint: disable=unused-argument
-    """ unittest for report with valid request id but report not found."""
-    request_data = copy.deepcopy(REG_REQ_DATA)
-    request = create_registration(request_data, uuid.uuid4())
-
-    url = "{0}/{1}".format(DEVICE_REGISTRATION_REPORT_API, request.id)
-    rv = flask_app.get(url)
-    data = json.loads(rv.data.decode('utf-8'))
-    assert rv.status_code == 422
-    assert data['message'][0] == 'Report not found.'

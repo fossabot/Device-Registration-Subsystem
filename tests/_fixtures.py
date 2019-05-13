@@ -85,6 +85,8 @@ def app(mocked_config, tmpdir_factory):
     app_.config['DRS_UPLOADS'] = str(temp_uploads)
     app_.config['DRS_LISTS'] = str(temp_lists)
     app_.config['CORE_BASE_URL'] = mocked_config['global']['core_api_v2']
+    app_.config['DVS_BASE_URL'] = mocked_config['global']['dvs_api_v1']
+
     yield app_
 
     # restore old configs after successful session
@@ -193,6 +195,59 @@ def dirbs_core(app):
         body=json.dumps(version_response),
         content_type='application/json'
     )
+
+    yield
+
+    # disable afterwards when not in use to avoid issues with the sockets
+    # reset states
+    httpretty.disable()
+    httpretty.reset()
+
+
+@pytest.yield_fixture(scope='session')
+def dirbs_dvs(app):
+    """
+    Mock server fixture to simulate DIRBS DVS API behaviours.
+    Monkey patch DIRBS-DVS calls made by DRS."""
+    httpretty.enable()
+    bulk_imei_response = {
+        "result": {
+            "provisional_non_compliant": 0,
+            "seen_on_network": 1,
+            "count_per_condition":
+                {
+                    "local_stolen": 0,
+                    "duplicate_large": 0,
+                    "duplicate": 0,
+                    "not_on_registration_list": 1,
+                    "gsma_not_found": 0,
+                    "malformed": 0
+                },
+            "complaint": 0,
+            "provisional_compliant": 0,
+            "non_complaint": 8,
+            "compliant_report_name": "compliant_report80f54be6-b147-4b09-aba1-ada628b6abbc.tsv",
+            "verified_imei": 8,
+            "stolen": 0,
+            "provisional_stolen": 0
+        },
+        "state": "SUCCESS"
+    }
+
+    # mock dirbs core single tac apis
+    dirbs_dvs_api = app.config['DVS_BASE_URL']
+    httpretty.register_uri(
+        httpretty.POST,
+        re.compile(r'{0}/drs_bulk/\d'.format(dirbs_dvs_api)),
+        body=json.dumps(bulk_imei_response),
+        content_type='application/json')
+
+    bulk_status_response = {'state': 'COMPLETED'}
+    httpretty.register_uri(
+        httpretty.GET,
+        re.compile(r'{0}/bulkstatus/\d'.format(dirbs_dvs_api)),
+        body=json.dumps(bulk_status_response),
+        content_type='application/json')
 
     yield
 
