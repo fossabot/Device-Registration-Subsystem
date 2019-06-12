@@ -22,6 +22,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 from marshmallow import Schema, validates, ValidationError, pre_load, pre_dump
 from marshmallow import fields
 from app.api.v1.helpers.validators import *
+from flask_babel import lazy_gettext as _
 
 from app import app, GLOBAL_CONF
 from app.api.v1.models.status import Status
@@ -43,8 +44,11 @@ class DeRegDetailsSchema(Schema):
     user_name = fields.Str(required=True, error_messages={'required': 'User Name is required'})
     reviewer_id = fields.Str(required=False)
     reviewer_name = fields.Str(required=False)
+    report_allowed = fields.Boolean(required=False)
     tracking_id = fields.Str(required=False)
     report = fields.Str()
+    created_at = fields.DateTime()
+    updated_at = fields.DateTime()
     invalid_imeis_file = fields.String(missing='')
 
     @pre_dump()

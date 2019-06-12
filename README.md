@@ -1,7 +1,7 @@
 
 SPDX-License-Identifier: BSD-3-Clause-Clear
 
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
 
 All rights reserved.
 
@@ -30,7 +30,7 @@ It is used to comply type approval of imported/exported devices.
 
 [DRS-Authority-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-Authority-User-Guide-1.0.0.pdf)
 
-### Frontend Application Repo
+#### Frontend Application Repo
 https://github.com/dirbs/Device-Registration-Subsystem-Frontend
 
 ### Directory structure
@@ -43,11 +43,11 @@ This repository contains code for **DRS** part of the **DIRBS**. It contains
 
 ---
 
+
 ### Starting Dev Environment
 _Make sure you have installed [docker](https://docs.docker.com/install/) and 
 [docker-compose](https://docs.docker.com/compose/install/).
-To install dev environment without docker follow [here](doc/DEVENV_SETUP.md).
-To install production environment container follow [here](doc/PRDENV_SETUP.md)._
+To install dev environment without docker follow [here](doc/DEVENV_SETUP.md)._
 - Clone the repository
 - Create a `drs` user with UID `9001` and change the ownership of the repo:
     ```bash
@@ -99,7 +99,7 @@ To install production environment container follow [here](doc/PRDENV_SETUP.md)._
 ---
 
 
-### Bumping version number
+#### Bumping version number
 We follow [Semantic Versioning](http://semver.org/) for DRS.
 To change the releases number simply edit ```app/metadata.py``` and bump the version number.
 
@@ -150,4 +150,21 @@ make test
 To run code linting:
 ```bash
 make lint
+```
+
+To generate languages:
+```bash
+pybabel extract -F babel.cfg -k _l -o messages.pot .
+pybabel init -i messages.pot -d app/translations -l language-code
+pybabel compile -d app/translations
+```
+
+Install rabbitmq-server
+```bash
+$ sudo apt-get install rabbitmq-server
+```
+
+Start celery worker
+```bash
+$ celery -A app.celery worker --loglevel=info -B
 ```

@@ -21,10 +21,12 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import os
 import json
+from urllib.parse import unquote
 
 from flask import send_file, Response
 from flask_apispec import marshal_with, doc, MethodResource, use_kwargs
 from flask_restful import Resource
+from flask_babel import lazy_gettext as _
 
 from app import app
 from app.api.v1.helpers.utilities import Utilities
@@ -61,20 +63,24 @@ class Files(MethodResource):
     @use_kwargs(FileArgs().fields_dict, locations=['query'])
     def get(self, **kwargs):
         """GET method handler for downloading files with paths."""
-        path = kwargs.get('path')
+        path = unquote(kwargs.get('path'))
+
         if path is None or not path:
-            err = {'error': ['path cannot be empty']}
-            return Response(json.dumps(ErrorResponse().dump(err).data), status=422, mimetype='application/json')
+            err = {'error': [_('path cannot be empty')]}
+            return Response(app.json_encoder.encode(ErrorResponse().dump(err).data),
+                            status=422, mimetype='application/json')
         if os.path.isfile(path):
             try:
                 return send_file(path, as_attachment=True)
             except Exception as e:
                 app.logger.exception(e)
-                res = {'error': ['Unable to process the request']}
-                return Response(json.dumps(ErrorResponse().dump(res).data), status=500, mimetype='application/json')
+                res = {'error': [_('Unable to process the request')]}
+                return Response(app.json_encoder.encode(ErrorResponse().dump(res).data),
+                                status=500, mimetype='application/json')
         else:
-            res = {'error': ['file not found or bad file path']}
-            return Response(json.dumps(ErrorResponse().dump(res).data), status=400, mimetype='application/json')
+            res = {'error': [_('file not found or bad file path')]}
+            return Response(app.json_encoder.encode(ErrorResponse().dump(res).data),
+                            status=400, mimetype='application/json')
 
 
 class ServerConfigs(MethodResource):

@@ -27,6 +27,7 @@ from app.api.v1.models.devicetechnology import DeviceTechnology
 from app.api.v1.models.technologies import Technologies
 from app.api.v1.models.devicetype import DeviceType
 from app.api.v1.models.status import Status
+from flask_babel import lazy_gettext as _
 
 
 class DeviceDetailsSchema(Schema):
@@ -70,7 +71,7 @@ class DeviceDetailsSchema(Schema):
         else:
             status = Status.get_status_type(reg_details.status)
             if status != 'New Request':
-                raise ValidationError('This step can only be performed for New Request', field_names=['status'])
+                raise ValidationError(_('This step can only be performed for New Request'), field_names=['status'])
 
     @pre_load()
     def pre_process_technologies(self, data):

@@ -64,20 +64,3 @@ def dirbs_core_check():
         response['output'] = str(e)
         return response
 
-
-def dirbs_dvs_check():
-    """Method to check if dirbs dvs is available."""
-    response = {
-        'check': 'dirbs dvs',
-        'output': 'dirbs dvs is available',
-        'passed': True,
-        'time_stamp': datetime.datetime.now()
-    }
-
-    try:
-        requests.get(app.config['DVS_BASE_URL'])
-        return response
-    except RequestException as e:
-        response['passed'] = False
-        response['output'] = str(e)
-        return response

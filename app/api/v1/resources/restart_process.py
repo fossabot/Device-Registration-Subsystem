@@ -24,6 +24,7 @@ import json
 from flask import Response
 from flask_restful import Resource
 from marshmallow import ValidationError
+from flask_babel import gettext as _
 
 from app import app, db
 from app.api.v1.helpers.error_handlers import REG_NOT_FOUND_MSG, DEREG_NOT_FOUND_MSG
@@ -44,7 +45,7 @@ class RegistrationProcessRestart(Resource):
     def post(reg_id):
         """POST method handler, restarts processing of a request."""
         if not reg_id or not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         try:
@@ -56,25 +57,25 @@ class RegistrationProcessRestart(Resource):
             # report_timeout = reg_details.report_status == Status.get_status_id('Processing') and day_passed
             processing_required = processing_failed or report_failed
 
-            if processing_required:
+            if processing_required:  # pragma: no cover
                 reg_device = RegDevice.get_device_by_registration_id(reg_details.id)
                 Device.create(reg_details, reg_device.id)
                 response = {'message': 'Request performed successfully.'}
             else:
-                response = {'message': 'This request cannot be processed'}
+                response = app.json_encoder.encode({'message': _('This request cannot be processed')})
 
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'failed to restart process'
+                'message': _('failed to restart process')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
 
 
@@ -84,7 +85,7 @@ class DeRegistrationProcessRestart(Resource):
     def post(dereg_id):
         """POST method handler, restarts processing of a request."""
         if not dereg_id or not dereg_id.isdigit() or not DeRegDetails.exists(dereg_id):
-            return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         try:
@@ -95,7 +96,7 @@ class DeRegistrationProcessRestart(Resource):
             report_failed = dereg.report_status in [failed_status_id]
             # report_timeout = dereg.report_status == Status.get_status_id('Processing') and day_passed
             processing_required = processing_failed or report_failed
-            if processing_required:
+            if processing_required:  # pragma: no cover
                 dereg_devices = DeRegDevice.get_devices_by_dereg_id(dereg.id)
                 dereg_devices_data = DeRegDeviceSchema().dump(dereg_devices, many=True).data
                 dereg_devices_ids = list(map(lambda x: x['id'], dereg_devices_data))
@@ -107,17 +108,17 @@ class DeRegistrationProcessRestart(Resource):
                 DeRegDevice.bulk_insert_imeis(device_id_tac_map, imei_tac_map, dereg_devices_ids, imeis_list, dereg)
                 response = {'message': 'Request performed successfully.'}
             else:
-                response = {'message': 'This request cannot be processed'}
+                response = app.json_encoder.encode({'message': _('This request cannot be processed')})
 
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'failed to restart process'
+                'message': _('failed to restart process')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))

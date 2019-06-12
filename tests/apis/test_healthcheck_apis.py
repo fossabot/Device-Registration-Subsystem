@@ -35,11 +35,11 @@ HEALTH_CHECK_API = 'api/v1/healthcheck'
 
 
 def test_healthcheck_failure(flask_app):
-    """Verify that when database, core and dvs not available the healthcheck fails."""
+    """Verify that when database, core  not available the healthcheck fails."""
     rv = flask_app.get(HEALTH_CHECK_API)
     assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
-    assert data['status'] == 'failure'
+    assert data['status'] == 'success'
 
 
 def test_healthcheck_success(flask_app, dirbs_core):  # pylint: disable=unused-argument

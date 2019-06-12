@@ -21,12 +21,12 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 from marshmallow import Schema, fields, validates, pre_load, pre_dump, post_dump, post_load, validate
 from app.api.v1.helpers.validators import *
-from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.models.devicequota import DeviceQuota
 from app.api.v1.models.status import Status
 import ast
 import pydash
 from app import app, GLOBAL_CONF
+from flask_babel import gettext as _
 
 
 class RegistrationDetailsSchema(Schema):
@@ -36,6 +36,7 @@ class RegistrationDetailsSchema(Schema):
     device_count = fields.Int(required=True, error_messages={'required': 'Device count is required'})
     reviewer_id = fields.Str(required=False)
     reviewer_name = fields.Str(required=False)
+    report_allowed = fields.Boolean(required=False)
     user_id = fields.Str(required=True, error_messages={'required': 'User Id is required'})
     user_name = fields.Str(required=True, error_messages={'required': 'User Name is required'})
     imei_per_device = fields.Int(required=True, error_messages={'required': 'Imei per device count is required'})
@@ -80,7 +81,7 @@ class RegistrationDetailsSchema(Schema):
             elif not isinstance(data['imeis'][0], list):
                 raise ValidationError('Invalid format for IMEIs Input', field_names=['imeis'])
             elif len(imeis) != len(list(set(imeis))):
-                raise ValidationError('Duplicate IMEIs in request', field_names=['imeis'])
+                raise ValidationError(_('Duplicate IMEIs in request'), field_names=['imeis'])
             elif 'device_count' in data and data['device_count'].isdigit():
                 if int(data['device_count']) > 10:
                     raise ValidationError('Only 10 device are allowed in case of webpage input',

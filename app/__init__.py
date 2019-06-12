@@ -20,22 +20,32 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 import sys
+import requests
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
+from celery import Celery
 
 from datetime import datetime
 from flask_restful import Api
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_babel import Babel
 
 from app.config import ConfigParser, ParseException, ConfigApp
+from app.serializer import JSONEncoder
 
 # import _strptime to avoid weird issues as described at
 # http://bugs.python.org/msg221094
 datetime.strptime('', '')
 
 app = Flask(__name__)
+app.json_encoder = JSONEncoder()
+
 CORS(app)
-api = Api(app)
+Api(app)
+babel = Babel(app)
+
 
 # read and load DRS base configuration to the app
 try:
@@ -49,7 +59,23 @@ CORE_BASE_URL = config['dirbs_core']['base_url']  # core api base url
 GLOBAL_CONF = config['global']  # load & export global configs
 app = ConfigApp(app, config).load_config()  # load configurations to the app instance
 db = SQLAlchemy(session_options={'autocommit': False})
+
 db.init_app(app)
+
+# requests session
+session = requests.Session()
+retry = Retry(total=10, backoff_factor=0.2,
+              status_forcelist=[502, 503, 504])
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
+
+# initialize celery
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
+
+# register tasks
+app.config['imports'] = app.config['CeleryTasks']
 
 # we really need wild-card import here for now
 from app.api.v1.routes import *  # pylint: disable=wildcard-import
@@ -76,5 +102,9 @@ def add_security_headers(response):
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
 
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(app.config['SUPPORTED_LANGUAGES'])
 
 register_docs()

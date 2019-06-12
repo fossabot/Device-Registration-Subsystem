@@ -20,7 +20,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 import yaml
-
+import requests
 from app.logger import DRSLogger
 
 
@@ -66,7 +66,7 @@ class ConfigApp:
         database_config = self.config.get('database')
         return 'postgres://{0}:{1}@{2}:{3}/{4}'.format(
             database_config.get('user', 'postgres'),
-            database_config.get('password', ''),
+            database_config.get('password', '').replace('%', '%%'),
             database_config.get('host', 'localhost'),
             database_config.get('port', 5432),
             database_config.get('database', 'postgres')
@@ -77,17 +77,27 @@ class ConfigApp:
         global_config = self.config.get('global')
         lists_config = self.config.get('lists')
         database_config = self.config.get('database')
+        celery_config = self.config.get('celery')
+        conditions = self.config.get('conditions')
 
         self.app.config['DRS_UPLOADS'] = global_config.get('upload_directory')  # file upload dir
+        self.app.config['MAX_WORKERS'] = lists_config.get('max_workers')
         self.app.config['DRS_LISTS'] = lists_config.get('path')  # lists dir
         self.app.config['STRICT_HTTPS'] = self.config.get('server')['restrict_https']
         self.app.config['CORE_BASE_URL'] = global_config.get('core_api_v2')
-        self.app.config['DVS_BASE_URL'] = global_config.get('dvs_api_v1')
+        self.app.config['BABEL_DEFAULT_LOCALE'] = global_config.get('default_language')
+        self.app.config['SUPPORTED_LANGUAGES'] = global_config.get('supported_languages')
         self.app.config['SQLALCHEMY_DATABASE_URI'] = self.database_uri()
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         self.app.config['SQLALCHEMY_POOL_SIZE'] = database_config.get('pool_size')
         self.app.config['SQLALCHEMY_POOL_RECYCLE'] = database_config.get('pool_recycle')
         self.app.config['SQLALCHEMY_MAX_OVERFLOW'] = database_config.get('max_overflow')
         self.app.config['SQLALCHEMY_POOL_TIMEOUT'] = database_config.get('pool_timeout')
+
+        self.app.config['CELERY_BROKER_URL'] = celery_config['RabbitmqUrl']
+        self.app.config['result_backend'] = celery_config['RabbitmqBackend']
+        self.app.config['CeleryTasks'] = celery_config['CeleryTasks']
+        self.app.config['conditions'] = conditions
+        self.app.config['broker_pool_limit'] = None
         # app.config['MAX_CONTENT_LENGTH'] = 28 * 3 * 1024 * 1024
         return self.app

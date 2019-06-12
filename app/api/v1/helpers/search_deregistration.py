@@ -1,6 +1,6 @@
 """
 DRS De-Registration search package.
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
@@ -26,6 +26,7 @@ from flask import request, Response
 from app.api.v1.helpers.response import MIME_TYPES, CODES
 from app.api.v1.helpers.pagination import Pagination
 from datetime import datetime, timedelta
+from marshmallow.utils import isoformat
 
 
 class SearchDeregistration:
@@ -46,8 +47,8 @@ class SearchDeregistration:
                 "report_status_label": d.get('processing_status'),
                 "processing_status_label": d.get('report_status'),
                 "request_type": d.get('request_type'),
-                "created_at": d.get('created_at').strftime("%Y-%m-%d %H:%M:%S") if d.get('created_at') else 'N/A',
-                "updated_at": d.get('updated_at').strftime("%Y-%m-%d %H:%M:%S") if d.get('updated_at') else 'N/A',
+                "created_at": isoformat(d.get('created_at')) if d.get('created_at') else 'N/A',
+                "updated_at": isoformat(d.get('updated_at')) if d.get('updated_at') else 'N/A',
                 "creator": {
                     "user_id": d.get('user_id'),
                     "user_name": d.get('user_name')

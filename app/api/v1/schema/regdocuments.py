@@ -28,6 +28,7 @@ from app.api.v1.models.documents import Documents
 from app.api.v1.helpers.error_handlers import ALLOWED_FORMATS
 from app.api.v1.models.status import Status
 from app import app, GLOBAL_CONF
+from flask_babel import lazy_gettext as _
 
 
 class RegistrationDocumentsSchema(Schema):
@@ -63,7 +64,7 @@ class RegistrationDocumentsSchema(Schema):
             filename = data['files'][filename]
             doc_format = filename.rsplit('.', 1)[1]
             if doc_format not in ALLOWED_FORMATS:
-                raise ValidationError('File format {0} is not allowed'.format(doc_format),
+                raise ValidationError(_('File format %(format)s is not allowed', format=doc_format),
                                       field_names=['document_format'])
 
     @pre_load()
@@ -74,7 +75,7 @@ class RegistrationDocumentsSchema(Schema):
             if data['files'].get(filename) not in filenames:
                 filenames.append(data['files'].get(filename))
             else:
-                raise ValidationError('File names should be unique',
+                raise ValidationError(_('File names should be unique'),
                                       field_names=['filename'])
 
     @pre_load()
@@ -104,7 +105,7 @@ class RegistrationDocumentsSchema(Schema):
         else:
             status = Status.get_status_type(reg_details.status)
             if status != 'Awaiting Documents':
-                raise ValidationError('This step can only be performed for request with Awaiting Document status',
+                raise ValidationError(_('This step can only be performed for request with Awaiting Document status'),
                                       field_names=['status'])
 
 

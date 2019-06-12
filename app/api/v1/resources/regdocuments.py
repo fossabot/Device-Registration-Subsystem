@@ -24,6 +24,7 @@ from datetime import datetime
 
 from flask import Response, request
 from flask_restful import Resource
+from flask_babel import lazy_gettext as _
 from marshmallow import ValidationError
 
 from app import app, db
@@ -35,6 +36,7 @@ from app.api.v1.models.regdocuments import RegDocuments
 from app.api.v1.models.status import Status
 from app.api.v1.schema.regdocuments import RegistrationDocumentsSchema
 from app.api.v1.schema.regdocumentsupdate import RegistrationDocumentsUpdateSchema
+from app.api.v1.models.notification import Notification
 
 
 class RegDocumentRoutes(Resource):
@@ -44,7 +46,7 @@ class RegDocumentRoutes(Resource):
     def get(reg_id):
         """GET method handler, returns request documents."""
         if not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             schema = RegistrationDocumentsSchema()
@@ -60,13 +62,13 @@ class RegDocumentRoutes(Resource):
             return Response(json.dumps(documents), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             data = {
-                "message": "Error retrieving results. Please try later."
+                "message": [_("Error retrieving results. Please try later.")]
             }
 
-            return Response(json.dumps(data), status=CODES.get("BAD_REQUEST"),
+            return Response(app.json_encoder.encode(data), status=CODES.get("BAD_REQUEST"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         finally:
             db.session.close()
@@ -76,7 +78,7 @@ class RegDocumentRoutes(Resource):
         """POST method handler, creates registration documents."""
         reg_id = request.form.to_dict().get('reg_id', None)
         if not reg_id or not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         try:
@@ -92,7 +94,7 @@ class RegDocumentRoutes(Resource):
 
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
             tracking_id = reg_details.tracking_id
@@ -106,15 +108,15 @@ class RegDocumentRoutes(Resource):
             db.session.commit()
             return Response(json.dumps(message), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'request document addition failed, check for valid formats.'
+                'message': _('request document addition failed, check for valid formats.')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -124,7 +126,7 @@ class RegDocumentRoutes(Resource):
         """PUT method handler, updates documents."""
         reg_id = request.form.to_dict().get('reg_id', None)
         if not reg_id or not reg_id.isdigit() or not RegDetails.exists(reg_id):
-            return Response(json.dumps(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(REG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
         try:
@@ -139,7 +141,7 @@ class RegDocumentRoutes(Resource):
                 args.update({'reg_details_id': ''})
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
             tracking_id = reg_details.tracking_id
@@ -150,21 +152,25 @@ class RegDocumentRoutes(Resource):
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             if reg_details.status == Status.get_status_id('Information Requested'):
                 reg_details.update_status('In Review')
+                message = 'The request {id} has been updated.'.format(id=reg_details.id)
+                notification = Notification(reg_details.reviewer_id, reg_details.id,
+                                            'registration_request', reg_details.status, message)
+                notification.add()
             else:
                 reg_details.update_status('Pending Review')
             response = schema.dump(updated, many=True).data
             db.session.commit()
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'request document updation failed, please try again later.'
+                'message': _('request document updation failed, please try again later.')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
