@@ -1,6 +1,6 @@
 """
 De Registration Details Model Module.
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
@@ -22,9 +22,11 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 import json
 
 from sqlalchemy.sql import exists
+from flask_babel import lazy_gettext as _
 
 from app import db, app
 from app.api.v1.models.deregcomments import DeRegComments
+from app.api.v1.schema.deregdetails import DeRegDetailsSchema
 from app.api.v1.models.status import Status
 
 
@@ -35,6 +37,7 @@ class DeRegDetails(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reviewer_id = db.Column(db.String(64), nullable=True)
     reviewer_name = db.Column(db.String(64), nullable=True)
+    report_allowed = db.Column(db.Boolean, default=False)
     file = db.Column(db.String(30))
     device_count = db.Column(db.Integer, nullable=False)
     reason = db.Column(db.Text, nullable=False)
@@ -166,6 +169,14 @@ class DeRegDetails(db.Model):
         except Exception:
             raise Exception
 
+    @classmethod
+    def toggle_permission(cls, request):
+        """Toggle the permission of the of user to view report"""
+
+        request.report_allowed = not request.report_allowed
+        request.save_with_commit()
+        return request.report_allowed
+
     def update_summary(self, summary):
         """Update compliance summary of the request."""
         self.summary = json.dumps({'summary': summary})
@@ -213,7 +224,7 @@ class DeRegDetails(db.Model):
         closed = Status.get_status_id('Closed')
         if dereg_details.status == closed:
             return {
-                'message': 'The request is already closed'
+                'message': _('The request is already closed')
             }
         else:
             dereg_details.status = closed
@@ -239,6 +250,7 @@ class DeRegDetails(db.Model):
                     dereg_details.report_status = new_status_id
                     dereg_details.summary = None
                     dereg_details.report = None
+                    dereg_details.report_allowed = False
                 # dereg_details.status = cls.get_update_status(status) or dereg_details.status
                 dereg_details.save_with_commit()
                 return dereg_details
@@ -376,3 +388,42 @@ class DeRegDetails(db.Model):
                 normalized_imeis.append(imei.norm_imei)
 
         return normalized_imeis
+
+    @classmethod
+    def get_dashboard_report(cls, user_id, user_type):
+        """ Get dashboard report for de-registration"""
+
+        if user_type != 'reviewer':
+            total_count = cls.query.filter_by(user_id=user_id).count()
+            new_request = cls.query.filter_by(user_id=user_id).filter_by(status=1).count()
+            awaiting_document = cls.query.filter_by(user_id=user_id).filter_by(status=2).count()
+            pending_review = cls.query.filter_by(user_id=user_id).filter_by(status=3).count()
+            in_review = cls.query.filter_by(user_id=user_id).filter_by(status=4).count()
+            information_requested = cls.query.filter_by(user_id=user_id).filter_by(status=5).count()
+            approved = cls.query.filter_by(user_id=user_id).filter_by(status=6).count()
+            rejected = cls.query.filter_by(user_id=user_id).filter_by(status=7).count()
+            latest_req = cls.query.filter_by(user_id=user_id).filter_by(status=3).filter_by(report_status=10)\
+                             .order_by(cls.created_at.desc()).all()[:10]
+            latest_requests = DeRegDetailsSchema().dump(latest_req, many=True).data
+            return {
+                "total_requests": total_count,
+                "new_requests": new_request,
+                "awaiting_document": awaiting_document,
+                "pending_review": pending_review,
+                "in_review": in_review,
+                "information_requested": information_requested,
+                "approved": approved,
+                "rejected": rejected,
+                "latest_request": latest_requests
+            }
+        else:
+            review_count = cls.query.filter_by(reviewer_id=user_id).filter_by(status=4).count()
+            pending_review_count = cls.query.filter_by(status=3).filter_by(reviewer_id=None).count()
+            pending_review_req = cls.query.filter_by(status=3).filter_by(reviewer_id=None).filter_by(report_status=10)\
+                .order_by(cls.created_at.desc()).all()[:10]
+            pending_review_requests = DeRegDetailsSchema().dump(pending_review_req, many=True).data
+            return {
+                "in_review_count": review_count,
+                "pending_review_count": pending_review_count,
+                "latest_pending_requests": pending_review_requests
+            }

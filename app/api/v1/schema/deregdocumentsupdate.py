@@ -25,6 +25,7 @@ from app.api.v1.helpers.validators import *
 from app.api.v1.models.deregdetails import DeRegDetails
 from app.api.v1.helpers.error_handlers import ALLOWED_FORMATS
 from app import app, GLOBAL_CONF
+from flask_babel import lazy_gettext as _
 
 
 class DeRegDocumentsUpdateSchema(Schema):
@@ -70,7 +71,7 @@ class DeRegDocumentsUpdateSchema(Schema):
             filename = data['files'][filename]
             doc_format = filename.rsplit('.', 1)[1]
             if doc_format not in ALLOWED_FORMATS:
-                raise ValidationError('File format {0} is not allowed'.format(doc_format),
+                raise ValidationError(_('File format %(format)s is not allowed', format=doc_format),
                                       field_names=['document_format'])
 
     @pre_load()
@@ -81,5 +82,5 @@ class DeRegDocumentsUpdateSchema(Schema):
             if data['files'].get(filename) not in filenames:
                 filenames.append(data['files'].get(filename))
             else:
-                raise ValidationError('File names should be unique',
+                raise ValidationError(_('File names should be unique'),
                                       field_names=['filename'])

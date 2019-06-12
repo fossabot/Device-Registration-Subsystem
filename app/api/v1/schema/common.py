@@ -20,7 +20,23 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
  POSSIBILITY OF SUCH DAMAGE.
 """
 from enum import Enum
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
+
+
+class UserTypes(Enum):
+    """Enum for supported user types."""
+
+    EXPORTER = 'exporter'
+    IMPORTER = 'importer'
+    REVIEWER = 'reviewer'
+    INDIVIDUAL = 'individual'
+
+
+class RequestTypes(Enum):
+    """Enum for supported request types for comments api."""
+
+    REG_REQUEST = 'registration_request'
+    DEREG_REQUEST = 'de_registration_request'
 
 
 class FileArgs(Schema):
@@ -82,3 +98,101 @@ class RequestStatusTypes(Enum):
     approved = 6
     rejected = 7
     closed = 8
+
+
+class ErrorResponse(Schema):
+    """Response schema for response in case of error."""
+
+    error = fields.List(fields.String(required=True), required=True)
+
+
+class SuccessResponse(Schema):
+    """Response schema for successful response."""
+
+    message = fields.String(required=True)
+
+
+class DashboardReportsArgs(Schema):
+    """Schema for Dashboard reports request."""
+
+    user_id = fields.String(required=True,
+                            description='User Id to fetch statistics from database',
+                            error_messages={'required': 'user id is required'},
+                            validate=validate.Length(min=1),
+                            missing=None)
+    user_type = fields.String(required=True,
+                              description='User Type to fetch statistics from database',
+                              error_messages={'required': 'user type is required'},
+                              validate=validate.OneOf([f.value for f in UserTypes]),
+                              missing=None)
+
+    @property
+    def fields_dict(self):
+        """Convert declared fields to dictionary."""
+        return self._declared_fields
+
+
+class ImieReportsArgsGet(Schema):
+    """Schema for Imei reports request"""
+
+    user_id = fields.String(required=True,
+                            description='User Id to fetch statistics from database',
+                            error_messages={'required': 'user id is required'},
+                            validate=validate.Length(min=1),
+                            missing=None)
+
+    request_type = fields.String(required=True,
+                                 description='Request Type to fetch report',
+                                 error_messages={'required': 'request type is required'},
+                                 validate=validate.OneOf([f.value for f in RequestTypes]),
+                                 missing=None)
+
+    request_id = fields.String(required=True,
+                               description='Request Id to get the report of database',
+                               error_messages={'required': 'request id is required'},
+                               validate=validate.Length(min=1),
+                               missing=None)
+
+    user_type = fields.String(required=True,
+                              description='User Type to fetch statistics from database',
+                              error_messages={'required': 'user type is required'},
+                              validate=validate.OneOf(['reviewer', 'exporter', 'importer', 'individual']),
+                              missing=None)
+
+    @property
+    def fields_dict(self):
+        """Convert declared fields to dictionary."""
+        return self._declared_fields
+
+
+class ImieReportsArgsPost(ImieReportsArgsGet):
+    """Schema for Imei reports request"""
+
+    user_id = fields.String(required=True,
+                            description='User Id to fetch statistics from database',
+                            error_messages={'required': 'user id is required'},
+                            validate=validate.Length(min=1),
+                            missing=None)
+
+    request_type = fields.String(required=True,
+                                 description='Request Type to fetch report',
+                                 error_messages={'required': 'request type is required'},
+                                 validate=validate.OneOf([f.value for f in RequestTypes]),
+                                 missing=None)
+
+    request_id = fields.String(required=True,
+                               description='Request Id to get the report of database',
+                               error_messages={'required': 'request id is required'},
+                               validate=validate.Length(min=1),
+                               missing=None)
+
+    user_type = fields.String(required=True,
+                              description='User Type to fetch statistics from database',
+                              error_messages={'required': 'user type is required'},
+                              validate=validate.OneOf(['reviewer']),
+                              missing=None)
+
+    @property
+    def fields_dict(self):
+        """Convert declared fields to dictionary."""
+        return self._declared_fields

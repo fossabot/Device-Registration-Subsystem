@@ -24,6 +24,7 @@ from datetime import datetime
 
 from flask import Response, request
 from flask_restful import Resource
+from flask_babel import lazy_gettext as _
 from marshmallow import ValidationError
 
 from app import app, db
@@ -35,6 +36,7 @@ from app.api.v1.models.deregdocuments import DeRegDocuments
 from app.api.v1.models.status import Status
 from app.api.v1.schema.deregdocuments import DeRegDocumentsSchema
 from app.api.v1.schema.deregdocumentsupdate import DeRegDocumentsUpdateSchema
+from app.api.v1.models.notification import Notification
 
 
 class DeRegDocumentRoutes(Resource):
@@ -45,7 +47,7 @@ class DeRegDocumentRoutes(Resource):
         """GET method handler, returns documents."""
         no_error = dereg_id.isdigit() and DeRegDetails.exists(dereg_id)
         if not no_error:
-            return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             schema = DeRegDocumentsSchema()
@@ -54,13 +56,13 @@ class DeRegDocumentRoutes(Resource):
             return Response(json.dumps(documents), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             data = {
-                "message": "Error retrieving results. Please try later."
+                "message": [_("Error retrieving results. Please try later.")]
             }
 
-            return Response(json.dumps(data), status=CODES.get("BAD_REQUEST"),
+            return Response(app.json_encoder.encode(data), status=CODES.get("BAD_REQUEST"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         finally:
             db.session.close()
@@ -70,7 +72,7 @@ class DeRegDocumentRoutes(Resource):
         """POST method handler, creates documents."""
         dereg_id = request.form.to_dict().get('dereg_id', None)
         if not dereg_id or not dereg_id.isdigit() or not DeRegDetails.exists(dereg_id):
-            return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             schema = DeRegDocumentsSchema()
@@ -85,29 +87,29 @@ class DeRegDocumentRoutes(Resource):
 
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
             tracking_id = dereg_details.tracking_id
             created = DeRegDocuments.bulk_create(request.files, dereg_details, time)
             response = Utilities.store_files(request.files, tracking_id, time)
             if response:
-                return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             dereg_details.update_status('Pending Review')
             message = schema.dump(created, many=True).data
             db.session.commit()
             return Response(json.dumps(message), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'request document addition failed, check for valid formats.'
+                'message': _('request document addition failed, check for valid formats.')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -117,7 +119,7 @@ class DeRegDocumentRoutes(Resource):
         """PUT method handler, updates documents."""
         dereg_id = request.form.to_dict().get('dereg_id', None)
         if not dereg_id or not dereg_id.isdigit() or not DeRegDetails.exists(dereg_id):
-            return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             schema = DeRegDocumentsUpdateSchema()
@@ -131,7 +133,7 @@ class DeRegDocumentRoutes(Resource):
                 args.update({'dereg_details': ''})
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             tracking_id = dereg_details.tracking_id
             updated = DeRegDocuments.bulk_update(request.files, dereg_details, time)
@@ -141,21 +143,25 @@ class DeRegDocumentRoutes(Resource):
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             if dereg_details.status == Status.get_status_id('Information Requested'):
                 dereg_details.update_status('In Review')
+                message = 'The request {id} has been updated.'.format(id=dereg_details.id)
+                notification = Notification(dereg_details.reviewer_id, dereg_details.id,
+                                            'de_registration_request', dereg_details.status, message)
+                notification.add()
             else:
                 dereg_details.update_status('Pending Review')
             response = schema.dump(updated, many=True).data
             db.session.commit()
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': 'request document updation failed, please try again later.'
+                'message': _('request document updation failed, please try again later.')
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()

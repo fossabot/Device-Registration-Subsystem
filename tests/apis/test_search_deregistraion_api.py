@@ -1,7 +1,7 @@
 """
 module for search registration module api test
 
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
 
  All rights reserved.
 
@@ -65,7 +65,6 @@ def test_method_not_allowed(flask_app):
     assert rv.status_code == 405
     data = json.loads(rv.data.decode('utf-8'))
     assert data.get('message') == 'method not allowed'
-
 
 def test_valid_search_specs(flask_app, db):
     seed_database(db)
@@ -176,7 +175,7 @@ def test_search_invalid_parameters(flask_app):
             }
     }
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    assert rv.status_code == 404
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
 

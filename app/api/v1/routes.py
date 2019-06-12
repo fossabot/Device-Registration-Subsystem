@@ -1,6 +1,6 @@
 """
 DRS route package.
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
@@ -38,8 +38,7 @@ from app.api.v1.resources.health import HealthCheck
 from app.api.v1.resources.reviewer import AssignReviewer, ReviewSection, DeviceQuota, DeviceDescription, \
   IMEIRegistrationStatus, RequestDocuments, Sections, SubmitReview, IMEIClassification, UnAssignReviewer
 from app.common.apidoc import ApiDocs
-from app.api.v1.resources.reports import RegistrationReportRoutes
-from app.api.v1.resources.reports import DeRegistrationReportRoutes
+from app.api.v1.resources.reports import ImeiReport, GetDashBoardReports, SetImeiReportPermissions
 from app.api.v1.resources.regdetails import RegSectionRoutes
 from app.api.v1.resources.deregdetails import DeRegSectionRoutes
 from app.api.v1.resources.restart_process import RegistrationProcessRestart, DeRegistrationProcessRestart
@@ -53,7 +52,6 @@ api.add_resource(RegistrationRoutes, '/registration', '/registration/<reg_id>')
 api.add_resource(DeviceDetailsRoutes, '/registration/device/<reg_id>', '/registration/device')
 api.add_resource(RegDocumentRoutes, '/registration/documents/<reg_id>', '/registration/documents')
 api.add_resource(RegSectionRoutes, '/registration/sections/<reg_id>')
-api.add_resource(RegistrationReportRoutes, '/registration/report/<reg_id>')
 # api.add_resource(, '/registration/restart/<reg_id>')
 
 # de-registration routes
@@ -61,7 +59,6 @@ api.add_resource(DeRegistrationRoutes, '/deregistration', '/deregistration/<dere
 api.add_resource(DeRegDeviceRoutes, '/deregistration/devices/<dereg_id>', '/deregistration/devices')
 api.add_resource(DeRegDocumentRoutes, '/deregistration/documents/<dereg_id>', '/deregistration/documents')
 api.add_resource(DeRegSectionRoutes, '/deregistration/sections/<dereg_id>')
-api.add_resource(DeRegistrationReportRoutes, '/deregistration/report/<dereg_id>')
 
 # common routes
 # api.add_resource(RestartProcess, '/deregistration/restart/<request_id>', '/registration/restart/<request_id>')
@@ -93,6 +90,14 @@ api.add_resource(Notification, '/notification')
 
 # search
 api.add_resource(Search, '/search')
+
+# dashboard reports
+api.add_resource(GetDashBoardReports, '/dashboard/report')
+
+# imei-reports
+api.add_resource(ImeiReport, '/report/download')
+api.add_resource(SetImeiReportPermissions, '/report/permission')
+
 
 # healthcheck
 api.add_resource(HealthCheck, '/healthcheck')

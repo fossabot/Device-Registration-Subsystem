@@ -22,6 +22,7 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 from app import app
 import json
 from flask import request, Response
+from flask_babel import lazy_gettext as _
 from flask_restful import Resource
 from app.api.v1.helpers.search_registration import SearchRegistraion
 from app.api.v1.helpers.search_deregistration import SearchDeregistration

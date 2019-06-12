@@ -1,6 +1,6 @@
 """
 DRS Error Handler package.
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
@@ -21,10 +21,11 @@ Copyright (c) 2018 Qualcomm Technologies, Inc.
 """
 import json
 
+from flask_babel import lazy_gettext as _
 from marshmallow import fields, validate
 from flask import Response
 from app import app
-from app.api.v1.helpers.response import CODES, MESSAGES, MIME_TYPES
+from app.api.v1.helpers.response import CODES, MESSAGES, MIME_TYPES, RESPONSES
 
 
 # custom base 404 error handler
@@ -33,7 +34,7 @@ from app.api.v1.helpers.response import CODES, MESSAGES, MIME_TYPES
 def not_found_handler(error):
     """Custom error handler for 404."""
     data = {
-        'message': MESSAGES.get('RESOURCE_NOT_FOUND')
+        'message': MESSAGES.get(_('RESOURCE_NOT_FOUND'))
     }
 
     response = Response(json.dumps(data), status=CODES.get('NOT_FOUND'),
@@ -88,15 +89,61 @@ def get_error_desc(field, name, value):
 # flask-restful custom errors
 CustomErrors = {
     'MethodNotAllowed': {
-        'message': 'method not allowed',
+        'message': _('method not allowed'),
         'status': 405
     }
 }
 
-REG_NOT_FOUND_MSG = {'message': ['Registration Request not found.']}
-DEREG_NOT_FOUND_MSG = {'message': ['De-Registration Request not found.']}
-REPORT_NOT_FOUND_MSG = {'message': ['Report not found.']}
-DOC_NOT_FOUND_MSG = {'message': ['Document not found.']}
+key = "message"
+
+REG_NOT_FOUND_MSG = {key: [_('Registration Request not found.')]}
+DEREG_NOT_FOUND_MSG = {key: [_('De-Registration Request not found.')]}
+REPORT_NOT_FOUND_MSG = {key: [_('Report not found.')]}
+REPORT_NOT_ALLOWED_MSG = {key: [_('Report not allowed.')]}
+DOC_NOT_FOUND_MSG = {key: [_('Document not found.')]}
 
 ALLOWED_FORMATS = ['pdf', 'jpg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'svg']
 
+
+@app.errorhandler(RESPONSES.get('NOT_FOUND'))
+def not_found(error=None):
+    """handle app's 404 error."""
+    resp = Response(json.dumps({"message": MESSAGES.get('NOT_FOUND'), "status_code": RESPONSES.get('NOT_FOUND')}),
+                    status=RESPONSES.get('NOT_FOUND'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+@app.errorhandler(RESPONSES.get('BAD_REQUEST'))
+def bad_request(error=None):
+    """handle app's 400 error"""
+    resp = Response(json.dumps({"message": MESSAGES.get('BAD_REQUEST'), "status_code": RESPONSES.get('BAD_REQUEST')}),
+                    status=RESPONSES.get('BAD_REQUEST'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+@app.errorhandler(RESPONSES.get('INTERNAL_SERVER_ERROR'))
+def internal_error(error=None):
+    """handle app's 500 error"""
+    resp = Response(json.dumps({"message":MESSAGES.get('INTERNAL_SERVER_ERROR'), "status_code": RESPONSES.get('INTERNAL_SERVER_ERROR')}),
+                    status=RESPONSES.get('INTERNAL_SERVER_ERROR'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+@app.errorhandler(RESPONSES.get('METHOD_NOT_ALLOWED'))
+def method_not_allowed(error=None):
+    """handle app's 405 error"""
+    resp = Response(json.dumps({"message":MESSAGES.get('METHOD_NOT_ALLOWED'), "status_code": RESPONSES.get('METHOD_NOT_ALLOWED')}),
+                    status=RESPONSES.get('METHOD_NOT_ALLOWED'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+def custom_response(message, status, mimetype):
+    """handle custom errors"""
+    resp = Response(json.dumps({"message": message, "status_code": status}),
+                    status=status,
+                    mimetype=mimetype)
+    return resp

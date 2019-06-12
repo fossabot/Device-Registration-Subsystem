@@ -195,7 +195,6 @@ def dirbs_core(app):
         body=json.dumps(version_response),
         content_type='application/json'
     )
-
     yield
 
     # disable afterwards when not in use to avoid issues with the sockets
@@ -248,7 +247,6 @@ def dirbs_dvs(app):
         re.compile(r'{0}/bulkstatus/\d'.format(dirbs_dvs_api)),
         body=json.dumps(bulk_status_response),
         content_type='application/json')
-
     yield
 
     # disable afterwards when not in use to avoid issues with the sockets

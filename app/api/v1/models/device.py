@@ -1,6 +1,6 @@
 """
 DRS Registration Device Model package.
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
  limitations in the disclaimer below) provided that the following conditions are met:
@@ -46,7 +46,14 @@ class Device(db.Model):
         self.reg_device_id = reg_device_id
 
     @classmethod
-    def async_bulk_create(cls, reg_details, reg_device_id, app):
+    def create_index(cls, engine):
+        """ Create Indexes for Registration device table. """
+
+        # reg_tac = db.Index('reg_tac_index', cls.tac)
+        # reg_tac.create(bind=engine)
+
+    @classmethod
+    def async_bulk_create(cls, reg_details, reg_device_id, app):   # pragma: no cover
         """Create devices async."""
         with app.app_context():
             from app import db
@@ -125,7 +132,7 @@ class Device(db.Model):
             else:
                 reg_details.update_report_status('Failed')
                 db.session.commit()
-        except Exception:
+        except Exception:  # pragma: no cover
             reg_details.update_processing_status('Failed')
             db.session.commit()
 
@@ -144,7 +151,7 @@ class Device(db.Model):
                 thread.start()
             else:
                 cls.sync_bulk_create(reg_details, reg_device_id, app)
-        except Exception as e:
+        except Exception as e:   # pragma: no cover
             app.logger.exception(e)
             reg_details.update_processing_status('Failed')
             db.session.commit()

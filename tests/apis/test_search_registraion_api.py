@@ -1,7 +1,7 @@
 """
 module for search registration module api test
 
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+Copyright (c) 2019 Qualcomm Technologies, Inc.
 
  All rights reserved.
 
@@ -232,7 +232,7 @@ def test_search_invalid_parameters(flask_app):
             }
     }
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    assert rv.status_code == 404
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
 
@@ -240,7 +240,7 @@ def test_search_invalid_parameters(flask_app):
     body_data['search_specs']['group'] = "individual"
     body_data['search_specs']['user_id'] = '800'
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    assert rv.status_code == 404
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
 
@@ -248,7 +248,7 @@ def test_search_invalid_parameters(flask_app):
     body_data['search_specs']['group'] = "importer"
     body_data['search_specs']['user_id'] = '800'
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    assert rv.status_code == 404
+    assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
     assert data['requests'] == []

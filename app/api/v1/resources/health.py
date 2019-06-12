@@ -27,7 +27,8 @@ from flask import Response
 from flask_apispec import marshal_with, doc, MethodResource
 
 from app.api.v1.schema.health import HealthCheckSchema
-from app.common.health_checks import database_check, dirbs_core_check, dirbs_dvs_check
+
+from app.common.health_checks import database_check, dirbs_core_check
 
 
 class HealthCheck(MethodResource):
@@ -38,7 +39,7 @@ class HealthCheck(MethodResource):
     def get(self):
         """GET method handler."""
         data = []
-        for check in [database_check, dirbs_core_check, dirbs_dvs_check]:
+        for check in [database_check, dirbs_core_check]:
             check_result = check()
             data.append(check_result)
         response = {'results': data}

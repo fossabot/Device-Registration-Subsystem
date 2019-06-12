@@ -24,6 +24,7 @@ import uuid
 
 from flask import Response, request
 from flask_restful import Resource
+from flask_babel import lazy_gettext as _
 from marshmallow import ValidationError
 
 from app import app, db
@@ -38,6 +39,7 @@ from app.api.v1.schema.deregdetails import DeRegDetailsSchema
 from app.api.v1.schema.deregdetailsupdate import DeRegDetailsUpdateSchema
 from app.api.v1.schema.deregdevice import DeRegDeviceSchema
 from app.api.v1.schema.deregdocuments import DeRegDocumentsSchema
+from app.api.v1.models.notification import Notification
 
 
 class DeRegistrationRoutes(Resource):
@@ -55,19 +57,19 @@ class DeRegistrationRoutes(Resource):
                     response = DeRegDetails.get_by_id(dereg_id)
                     response = schema.dump(response).data
                 else:
-                    response = DEREG_NOT_FOUND_MSG
+                    response = app.json_encoder.encode(DEREG_NOT_FOUND_MSG)
 
             else:
                 response = DeRegDetails.get_all()
                 response = schema.dump(response, many=True).data
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             error = {
-                'message': ['Failed to retrieve response, please try later']
+                'message': [_('Failed to retrieve response, please try later')]
             }
-            return Response(json.dumps(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -84,7 +86,7 @@ class DeRegistrationRoutes(Resource):
             file = request.files.get('file')
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             response = Utilities.store_file(file, tracking_id)
             if response:
@@ -102,18 +104,18 @@ class DeRegistrationRoutes(Resource):
                 return Response(json.dumps(response), status=CODES.get("OK"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             else:
-                return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             Utilities.remove_directory(tracking_id)
             app.logger.exception(e)
 
             data = {
-                'message': ['Registration request failed, check upload path or database connection']
+                'message': [_('Registration request failed, check upload path or database connection')]
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -129,7 +131,7 @@ class DeRegistrationRoutes(Resource):
             if dereg_id and dereg_id.isdigit() and DeRegDetails.exists(dereg_id):
                 dreg_details = DeRegDetails.get_by_id(dereg_id)
             else:
-                return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("OK"),
+                return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             args = DeRegDetails.curate_args(request)
             file = request.files.get('file')
@@ -139,12 +141,12 @@ class DeRegistrationRoutes(Resource):
                              'report_status': dreg_details.report_status})
             validation_errors = schema.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(validation_errors), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             if args.get('close_request', None) == 'True':
                 response = DeRegDetails.close(dreg_details)
                 if isinstance(response, dict):
-                    return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                    return Response(app.json_encoder.encode(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
                 else:
                     response = schema.dump(response, many=False).data
@@ -174,22 +176,22 @@ class DeRegistrationRoutes(Resource):
                     return Response(json.dumps(response), status=CODES.get("OK"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
                 else:
-                    return Response(json.dumps(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                    return Response(app.json_encoder.encode(response), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                     mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             else:
                 response = DeRegDetails.update(args, dreg_details, file=False)
                 response = schema.dump(response, many=False).data
                 return Response(json.dumps(response), status=CODES.get("OK"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             db.session.rollback()
             app.logger.exception(e)
 
             data = {
-                'message': ['Registration request failed, check upload path or database connection']
+                'message': [_('Registration request failed, check upload path or database connection')]
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -203,7 +205,7 @@ class DeRegSectionRoutes(Resource):
         """GET method handler, to return all section of a request."""
         try:
             if not dereg_id.isdigit() or not DeRegDetails.exists(dereg_id):
-                return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+                return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
 
             dereg_details = DeRegDetails.get_by_id(dereg_id)
@@ -226,14 +228,14 @@ class DeRegSectionRoutes(Resource):
 
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
 
             data = {
-                'message': ['De-Registration request failed, check upload path or database connection']
+                'message': [_('De-Registration request failed, check upload path or database connection')]
             }
 
-            return Response(json.dumps(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(data), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()

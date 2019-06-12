@@ -24,6 +24,7 @@ import json
 from flask import Response, request
 from flask_restful import Resource
 from marshmallow import ValidationError
+from flask_babel import lazy_gettext as _
 
 from app import app, db
 from app.api.v1.helpers.error_handlers import DEREG_NOT_FOUND_MSG
@@ -42,7 +43,7 @@ class DeRegDeviceRoutes(Resource):
     def get(dereg_id):
         """GET method handler, returns device of a request."""
         if not dereg_id.isdigit() or not DeRegDetails.exists(dereg_id):
-            return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             schema = DeRegDeviceSchema()
@@ -50,12 +51,12 @@ class DeRegDeviceRoutes(Resource):
             response = schema.dump(dereg_devices, many=True).data
             return Response(json.dumps(response), status=CODES.get("OK"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             error = {
-                'message': ['Failed to retrieve response, please try later']
+                'message': [_('Failed to retrieve response, please try later')]
             }
-            return Response(json.dumps(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -65,7 +66,7 @@ class DeRegDeviceRoutes(Resource):
         """POST method handler, creates new devices for request."""
         dereg_id = request.form.to_dict().get('dereg_id', None)
         if not dereg_id or not dereg_id.isdigit() or not DeRegDetails.exists(dereg_id):
-            return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             schema_request = DeRegRequestSchema()
@@ -75,7 +76,7 @@ class DeRegDeviceRoutes(Resource):
             args = DeRegDevice.curate_args(args, dereg)
             validation_errors = schema_request.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors),
+                return Response(app.json_encoder.encode(validation_errors),
                                 status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             imei_tac_map = Utilities.extract_imeis_tac_map(args, dereg)
@@ -99,12 +100,12 @@ class DeRegDeviceRoutes(Resource):
                 response = {'devices': devices.data, 'dreg_id': dereg.id}
                 return Response(json.dumps(response), status=CODES.get("OK"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             error = {
-                'message': ['Failed to retrieve response, please try later']
+                'message': [_('Failed to retrieve response, please try later')]
             }
-            return Response(json.dumps(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()
@@ -114,7 +115,7 @@ class DeRegDeviceRoutes(Resource):
         """PUT method handler, updates devices of the request."""
         dereg_id = request.form.to_dict().get('dereg_id', None)
         if not dereg_id or not dereg_id.isdigit() or not DeRegDetails.exists(dereg_id):
-            return Response(json.dumps(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
+            return Response(app.json_encoder.encode(DEREG_NOT_FOUND_MSG), status=CODES.get("UNPROCESSABLE_ENTITY"),
                             mimetype=MIME_TYPES.get("APPLICATION_JSON"))
         try:
             schema_request = DeRegRequestUpdateSchema()
@@ -124,7 +125,7 @@ class DeRegDeviceRoutes(Resource):
             args = DeRegDevice.curate_args(args, dereg)
             validation_errors = schema_request.validate(args)
             if validation_errors:
-                return Response(json.dumps(validation_errors),
+                return Response(app.json_encoder.encode(validation_errors),
                                 status=CODES.get("UNPROCESSABLE_ENTITY"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
             imei_tac_map = Utilities.extract_imeis_tac_map(args, dereg)
@@ -156,12 +157,12 @@ class DeRegDeviceRoutes(Resource):
                     response = {'devices': [], 'dreg_id': dereg.id}
                 return Response(json.dumps(response), status=CODES.get("OK"),
                                 mimetype=MIME_TYPES.get("APPLICATION_JSON"))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             app.logger.exception(e)
             error = {
-                'message': ['Failed to retrieve response, please try later']
+                'message': [_('Failed to retrieve response, please try later')]
             }
-            return Response(json.dumps(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
+            return Response(app.json_encoder.encode(error), status=CODES.get('INTERNAL_SERVER_ERROR'),
                             mimetype=MIME_TYPES.get('APPLICATION_JSON'))
         finally:
             db.session.close()

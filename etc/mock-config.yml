@@ -62,12 +62,19 @@ global:
   #URLS
   core_api_v1: 'CORE_VERSION_ONE_API'
   core_api_v2: 'CORE_VERSION_TWO_API'
-  dvs_api_v1: 'DVS_VERSION_ONE_API'
+
 
   #Directories
   dereg_sample_file: './deregistration/dereg_sample_file'
   reg_sample_file: './registration/reg_sample_file.tsv'
   upload_directory: 'UPLOAD_DIRECTORY'
+
+  #languages support
+  supported_languages:
+    - es
+    - en
+    - id
+  default_language: en
 
 # DRS configurations for list generations
 # Configurations should be defined when deploying the software.
@@ -109,3 +116,25 @@ server:
   # it will help in preventing MITM attacks.
   # value should be either "True" or "False"
   restrict_https: True
+
+# celery configurations
+celery:
+
+  RabbitmqUrl: 'pyamqp://'
+  RabbitmqBackend: 'amqp://'
+
+  RedisUrl: 'redis://'
+  RedisBackend: 'redis://'
+
+  RpcUrl: 'rpc://'
+  RpcBackend: 'rpc://'
+
+  CeleryTasks: ['app.api.v1.reports_generator']
+
+conditions:
+
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'
+
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'

@@ -26,6 +26,7 @@ import datetime
 from flask import Response
 from sqlalchemy.exc import SQLAlchemyError
 from flask_apispec import marshal_with, doc, MethodResource, use_kwargs
+from flask_babel import lazy_gettext as _
 
 from app import app, GLOBAL_CONF
 from app.api.v1.models.regdetails import RegDetails
@@ -83,8 +84,8 @@ class AssignReviewer(MethodResource):
                         return Response(json.dumps(ErrorResponse().dump(res).data),
                                         status=400, mimetype='application/json')
                 else:
-                    res = {'error': ['incomplete request {id} can not be assigned/reviewed'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
+                    res = {'error': [_('incomplete request %(id)s can not be assigned/reviewed', id=request_id)]}
+                    return Response(app.json_encoder.encode(res),
                                     status=400, mimetype='application/json')
             else:
                 res = {'error': ['request {id} does not exists'.format(id=request_id)]}
@@ -106,8 +107,8 @@ class AssignReviewer(MethodResource):
                         return Response(json.dumps(ErrorResponse().dump(res).data),
                                         status=400, mimetype='application/json')
                 else:
-                    res = {'error': ['incomplete request {id} can not be assigned/reviewed'.format(id=request_id)]}
-                    return Response(json.dumps(ErrorResponse().dump(res).data),
+                    res = {'error': [_('incomplete request %(id)s can not be assigned/reviewed', id=request_id)]}
+                    return Response(app.json_encoder.encode(res),
                                     status=400, mimetype='application/json')
             else:
                 res = {'error': ['request {id} does not exists'.format(id=request_id)]}
@@ -212,6 +213,13 @@ class ReviewSection(MethodResource):
                 request = RegDetails.get_by_id(request_id)
                 if request.status == 4:
                     if request.reviewer_id == reviewer_id:
+                        if request.report_status != 10:
+                            res = {
+                                'error': [_('request must be processed before reviewed.')]
+                            }
+
+                            return Response(app.json_encoder.encode(res),
+                                            status=422, mimetype='application/json')
                         RegDetails.add_comment(review_section,
                                                comment,
                                                reviewer_id,
@@ -235,6 +243,13 @@ class ReviewSection(MethodResource):
                 request = DeRegDetails.get_by_id(request_id)
                 if request.status == 4:
                     if request.reviewer_id == reviewer_id:
+                        if request.report_status != 10:
+                            res = {
+                                'error': [_('request must be processed before reviewed.')]
+                            }
+
+                            return Response(app.json_encoder.encode(res),
+                                            status=422, mimetype='application/json')
                         DeRegDetails.add_comment(review_section,
                                                  comment,
                                                  reviewer_id,
@@ -647,8 +662,15 @@ class SubmitReview(MethodResource):
             if ApprovedImeis.exists(imei):
                 imei_ = ApprovedImeis.get_imei(imei)
                 imei_.status = imei_status
-                imei_.delta_status = imei_delta_status
-                updated_imeis.append(imei_)
+
+                # fix: DDRS-286
+                # if an imei was in pending and exported to core then update the status
+                # else keep the delta status as add because if an imei was not exported at
+                # first and is now going in the list then core import will throw an error
+                # of not existence
+                if imei.exported:
+                    imei_.delta_status = imei_delta_status
+                    updated_imeis.append(imei_)
         ApprovedImeis.bulk_insert_imeis(updated_imeis)
 
     def __change_rejected_imeis_status(self, imeis):
@@ -660,9 +682,10 @@ class SubmitReview(MethodResource):
             if (provisional_imei.status == 'pending' or not provisional_imei.status == 'removed') and (
                     provisional_imei.exported_at is None or time_now > provisional_imei.exported_at):
                 if provisional_imei.status != 'whitelist':
-                    provisional_imei.delta_status = 'remove'
-                    provisional_imei.status = 'removed'
-                    changed_imeis.append(provisional_imei)
+                    if provisional_imei.exported:
+                        provisional_imei.delta_status = 'remove'
+                        provisional_imei.status = 'removed'
+                        changed_imeis.append(provisional_imei)
         ApprovedImeis.bulk_insert_imeis(changed_imeis)
 
     @doc(description='Submit a request after final review', tags=['Reviewers'])
@@ -734,9 +757,9 @@ class SubmitReview(MethodResource):
                             duplicated_imeis = RegDetails.get_duplicate_imeis(request)
                             if duplicated_imeis:
                                 res = {'error': [
-                                    'unable to approve case {id}, duplicated imeis found'.format(id=request_id)
+                                    _('unable to approve case %(id)s, duplicated imeis found', id=request_id)
                                 ]}
-                                return Response(json.dumps(ErrorResponse().dump(res).data),
+                                return Response(app.json_encoder.encode(res),
                                                 status=400, mimetype='application/json')
 
                             # else if not duplicated continue
@@ -873,7 +896,7 @@ class SubmitReview(MethodResource):
                                                 status=201, mimetype='application/json')
                             elif return_status is False and invalid_imeis:
                                 res = {
-                                    'error': 'Unable to approve, invalid imeis found'
+                                    'error': _('Unable to approve, invalid imeis found')
                                 }
                                 return Response(json.dumps(ErrorResponse().dump(res).data),
                                                 status=400, mimetype='application/json')
@@ -951,7 +974,6 @@ class IMEIClassification(MethodResource):
         if request_type == RequestTypes.REG_REQUEST.value:
             if RegDetails.exists(request_id):
                 request = RegDetails.get_by_id(request_id)
-
                 if request.summary is not None:
                     summary = json.loads(request.summary).get('summary')
                     res = {
@@ -972,6 +994,9 @@ class IMEIClassification(MethodResource):
                     }
                     return Response(json.dumps(IMEIClassificationSchema().dump(res).data),
                                     status=200, mimetype='application/json')
+                else:
+                    res = {}
+                    return Response(json.dumps(res), status=200, mimetype='application/json')
             else:
                 res = {'error': ['request {id} does not exists'.format(id=request_id)]}
                 return Response(json.dumps(ErrorResponse().dump(res).data),
@@ -1000,6 +1025,9 @@ class IMEIClassification(MethodResource):
                     }
                     return Response(json.dumps(IMEIClassificationSchema().dump(res).data),
                                     status=200, mimetype='application/json')
+                else:
+                    res = {}
+                    return Response(json.dumps(res), status=200, mimetype='application/json')
             else:
                 res = {'error': ['request {id} does not exists'.format(id=request_id)]}
                 return Response(json.dumps(ErrorResponse().dump(res).data),

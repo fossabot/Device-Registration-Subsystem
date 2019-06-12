@@ -27,6 +27,7 @@ from app.api.v1.helpers.validators import *
 from app.api.v1.models.regdetails import RegDetails
 from app.api.v1.models.devicequota import DeviceQuota
 from app.api.v1.models.status import Status
+from flask_babel import lazy_gettext as _
 
 
 class RegistrationDetailsUpdateSchema(Schema):
@@ -90,16 +91,16 @@ class RegistrationDetailsUpdateSchema(Schema):
 
         if 'close_request' in data:
             if status == 'Closed':
-                raise ValidationError('The request status is already Closed'.format(status),
+                raise ValidationError(_('The request status is already Closed'),
                                       field_names=['message'])
             elif status in self.closed_restricted:
-                raise ValidationError('The request status is {0}, which cannot be Closed'.format(status),
+                raise ValidationError(_('The request status is %(status)s, which cannot be Closed', status=_(status)),
                                       field_names=['message'])
         elif processing_status == 'Processing' or report_status == 'Processing':
-            raise ValidationError('The request is in Progress, which cannot be updated',
+            raise ValidationError(_('The request is in Progress, which cannot be updated'),
                                   field_names=['status'])
         elif status in self.update_restricted:
-            raise ValidationError('The request status is {0}, which cannot be updated'.format(status),
+            raise ValidationError(_('The request status is %(status)s, which cannot be updated', status=_(status)),
                                   field_names=['status'])
 
 
@@ -144,7 +145,7 @@ class RegistrationDetailsUpdateSchema(Schema):
             elif not isinstance(data['imeis'][0], list):
                 raise ValidationError('Invalid format for IMEIs Input', field_names=['imeis'])
             elif len(imeis) != len(list(set(imeis))):
-                raise ValidationError('Duplicate IMEIs in request', field_names=['imeis'])
+                raise ValidationError(_('Duplicate IMEIs in request'), field_names=['imeis'])
             elif 'device_count' in data and data['device_count'].isdigit():
                 if int(data['device_count']) > 10:
                     raise ValidationError('Only 10 device are allowed in case of webpage input',
