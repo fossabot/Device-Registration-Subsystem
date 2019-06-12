@@ -19,18 +19,7 @@ NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS 
 Device Registration Sub-System is a part of the Device Identification, Registration and Blocking (DIRBS) System.
 It is used to comply type approval of imported/exported devices.
 
-### Documentation
-[DRS-API-Installation-Guide-1.0.0](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-API-Installation-Guide-1.0.0.pdf)
-
-[DRS-SPA-Installation-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-SPA-Installation-Guide-1.0.0.pdf)
-
-[DRS-Importer-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-Importer-User-Guide-1.0.0.pdf)
-
-[DRS-Exporter-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-Exporter-User-Guide-1.0.0.pdf)
-
-[DRS-Authority-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-Authority-User-Guide-1.0.0.pdf)
-
-### Frontend Application Repo
+#### Frontend Application Repo
 https://github.com/dirbs/Device-Registration-Subsystem-Frontend
 
 ### Directory structure
@@ -46,10 +35,7 @@ This repository contains code for **DRS** part of the **DIRBS**. It contains
 ### Starting Dev Environment
 _Make sure you have installed [docker](https://docs.docker.com/install/) and 
 [docker-compose](https://docs.docker.com/compose/install/).
-
-To install dev environment without docker follow [here](doc/DEVENV_SETUP.md).
-To install production environment container follow [here](doc/PRDENV_SETUP.md)._
-
+To install dev environment without docker follow [here](doc/DEVENV_SETUP.md)._
 - Clone the repository
 - Create a `drs` user with UID `9001` and change the ownership of the repo:
     ```bash
@@ -100,13 +86,15 @@ To install production environment container follow [here](doc/PRDENV_SETUP.md)._
 
 ---
 
-### Bumping version number
+
+#### Bumping version number
 We follow [Semantic Versioning](http://semver.org/) for DRS.
 To change the releases number simply edit ```app/metadata.py``` and bump the version number.
 
 ---
 
-### Other Helpful Commands
+#### Other Helpful Commands
+
 To clean the extra and un-necessary directories in the project:
 ```bash
 make clean

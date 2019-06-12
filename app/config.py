@@ -81,6 +81,7 @@ class ConfigApp:
         conditions = self.config.get('conditions')
 
         self.app.config['DRS_UPLOADS'] = global_config.get('upload_directory')  # file upload dir
+        self.app.config['MAX_WORKERS'] = lists_config.get('max_workers')
         self.app.config['DRS_LISTS'] = lists_config.get('path')  # lists dir
         self.app.config['STRICT_HTTPS'] = self.config.get('server')['restrict_https']
         self.app.config['CORE_BASE_URL'] = global_config.get('core_api_v2')

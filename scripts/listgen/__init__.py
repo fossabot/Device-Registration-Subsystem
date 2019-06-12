@@ -63,7 +63,8 @@ class ListGenerator(Command):
     @property
     def _csv_file_name(self):
         """Property Method to return csv file name."""
-        return '{0}_registration_list_{1}.csv'.format(self.list_type, self.current_time_stamp)
+        return '{0}_registration_list_{1}.csv'.format(self.list_type,
+                                                      self.current_time_stamp.strftime('%Y_%m_%d_%H_%M_%S_%f'))
 
     def _get_details_query(self, request_id):
         """Property Method to return appropriate query for imei make, model, brand etc information."""
@@ -151,33 +152,37 @@ class ListGenerator(Command):
 
         self.logger.info('calculating imeis for {0} registration list'.format(param))
         imei_records = ApprovedImeis.imei_to_export()
-        self.logger.info('{0} imei records to analyze for export'.format(len(imei_records)))
-        max_workers = app.config['DRS_CONFIG']['lists']['max_workers']
-        self.logger.info('using {0} thread workers for calculation'.format(max_workers))
-        self.logger.info('spliting imeis into {0} batches'.format(max_workers))
-        imei_records = numpy.array_split(imei_records, max_workers)
-        self.logger.info('splited imeis into {0} batches'.format(len(imei_records)))
+        if imei_records:
+            self.logger.info('{0} imei records to analyze for export'.format(len(imei_records)))
+            max_workers = app.config['MAX_WORKERS']
+            self.logger.info('using {0} thread workers for calculation'.format(max_workers))
+            self.logger.info('spliting imeis into {0} batches'.format(max_workers))
+            imei_records = numpy.array_split(imei_records, max_workers)
+            self.logger.info('splited imeis into {0} batches'.format(len(imei_records)))
 
-        input_queue = Queue()
-        output_queue = Queue()
+            input_queue = Queue()
+            output_queue = Queue()
 
-        for worker in range(max_workers):  # pylint: disable=unused-variable
-            imei_worker = IMEIWorker(in_queue=input_queue, out_queue=output_queue)
-            imei_worker.daemon = True
-            imei_worker.start()
+            for worker in range(max_workers):  # pylint: disable=unused-variable
+                imei_worker = IMEIWorker(in_queue=input_queue, out_queue=output_queue)
+                imei_worker.daemon = True
+                imei_worker.start()
 
-        for imei_record in imei_records:
-            input_queue.put((imei_record, param))
+            for imei_record in imei_records:
+                input_queue.put((imei_record, param))
 
-        input_queue.join()
-        for i in range(max_workers):  # pylint: disable=unused-variable
-            rec_update, rec_export = output_queue.get()
-            if not rec_update:
-                recs_to_update.extend(rec_update)
-            if not rec_export:
-                recs_to_export.extend(rec_export)
-        ApprovedImeis.bulk_insert_imeis(recs_to_update)
-        return recs_to_export
+            input_queue.join()
+            for i in range(max_workers):  # pylint: disable=unused-variable
+                rec_update, rec_export = output_queue.get()
+                if rec_update:
+                    recs_to_update.extend(rec_update)
+                if rec_export:
+                    recs_to_export.extend(rec_export)
+            ApprovedImeis.bulk_insert_imeis(recs_to_update)
+            return recs_to_export
+        else:
+            self.logger.info('no records founds to export, exiting...')
+            sys.exit(0)
 
     # noinspection PyMethodOverriding
     def run(self, param):  # pylint: disable=method-hidden,arguments-differ,

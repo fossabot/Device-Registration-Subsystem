@@ -662,8 +662,15 @@ class SubmitReview(MethodResource):
             if ApprovedImeis.exists(imei):
                 imei_ = ApprovedImeis.get_imei(imei)
                 imei_.status = imei_status
-                imei_.delta_status = imei_delta_status
-                updated_imeis.append(imei_)
+
+                # fix: DDRS-286
+                # if an imei was in pending and exported to core then update the status
+                # else keep the delta status as add because if an imei was not exported at
+                # first and is now going in the list then core import will throw an error
+                # of not existence
+                if imei.exported:
+                    imei_.delta_status = imei_delta_status
+                    updated_imeis.append(imei_)
         ApprovedImeis.bulk_insert_imeis(updated_imeis)
 
     def __change_rejected_imeis_status(self, imeis):
@@ -675,9 +682,10 @@ class SubmitReview(MethodResource):
             if (provisional_imei.status == 'pending' or not provisional_imei.status == 'removed') and (
                     provisional_imei.exported_at is None or time_now > provisional_imei.exported_at):
                 if provisional_imei.status != 'whitelist':
-                    provisional_imei.delta_status = 'remove'
-                    provisional_imei.status = 'removed'
-                    changed_imeis.append(provisional_imei)
+                    if provisional_imei.exported:
+                        provisional_imei.delta_status = 'remove'
+                        provisional_imei.status = 'removed'
+                        changed_imeis.append(provisional_imei)
         ApprovedImeis.bulk_insert_imeis(changed_imeis)
 
     @doc(description='Submit a request after final review', tags=['Reviewers'])
