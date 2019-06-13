@@ -363,8 +363,8 @@ def test_registration_request_rejected_section(flask_app, db):  # pylint: disabl
     assert response['message'] == 'case {0} updated successfully'.format(request_id)
     assert response['request_type'] == 'registration_request'
     imei = ApprovedImeis.get_imei('23010403010533')
-    assert imei.status == 'removed'
-    assert imei.delta_status == 'remove'
+    assert imei.status == 'pending'
+    assert imei.delta_status == 'add'
     assert Notification.exist_users('assign-rev23442342-user-1')
 
 
@@ -481,7 +481,7 @@ def test_registration_request_approval(flask_app, db):  # pylint: disable=unused
     assert data['request_type'] == 'registration_request'
     imei = ApprovedImeis.get_imei('94310813016000')
     assert imei.status == 'whitelist'
-    assert imei.delta_status == 'update'
+    assert imei.delta_status == 'add'
     assert Notification.exist_users(user_id)
     assert DeviceQuota.get(user_id).reg_quota == user_reg_quota - 1
 

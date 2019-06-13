@@ -40,6 +40,7 @@ def test_restart_process_closed_request(flask_app, db):  # pylint: disable=unuse
 
     assert rv.status_code == 200
     data = json.loads(rv.data.decode('utf-8'))
+    data = json.loads(data)
     assert data['message'] == 'This request cannot be processed'
 
 

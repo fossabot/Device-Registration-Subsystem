@@ -666,7 +666,7 @@ class SubmitReview(MethodResource):
                 # else keep the delta status as add because if an imei was not exported at
                 # first and is now going in the list then core import will throw an error
                 # of not existence
-                if imei.exported:
+                if imei_.exported:
                     imei_.delta_status = imei_delta_status
                     updated_imeis.append(imei_)
         ApprovedImeis.bulk_insert_imeis(updated_imeis)

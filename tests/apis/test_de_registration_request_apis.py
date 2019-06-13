@@ -74,8 +74,10 @@ def test_invalid_request_get(flask_app, app, db, dirbs_core):  # pylint: disable
 
     rv = flask_app.get("{0}/{1}".format(DEVICE_DE_REGISTRATION_REQ_API, 'abcd'))
     data = json.loads(rv.data.decode('utf-8'))
+    data = json.loads(data)
+    print(data)
     assert rv.status_code == 200
-    assert data['message'][0] == 'De-Registration Request not found.'
+    assert data['message'] == ['De-Registration Request not found.']
 
 
 def test_request(flask_app, app, db, dirbs_core):  # pylint: disable=unused-argument
