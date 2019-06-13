@@ -164,7 +164,7 @@ def test_search_invalid_parameters(flask_app):
             }
     }
     rv = flask_app.post(SEARCH_API, data=json.dumps(body_data), headers=headers)
-    assert rv.status_code == 200
+    assert rv.status_code == 404
     data = json.loads(rv.data.decode('utf-8'))
     assert data['message'] == "Not Found"
 
