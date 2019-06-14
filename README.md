@@ -31,7 +31,7 @@ Device Registration Sub-System is a part of the Device Identification, Registrat
 It is used to comply type approval of imported/exported devices.
 
 ### Documentation
-[DRS-API-Installation-Guide-1.0.0](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-API-Installation-Guide-1.0.0.pdf)
+[DRS-API-Installation-Guide-1.0.0](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-API-Installation-Guide-2.0.0.pdf)
 
 [DRS-SPA-Installation-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Registration-Subsystem/DRS-SPA-Installation-Guide-1.0.0.pdf)
 
