@@ -1,4 +1,3 @@
-
 SPDX-License-Identifier: BSD-4-Clause-Clear
 
 Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
@@ -27,6 +26,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## DRS-Device Registration Subsystem
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FCACF%2FDevice-Registration-Subsystem.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FCACF%2FDevice-Registration-Subsystem?ref=badge_shield)
+
 Device Registration Sub-System is a part of the Device Identification, Registration and Blocking (DIRBS) System.
 It is used to comply type approval of imported/exported devices.
 
@@ -179,3 +180,6 @@ Start celery worker
 ```bash
 $ celery -A app.celery worker --loglevel=info -B
 ```
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FCACF%2FDevice-Registration-Subsystem.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FCACF%2FDevice-Registration-Subsystem?ref=badge_large)
